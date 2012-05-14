@@ -1,0 +1,31 @@
+{
+    "_type" : "shell",
+    "_style" : "{shell_trim}",
+    "layout" : {
+        "_type" : "gridLayout",
+        "numColumns" : 1
+    },
+    "text" : "[mainForm.title]",
+    "size" : "500,250",
+    "_children" : [
+        {
+            "_type" : "styledText",
+            "_style" : "{multi}|{wrap}|{border}|{h_scroll}|{v_scroll}",
+            "_name" : "editor",
+            "layoutData" : {
+                "_type" : "[gridData](fill,fill,true,true)"
+            },
+            "font" : {
+                "name" : "Courier New",
+                "height" : 10
+            },
+            "_children" : [
+                {
+                    "_type" : "dropTarget",
+                    "_style" : "{dnd.drop_default}|{dnd.drop_copy}|{dnd.drop_link}|{dnd.drop_move}",
+                    "_name" : "editorDropTarget"
+                }
+            ]
+        }
+    ]
+}
