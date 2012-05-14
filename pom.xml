@@ -4,7 +4,7 @@
     <groupId>net.milanaleksic</groupId>
     <artifactId>swt-gui-transformer</artifactId>
     <name>SWT GUI Transformer</name>
-    <version>0.1.5</version>
+    <version>0.1.6-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <description>SWT GUI Transformer toolkit for building interfaces in SWT interactively</description>
@@ -32,7 +32,7 @@
     <scm>
         <connection>scm:git:file:///M:\SourceCode\workspaces\GanymedeWorkspace\swt-gui-transformer</connection>
         <developerConnection>scm:git:file:///M:\SourceCode\workspaces\GanymedeWorkspace\swt-gui-transformer</developerConnection>
-      <tag>swt-gui-transformer-0.1.5</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <properties>
