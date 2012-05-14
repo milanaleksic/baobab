@@ -1,0 +1,44 @@
+{
+    "_type" : "shell",
+    "layout" : {
+        "_type" : "gridLayout",
+        "numColumns" : 2
+    },
+    "text" : "[delete.deleteAMovie]",
+    "size" : "431,154",
+    "_children" : [
+        {
+            "_type" : "canvas",
+            "_name" : "canvas",
+            "layoutData" : {
+                "_type" : "gridData",
+                "verticalSpan" : 2,
+                "heightHint" : 64,
+                "widthHint" : 64
+            },
+            "background":"color_widget_background"
+        },
+        {
+            "_type" : "label",
+            "layoutData" : {
+                "_type" : "[gridData](center,begin,true,false)",
+                "grabExcessHorizontalSpace" : true
+            },
+            "font" : {
+                "style" : "bold",
+                "height" : 12
+            },
+            "text" : "[delete.doYouReallyWishToDeleteMovie]",
+            "foreground" : "#ff0000"
+        },
+        {
+            "_type" : "label",
+            "_style" : "{wrap}|{shadow_out}|{horizontal}|{center}",
+            "_name" : "labFilmNaziv",
+            "layoutData" : "[gridData](center,begin,true,false)"
+        },
+        {
+            "_type" : "label"
+        }
+    ]
+}
