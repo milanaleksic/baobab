@@ -1,0 +1,26 @@
+{
+    "_type" : "shell",
+    "_style" : "{shell_trim}",
+    "_name" : "shell",
+    "layout" : {
+        "_type" : "gridLayout",
+        "numColumns" : 1
+    },
+    "text" : "[mainForm.title]",
+    "size" : "700,350",
+    "_children" : [
+        {
+            "_type" : "text",
+            "_style" : "{multi}|{wrap}|{border}|{v_scroll}",
+            "_name" : "text",
+            "background" : "color_widget_background",
+            "layoutData" : {
+                "_type" : "[gridData](fill,fill,true,true)"
+            },
+            "font" : {
+                "name" : "Courier New",
+                "height" : 9
+            }
+        }
+    ]
+}

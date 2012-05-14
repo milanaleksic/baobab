@@ -57,6 +57,10 @@ public class Transformer {
         this.mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
     }
 
+    public TransformationContext createNonManagedForm(String definition) throws TransformerException {
+        return transformFromContent(definition);
+    }
+
     public TransformationContext fillManagedForm(Object formObject) throws TransformerException {
         return this.fillManagedForm(null, formObject);
     }
@@ -65,7 +69,7 @@ public class Transformer {
         String thisClassNameAsResourceLocation = formObject.getClass().getCanonicalName().replaceAll("\\.", "/");
         String formName = "/" + thisClassNameAsResourceLocation + ".gui"; //NON-NLS
 
-        TransformationContext transformationContext = fillForm(parent, formName);
+        TransformationContext transformationContext = transformFromResourceName(parent, formName);
         embedComponents(formObject, transformationContext);
         embedEvents(formObject, transformationContext);
         return transformationContext;
@@ -136,12 +140,11 @@ public class Transformer {
     }
 
     TransformationContext createFormFromResource(String fullName) throws TransformerException {
-        return fillForm(null, fullName);
+        return transformFromResourceName(null, fullName);
     }
 
-    private TransformationContext fillForm(@Nullable Shell parent, String fullName) throws TransformerException {
+    private TransformationContext transformFromResourceName(@Nullable Shell parent, String fullName) throws TransformerException {
         Map<String, Object> mappedObjects = Maps.newHashMap();
-
         mappedObjects.put("bundle", resourceBundleProvider.getResourceBundle()); //NON-NLS
         InputStream resourceAsStream = null;
         try {
@@ -156,6 +159,19 @@ public class Transformer {
                 if (resourceAsStream != null) resourceAsStream.close();
             } catch (Exception ignored) {
             }
+        }
+    }
+
+    private TransformationContext transformFromContent(String content) throws TransformerException {
+        Map<String, Object> mappedObjects = Maps.newHashMap();
+        mappedObjects.put("bundle", resourceBundleProvider.getResourceBundle()); //NON-NLS
+        final JsonNode shellDefinition;
+        try {
+            shellDefinition = mapper.readValue(content, JsonNode.class);
+            Object shellObject = createObject(null, shellDefinition, mappedObjects);
+            return new TransformationContext((Shell) shellObject, mappedObjects);
+        } catch (IOException e) {
+            throw new TransformerException("IO Error while trying to parse content: " + content, e);
         }
     }
 
@@ -254,30 +270,13 @@ public class Transformer {
         return "set" + fieldName.substring(0, 1).toUpperCase(Locale.getDefault()) + fieldName.substring(1); //NON-NLS
     }
 
-    private Object createObject(Object parent, JsonNode objectDefinition, Map<String, Object> mappedObjects) throws TransformerException {
+    private Object createObject(@Nullable Object parent, JsonNode objectDefinition, Map<String, Object> mappedObjects) throws TransformerException {
         try {
             if (!objectDefinition.has(KEY_SPECIAL_TYPE))
                 throw new IllegalArgumentException("Could not deduce the child type without explicit definition: " + objectDefinition);
             Class<?> widgetClass = objectConverter.deduceClassFromNode(objectDefinition);
-            Constructor<?> chosenConstructor = null;
 
-            Constructor<?>[] constructors = widgetClass.getConstructors();
-            for (Constructor<?> constructor : constructors) {
-                Class<?>[] parameterTypes = constructor.getParameterTypes();
-                if (parameterTypes.length == 2) {
-                    if ((Composite.class.isAssignableFrom(parameterTypes[0]) ||
-                            Menu.class.isAssignableFrom(parameterTypes[0]) ||
-                            Control.class.isAssignableFrom(parameterTypes[0])) &&
-                            parameterTypes[1].equals(int.class)) {
-                        chosenConstructor = constructor;
-                        break;
-                    }
-                }
-            }
-
-            if (chosenConstructor == null)
-                throw new TransformerException("Could not find adequate constructor(? extends {Composite,Control,Menu}, int) in class "
-                        + widgetClass.getName());
+            Constructor<?> chosenConstructor = findAppropriateSWTStyledConstructor(widgetClass);
 
             int style = widgetClass == Shell.class ? DEFAULT_STYLE_SHELL : DEFAULT_STYLE_REST;
             if (objectDefinition.has(KEY_SPECIAL_STYLE)) {
@@ -295,6 +294,23 @@ public class Transformer {
         } catch (Exception e) {
             throw new TransformerException("Widget creation of class failed", e);
         }
+    }
+
+    private Constructor<?> findAppropriateSWTStyledConstructor(Class<?> widgetClass) throws TransformerException {
+        Constructor<?>[] constructors = widgetClass.getConstructors();
+        for (Constructor<?> constructor : constructors) {
+            Class<?>[] parameterTypes = constructor.getParameterTypes();
+            if (parameterTypes.length == 2) {
+                if ((Composite.class.isAssignableFrom(parameterTypes[0]) ||
+                        Menu.class.isAssignableFrom(parameterTypes[0]) ||
+                        Control.class.isAssignableFrom(parameterTypes[0])) &&
+                        parameterTypes[1].equals(int.class)) {
+                    return constructor;
+                }
+            }
+        }
+        throw new TransformerException("Could not find adequate constructor(? extends {Composite,Control,Menu}, int) in class "
+                + widgetClass.getName());
     }
 
 }
