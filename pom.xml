@@ -5,10 +5,35 @@
     <groupId>net.milanaleksic</groupId>
     <artifactId>swt-gui-transformer</artifactId>
     <name>SWT GUI Transformer</name>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <description>SWT GUI Transformer toolkit for building interfaces in SWT interactively</description>
+
+    <developers>
+        <developer>
+            <name>Milan Aleksic</name>
+            <email>milanaleksic@gmail.com</email>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+    </developers>
+
+    <distributionManagement>
+        <repository>
+            <id>milanaleksicnet-maven</id>
+            <name>MilanAleksic.Net Amazon S3 repository</name>
+            <url>s3://maven.milanaleksic.net</url>
+        </repository>
+    </distributionManagement>
+
+    <scm>
+        <connection>scm:git:file:///${basedir}</connection>
+        <developerConnection>scm:git:file:///${basedir}</developerConnection>
+    </scm>
 
     <properties>
         <swt.version>3.7.2</swt.version>
@@ -96,5 +121,17 @@
             <layout>default</layout>
         </repository>
     </repositories>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+        </profile>
+    </profiles>
 
 </project>
