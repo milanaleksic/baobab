@@ -266,7 +266,8 @@ public class Transformer {
                 Class<?>[] parameterTypes = constructor.getParameterTypes();
                 if (parameterTypes.length == 2) {
                     if ((Composite.class.isAssignableFrom(parameterTypes[0]) ||
-                            Menu.class.isAssignableFrom(parameterTypes[0])) &&
+                            Menu.class.isAssignableFrom(parameterTypes[0]) ||
+                            Control.class.isAssignableFrom(parameterTypes[0])) &&
                             parameterTypes[1].equals(int.class)) {
                         chosenConstructor = constructor;
                         break;
@@ -275,7 +276,7 @@ public class Transformer {
             }
 
             if (chosenConstructor == null)
-                throw new TransformerException("Could not find adequate constructor(? extends Composite, int) in class "
+                throw new TransformerException("Could not find adequate constructor(? extends {Composite,Control,Menu}, int) in class "
                         + widgetClass.getName());
 
             int style = widgetClass == Shell.class ? DEFAULT_STYLE_SHELL : DEFAULT_STYLE_REST;

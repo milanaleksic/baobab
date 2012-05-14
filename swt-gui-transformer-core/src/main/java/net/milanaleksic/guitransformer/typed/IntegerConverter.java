@@ -4,6 +4,7 @@ import com.google.common.collect.*;
 import net.milanaleksic.guitransformer.TransformerException;
 import org.codehaus.jackson.JsonNode;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
 
 import java.util.Map;
 import java.util.regex.*;
@@ -25,6 +26,16 @@ public class IntegerConverter extends TypedConverter<Integer> {
     // do not use ImmutableMap.builder() because it crashes JDK compiler
     static {
         Map<String, Integer> temp = Maps.newHashMap();
+
+        temp.put("dnd.clipboard", DND.CLIPBOARD);
+        temp.put("dnd.selection_clipboard", DND.SELECTION_CLIPBOARD);
+        temp.put("dnd.drop_none", DND.DROP_NONE);
+        temp.put("dnd.drop_copy", DND.DROP_COPY);
+        temp.put("dnd.drop_move", DND.DROP_MOVE);
+        temp.put("dnd.drop_link", DND.DROP_LINK);
+        temp.put("dnd.drop_target_move", DND.DROP_TARGET_MOVE);
+        temp.put("dnd.drop_default", DND.DROP_DEFAULT);
+
         temp.put("composition_changed", SWT.COMPOSITION_CHANGED);
         temp.put("composition_offset", SWT.COMPOSITION_OFFSET);
         temp.put("composition_selection", SWT.COMPOSITION_SELECTION);
