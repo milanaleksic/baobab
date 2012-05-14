@@ -1,11 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.milanaleksic</groupId>
     <artifactId>swt-gui-transformer</artifactId>
     <name>SWT GUI Transformer</name>
-    <version>0.1.4-SNAPSHOT</version>
+    <version>0.1.5-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <description>SWT GUI Transformer toolkit for building interfaces in SWT interactively</description>
@@ -31,9 +30,10 @@
     </distributionManagement>
 
     <scm>
-        <connection>scm:git:file://${basedir}</connection>
-        <developerConnection>scm:git:file://${basedir}</developerConnection>
-    </scm>
+        <connection>scm:git:file:///M:\SourceCode\workspaces\GanymedeWorkspace\swt-gui-transformer</connection>
+        <developerConnection>scm:git:file:///M:\SourceCode\workspaces\GanymedeWorkspace\swt-gui-transformer</developerConnection>
+      <tag>HEAD</tag>
+  </scm>
 
     <properties>
         <sourceEncoding>UTF-8</sourceEncoding>

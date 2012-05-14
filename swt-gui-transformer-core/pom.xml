@@ -9,7 +9,7 @@
     <parent>
         <groupId>net.milanaleksic</groupId>
         <artifactId>swt-gui-transformer</artifactId>
-        <version>0.1.4-SNAPSHOT</version>
+        <version>0.1.5-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
