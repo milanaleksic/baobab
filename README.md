@@ -15,13 +15,15 @@ and try to hack your way through.
 
 JRE required is 1.6.0
 
+Providers
+=========
+
 
 Messages string provider
 ----------------------
 Use your DI container to override `net.milanaleksic.guitransformer.providers.ResourceBundleProvider`
 with your implementation or just route it to SimpleResourceBundleProvider to always use messages_en.properties
 (or default messages.properties if first does not exist).
-
 
 Object provider
 ----------------------
@@ -30,9 +32,15 @@ you basically ask it from implementation of `net.milanaleksic.guitransformer.pro
 you registered in the DI container.
 You can though use AlwaysReturnNullObjectProvider to always embed null when named object is requested.
 
+Images provider
+----------------------
+Use your DI container to override `net.milanaleksic.guitransformer.providers.ImageProvider`
+with your implementation or just route it to AlwaysReturnNullImageProvider to always embed null
+when asked for image.
+
 
 Some development notes:
-----------------------
+======================
 
 Since Eclipse doesn't really like to use Maven to store SWT artifacts (at least for now)
 if you are not able to fetch Maven artifacts please install them locally manually.

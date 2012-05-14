@@ -17,10 +17,15 @@ public class TestModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        binder().bind(ObjectProvider.class).to(AlwaysReturnNullObjectProvider.class).in(Scopes.SINGLETON);
-        binder().bind(ResourceBundleProvider.class).to(SimpleResourceBundleProvider.class).in(Scopes.SINGLETON);
+        prepareProviders();
         prepareRegisteredBuildersForObjectConverter();
         prepareRegisteredConvertersForConverterFactory();
+    }
+
+    private void prepareProviders() {
+        binder().bind(ObjectProvider.class).to(AlwaysReturnNullObjectProvider.class).in(Scopes.SINGLETON);
+        binder().bind(ResourceBundleProvider.class).to(SimpleResourceBundleProvider.class).in(Scopes.SINGLETON);
+        binder().bind(ImageProvider.class).to(AlwaysReturnNullImageProvider.class).in(Scopes.SINGLETON);
     }
 
     private void prepareRegisteredBuildersForObjectConverter() {
@@ -28,7 +33,6 @@ public class TestModule extends AbstractModule {
                 new TypeLiteral<String>() {},
                 new TypeLiteral<Builder<?>>() {});
         mapBinder.addBinding("gridData").to(GridDataBuilder.class); //NON-NLS
-
     }
 
     private void prepareRegisteredConvertersForConverterFactory() {
