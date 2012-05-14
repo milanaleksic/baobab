@@ -26,7 +26,7 @@
         <repository>
             <id>milanaleksicnet-maven</id>
             <name>MilanAleksic.Net Amazon S3 repository</name>
-            <url>s3://maven.milanaleksic.net</url>
+            <url>s3://maven.milanaleksic.net/release</url>
         </repository>
     </distributionManagement>
 
