@@ -2,10 +2,10 @@ package net.milanaleksic.guitransformer.test;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Module;
 
 import java.util.List;
 
+import net.milanaleksic.guitransformer.guice.CoreModule;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
 
@@ -15,7 +15,7 @@ public class GuiceRunner extends BlockJUnit4ClassRunner {
 
     public GuiceRunner(final Class<?> classToRun) throws InitializationError {
         super(classToRun);
-        this.injector = Guice.createInjector(new TestModule());
+        this.injector = Guice.createInjector(new CoreModule());
     }
 
     @Override

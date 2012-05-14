@@ -1,4 +1,4 @@
-package net.milanaleksic.guitransformer.test;
+package net.milanaleksic.guitransformer.guice;
 
 import com.google.inject.*;
 import com.google.inject.multibindings.MapBinder;
@@ -13,7 +13,7 @@ import net.milanaleksic.guitransformer.typed.*;
  * Date: 5/14/12
  * Time: 10:43 AM
  */
-public class TestModule extends AbstractModule {
+public class CoreModule extends AbstractModule {
 
     @Override
     protected void configure() {
