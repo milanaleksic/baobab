@@ -4,7 +4,7 @@
     <groupId>net.milanaleksic</groupId>
     <artifactId>swt-gui-transformer</artifactId>
     <name>SWT GUI Transformer</name>
-    <version>0.1.1</version>
+    <version>0.1.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <description>SWT GUI Transformer toolkit for building interfaces in SWT interactively</description>
