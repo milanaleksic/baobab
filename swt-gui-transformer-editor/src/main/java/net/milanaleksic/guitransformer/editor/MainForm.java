@@ -277,4 +277,7 @@ public class MainForm {
         setCurrentFile(null);
     }
 
+    Shell getShell() {
+        return shell;
+    }
 }

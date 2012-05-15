@@ -16,6 +16,9 @@ public class ErrorDialog {
     @Inject
     private Transformer transformer;
 
+    @Inject
+    private MainForm mainForm;
+
     @EmbeddedComponent
     private Text text;
 
@@ -32,7 +35,7 @@ public class ErrorDialog {
 
     public void showMessage(String stackTrace) {
         try {
-            final TransformationContext transformationContext = transformer.fillManagedForm(this);
+            final TransformationContext transformationContext = transformer.fillManagedForm(mainForm.getShell(), this);
             this.shell = transformationContext.getShell();
 
             text.setText(stackTrace);
