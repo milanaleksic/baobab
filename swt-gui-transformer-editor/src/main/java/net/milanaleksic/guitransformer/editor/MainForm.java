@@ -6,11 +6,10 @@ import net.milanaleksic.guitransformer.providers.ResourceBundleProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.dnd.*;
-import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.widgets.*;
 
 import javax.annotation.Nullable;
-import javax.inject.Inject;
+import javax.inject.*;
 import java.io.*;
 import java.util.ResourceBundle;
 
@@ -23,6 +22,10 @@ public class MainForm {
 
     @Inject
     private Transformer transformer;
+
+    @Named(value = "EditorTransformer")
+    @Inject
+    private Transformer editorTransformer;
 
     @Inject
     private ErrorDialog errorDialog;
@@ -79,8 +82,9 @@ public class MainForm {
             showInformation("", null);
             String text = editor.getText();
             try {
-                TransformationContext nonManagedForm = transformer.createNonManagedForm(text);
+                TransformationContext nonManagedForm = editorTransformer.createNonManagedForm(text);
                 Shell newShell = nonManagedForm.getShell();
+                newShell.setLocation(20,20);
 
                 removePreviousShell();
 
@@ -151,6 +155,7 @@ public class MainForm {
     private void postTransformation(TransformationContext transformationContext) {
         transformationContext.<DropTarget>getMappedObject("editorDropTarget").get() //NON-NLS
                 .setTransfer(new Transfer[]{FileTransfer.getInstance()});
+        editorTransformer.setDoNotCreateModalDialogs(true);
     }
 
 }

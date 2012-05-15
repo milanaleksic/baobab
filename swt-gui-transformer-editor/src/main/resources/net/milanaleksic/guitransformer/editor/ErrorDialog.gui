@@ -1,6 +1,6 @@
 {
     "_type" : "shell",
-    "_style" : "{shell_trim}",
+    "_style" : "{shell_trim}|{application_modal}",
     "_name" : "shell",
     "layout" : {
         "_type" : "gridLayout",

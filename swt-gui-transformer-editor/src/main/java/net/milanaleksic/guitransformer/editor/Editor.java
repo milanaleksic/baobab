@@ -1,6 +1,7 @@
 package net.milanaleksic.guitransformer.editor;
 
 import com.google.inject.*;
+import net.milanaleksic.guitransformer.editor.guice.EditorModule;
 import net.milanaleksic.guitransformer.guice.CoreModule;
 import org.eclipse.swt.widgets.Display;
 
@@ -17,7 +18,7 @@ public class Editor {
     private MainForm mainForm;
 
     public static void main(String[] args) {
-        Injector rootInjector = Guice.createInjector(new CoreModule());
+        Injector rootInjector = Guice.createInjector(new CoreModule(), new EditorModule());
         rootInjector.getInstance(Editor.class).execute();
     }
 

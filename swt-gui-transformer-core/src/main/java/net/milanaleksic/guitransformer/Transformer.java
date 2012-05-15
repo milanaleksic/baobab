@@ -53,6 +53,8 @@ public class Transformer {
     @Inject
     private ConverterFactory converterFactory;
 
+    private boolean doNotCreateModalDialogs = false;
+
     public Transformer() {
         this.mapper = new ObjectMapper();
         this.mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
@@ -284,6 +286,13 @@ public class Transformer {
                         converterFactory.getExactTypeConverter(int.class).get();
                 style = exactTypeConverter.getValueFromJson(styleNode, mappedObjects);
             }
+
+            if (doNotCreateModalDialogs) {
+                style = style & (~SWT.APPLICATION_MODAL);
+                style = style & (~SWT.SYSTEM_MODAL);
+                style = style & (~SWT.PRIMARY_MODAL);
+            }
+
             final Object objectInstance = createInstanceOfTheObject(parent, widgetClass, style);
             deSerializeObjectFromNode(objectDefinition, objectInstance, mappedObjects);
 
@@ -330,4 +339,7 @@ public class Transformer {
                 + widgetClass.getName());
     }
 
+    public void setDoNotCreateModalDialogs(boolean doNotCreateModalDialogs) {
+        this.doNotCreateModalDialogs = doNotCreateModalDialogs;
+    }
 }
