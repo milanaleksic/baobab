@@ -7,7 +7,7 @@
         "numColumns" : 1
     },
     "text" : "[mainForm.title]",
-    "size" : "705,350",
+    "size" : "705,500",
     "_children" : [
         {
             "_type" : "toolBar",

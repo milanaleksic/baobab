@@ -6,6 +6,7 @@ import net.milanaleksic.guitransformer.providers.ObjectProvider;
 import org.codehaus.jackson.JsonNode;
 
 import javax.inject.Inject;
+import java.io.InputStream;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.regex.*;
@@ -23,6 +24,8 @@ public class ObjectConverter implements Converter<Object> {
 
     private static final Pattern springObjectValue = Pattern.compile("\\((.*)\\)");
 
+    public static final String GUI_TRANSFORMER_SHORTCUTS_PROPERTIES = "/META-INF/guitransformer.shortcuts.properties"; //NON-NLS
+
     @Inject
     private ObjectProvider objectProvider;
 
@@ -31,18 +34,11 @@ public class ObjectConverter implements Converter<Object> {
 
     private Map<String, Builder<?>> registeredBuilders;
 
-    private ImmutableMap<String, Class<?>> registeredShortcuts = knownShortcuts;
+    private final ImmutableMap<String, Class<?>> registeredShortcuts;
 
     @Inject
     public void setRegisteredBuilders(Map<String, Builder<?>> registeredBuilders) {
         this.registeredBuilders = registeredBuilders;
-    }
-
-    public void setAdditionalRegisteredShortcuts(Map<String, Class<?>> additionalShortcuts) {
-        registeredShortcuts = ImmutableMap.<String, Class<?>>builder()
-                .putAll(knownShortcuts)
-                .putAll(additionalShortcuts)
-                .build();
     }
 
     @SuppressWarnings({"HardCodedStringLiteral"})
@@ -81,6 +77,30 @@ public class ObjectConverter implements Converter<Object> {
 
             .build();
 
+
+    public ObjectConverter() {
+        registeredShortcuts = ImmutableMap.<String, Class<?>>builder()
+                .putAll(knownShortcuts)
+                .putAll(getStringToClassMappingFromPropertiesFile(GUI_TRANSFORMER_SHORTCUTS_PROPERTIES))
+                .build();
+    }
+
+    private Map<? extends String, ? extends Class<?>> getStringToClassMappingFromPropertiesFile(String propertiesLocation) {
+        Map<String, Class<?>> ofTheJedi = new HashMap<String, Class<?>>();
+        try {
+            final InputStream additionalShortcutsStream = ObjectConverter.class.getResourceAsStream(propertiesLocation);
+            if (additionalShortcutsStream == null)
+                return ofTheJedi;
+            final Properties properties = new Properties();
+            properties.load(additionalShortcutsStream);
+            for (Map.Entry entry : properties.entrySet()) {
+                ofTheJedi.put(entry.getKey().toString(), Class.forName(entry.getValue().toString()));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ofTheJedi;
+    }
 
     @Override
     public final void invoke(Method method, Object targetObject, JsonNode value, Map<String, Object> mappedObjects, Class<Object> argType) throws TransformerException {
