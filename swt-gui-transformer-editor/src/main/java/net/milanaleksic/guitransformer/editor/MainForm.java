@@ -90,6 +90,8 @@ public class MainForm {
 
                 currentShell = newShell;
                 currentShell.open();
+
+                editor.setFocus();
             } catch (TransformerException e) {
                 showInformation(String.format(resourceBundle.getString("mainForm.transformationError"), e.getMessage()), e);
             }
