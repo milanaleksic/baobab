@@ -228,6 +228,8 @@ public class Transformer {
                 } else
                     throw new TransformerException("No setter nor field " + field.getKey() + " could be found in class " + object.getClass().getName() + "; context: " + field.getValue());
             }
+        } catch (TransformerException e) {
+            throw e;
         } catch (Throwable t) {
             throw new TransformerException("Transformation was not successful", t);
         }
@@ -297,6 +299,8 @@ public class Transformer {
             deSerializeObjectFromNode(objectDefinition, objectInstance, mappedObjects);
 
             return objectInstance;
+        } catch (TransformerException e) {
+            throw e;
         } catch (Exception e) {
             throw new TransformerException("Widget creation of class failed", e);
         }

@@ -106,6 +106,8 @@ public class ObjectConverter implements Converter<Object> {
     public final void invoke(Method method, Object targetObject, JsonNode value, Map<String, Object> mappedObjects, Class<Object> argType) throws TransformerException {
         try {
             method.invoke(targetObject, getValueFromJson(value, mappedObjects, argType));
+        } catch (TransformerException e) {
+            throw e;
         } catch (Exception e) {
             throw new TransformerException("Wrapped invoke failed: method="+method+
                     ", targetObject="+targetObject+", json="+(value==null?"<NULL>":value.asText())+
@@ -147,7 +149,7 @@ public class ObjectConverter implements Converter<Object> {
         final List<String> params = Lists.newArrayList(Splitter.on(",").trimResults().split(parameters));
         final Builder<?> builder = registeredBuilders.get(factoryName);
         if (builder == null)
-            throw new TransformerException("net.milanaleksic.guitransformer.Builder is not registered: " + builder);
+            throw new TransformerException("Builder is not registered: " + builder);
         return builder.create(params);
     }
 
