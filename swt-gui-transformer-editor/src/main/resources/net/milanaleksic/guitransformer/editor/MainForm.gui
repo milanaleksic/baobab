@@ -1,13 +1,51 @@
 {
     "_type" : "shell",
     "_style" : "{shell_trim}",
+    "_name" : "shell",
     "layout" : {
         "_type" : "gridLayout",
         "numColumns" : 1
     },
     "text" : "[mainForm.title]",
-    "size" : "700,350",
+    "size" : "705,350",
     "_children" : [
+        {
+            "_type" : "toolBar",
+			"_style" : "{flat}",
+			"_children" : [
+				{
+					"_type" : "toolItem",
+					"_style" : "{push}",
+					"_name" : "btnNew",
+                    "text" : "[mainForm.toolBar.new]"
+				},
+				{
+					"_type" : "toolItem",
+					"_style" : "{push}",
+					"_name" : "btnOpen",
+                    "text" : "[mainForm.toolBar.open]"
+				},
+				{
+					"_type" : "toolItem",
+					"_style" : "{push}",
+					"_name" : "btnSave",
+					"text" : "[mainForm.toolBar.save]"
+				},
+				{
+					"_type" : "toolItem",
+					"_style" : "{push}",
+					"_name" : "btnSaveAs",
+					"text" : "[mainForm.toolBar.saveAs]"
+				},
+				{
+					"_type" : "toolItem",
+					"_style" : "{push}",
+					"_name" : "btnExit",
+					"text" : "[mainForm.toolBar.exit]"
+				}
+			]
+        },
+
         {
             "_type" : "styledText",
             "_style" : "{multi}|{wrap}|{border}|{v_scroll}",
@@ -28,7 +66,7 @@
             ]
         },
         {
-            "_type" : "org.eclipse.swt.graphics.Cursor",
+            "_type" : "cursor",
             "_style" : "{cursor_hand}",
             "_name" : "handCursor"
         },

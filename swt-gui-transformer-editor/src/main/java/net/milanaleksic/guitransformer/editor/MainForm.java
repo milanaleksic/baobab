@@ -1,6 +1,6 @@
 package net.milanaleksic.guitransformer.editor;
 
-import com.google.common.base.Charsets;
+import com.google.common.base.*;
 import net.milanaleksic.guitransformer.*;
 import net.milanaleksic.guitransformer.providers.ResourceBundleProvider;
 import org.eclipse.swt.SWT;
@@ -39,11 +39,15 @@ public class MainForm {
     @EmbeddedComponent
     private Label infoLabel;
 
+    /* editing context */
+    private Shell currentShell = null;
+    private File currentFile = null;
+    private boolean modified = false;
     private TransformerException lastException = null;
 
+    /* editor's own context */
+    private Shell shell;
     private ResourceBundle resourceBundle;
-
-    private Shell currentShell = null;
 
     @EmbeddedEventListener(component = "editorDropTarget", event = DND.Drop)
     private final Listener editorDropTargetDropListener = new Listener() {
@@ -82,6 +86,8 @@ public class MainForm {
             showInformation("", null);
             String text = editor.getText();
             try {
+                if (Strings.isNullOrEmpty(text))
+                    return;
                 TransformationContext nonManagedForm = editorTransformer.createNonManagedForm(text);
                 Shell newShell = nonManagedForm.getShell();
                 newShell.setLocation(20,20);
@@ -92,6 +98,8 @@ public class MainForm {
                 currentShell.open();
 
                 editor.setFocus();
+
+                modified = true;
             } catch (TransformerException e) {
                 showInformation(String.format(resourceBundle.getString("mainForm.transformationError"), e.getMessage()), e);
             }
@@ -107,10 +115,77 @@ public class MainForm {
         }
     };
 
-    private void showInformation(String infoText, @Nullable TransformerException exception) {
-        infoLabel.setText(infoText);
-        lastException = exception;
-    }
+    @EmbeddedEventListener(component = "btnNew", event = SWT.Selection)
+    private final Listener btnNewSelectionListener = new Listener() {
+        @Override
+        public void handleEvent(Event event) {
+            setCurrentFile(null);
+            editor.setText("");
+        }
+    };
+
+    @EmbeddedEventListener(component = "btnOpen", event = SWT.Selection)
+    private final Listener btnOpenSelectionListener = new Listener() {
+        @Override
+        public void handleEvent(Event event) {
+            FileDialog dlg = new FileDialog(shell, SWT.OPEN);
+            dlg.setFilterNames( new String[] { resourceBundle.getString("mainForm.openFilters") } );
+            dlg.setFilterExtensions( new String[] { "*.gui" } ); //NON-NLS
+            final String selectedFile = dlg.open();
+            if (selectedFile == null)
+                return;
+            openFile(new File(selectedFile));
+        }
+    };
+
+    @EmbeddedEventListener(component = "btnSave", event = SWT.Selection)
+    private final Listener btnSaveSelectionListener = new Listener() {
+        @Override
+        public void handleEvent(Event event) {
+            saveCurrentDocument();
+        }
+    };
+
+    @EmbeddedEventListener(component = "btnSaveAs", event = SWT.Selection)
+    private final Listener btnSaveAsSelectionListener = new Listener() {
+        @Override
+        public void handleEvent(Event event) {
+            saveDocumentAs();
+        }
+    };
+
+    @EmbeddedEventListener(component = "btnExit", event = SWT.Selection)
+    private final Listener btnExitSelectionListener = new Listener() {
+        @Override
+        public void handleEvent(Event event) {
+            shell.close();
+        }
+    };
+
+    @EmbeddedEventListener(component = "shell", event = SWT.Close)
+    private final Listener shellCloseListener = new Listener() {
+        @Override
+        public void handleEvent(Event event) {
+            if (!modified)
+                return;
+            int style = SWT.APPLICATION_MODAL | SWT.YES | SWT.NO | SWT.CANCEL;
+            MessageBox messageBox = new MessageBox(shell, style);
+            messageBox.setText(resourceBundle.getString("mainForm.information"));
+            messageBox.setMessage(resourceBundle.getString("mainForm.saveBeforeClosing"));
+            switch (messageBox.open()) {
+                case SWT.CANCEL :
+                    event.doit = false;
+                    break;
+                case SWT.YES :
+                    saveCurrentDocument();
+                    event.doit = true;
+                    break;
+                case SWT.NO :
+                    event.doit = true;
+                    break;
+            }
+        }
+    };
 
     private void openFile(File targetFile) {
         if (!targetFile.exists()) {
@@ -120,10 +195,43 @@ public class MainForm {
         }
         try {
             editor.setText(com.google.common.io.Files.toString(targetFile, Charsets.UTF_8));
+            setCurrentFile(targetFile);
         } catch (IOException e) {
             e.printStackTrace();
-            showError(String.format(resourceBundle.getString("mainForm.ioError"), targetFile.getAbsolutePath()));
+            showError(String.format(resourceBundle.getString("mainForm.ioError.open"), targetFile.getAbsolutePath()));
         }
+    }
+
+    private void saveCurrentDocument() {
+        if (currentFile == null && editor.getText().trim().length()==0)
+            return;
+        if (currentFile == null) {
+            saveDocumentAs();
+            return;
+        }
+        try {
+            com.google.common.io.Files.write(editor.getText(), currentFile, Charsets.UTF_8);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError(String.format(resourceBundle.getString("mainForm.ioError.save"), currentFile.getAbsolutePath()));
+        }
+        modified = false;
+    }
+
+    private void saveDocumentAs() {
+        FileDialog dlg = new FileDialog(shell, SWT.SAVE);
+        dlg.setFilterNames( new String[] { resourceBundle.getString("mainForm.openFilters") } );
+        dlg.setFilterExtensions( new String[] { "*.gui" } ); //NON-NLS
+        final String selectedFile = dlg.open();
+        if (selectedFile == null)
+            return;
+        setCurrentFile(new File(selectedFile));
+        saveCurrentDocument();
+    }
+
+    private void showInformation(String infoText, @Nullable TransformerException exception) {
+        infoLabel.setText(infoText);
+        lastException = exception;
     }
 
     private void showError(String errorMessage) {
@@ -133,10 +241,17 @@ public class MainForm {
         box.open();
     }
 
-    private Shell shell;
-
     public boolean isDisposed() {
         return shell.isDisposed();
+    }
+
+    private void setCurrentFile(@Nullable File file) {
+        this.currentFile = file;
+        shell.setText(String.format("%s - [%s]",  //NON-NLS
+                resourceBundle.getString("mainForm.title"),
+                currentFile == null
+                        ? resourceBundle.getString("mainForm.newFile")
+                        : currentFile.getName()));
     }
 
     public void init() {
@@ -158,6 +273,7 @@ public class MainForm {
         transformationContext.<DropTarget>getMappedObject("editorDropTarget").get() //NON-NLS
                 .setTransfer(new Transfer[]{FileTransfer.getInstance()});
         editorTransformer.setDoNotCreateModalDialogs(true);
+        setCurrentFile(null);
     }
 
 }

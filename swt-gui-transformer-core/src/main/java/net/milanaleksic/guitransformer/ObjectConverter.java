@@ -71,6 +71,8 @@ public class ObjectConverter implements Converter<Object> {
             .put("menu", org.eclipse.swt.widgets.Menu.class)
             .put("menuItem", org.eclipse.swt.widgets.MenuItem.class)
 
+            .put("cursor", org.eclipse.swt.graphics.Cursor.class)
+
             .put("scrolledComposite", org.eclipse.swt.custom.ScrolledComposite.class)
             .put("styledText", org.eclipse.swt.custom.StyledText.class)
 
