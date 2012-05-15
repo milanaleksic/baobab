@@ -1,12 +1,12 @@
 package net.milanaleksic.guitransformer.typed;
 
 import com.google.common.base.Strings;
-import net.milanaleksic.guitransformer.TransformerException;
+import net.milanaleksic.guitransformer.*;
 import net.milanaleksic.guitransformer.providers.ResourceBundleProvider;
 import org.codehaus.jackson.JsonNode;
 
 import javax.inject.Inject;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.*;
 
 /**
@@ -29,8 +29,16 @@ public class StringConverter extends TypedConverter<String> {
 
         // TODO: this should be done better with state machine instead of regex - to allow multiple replacements of different templates
         Matcher matcher = resourceMessage.matcher(fieldValue);
-        if (matcher.find())
-            return matcher.replaceAll(resourceBundleProvider.getResourceBundle().getString(matcher.group(1)));
+        if (matcher.find()) {
+            try {
+                return matcher.replaceAll(resourceBundleProvider.getResourceBundle().getString(matcher.group(1)));
+            } catch (MissingResourceException ignored) {
+                // ignored
+            } catch (Exception e) {
+                throw new TransformerException("Problem while searching for the string resource", e);
+            }
+        }
+
         return fieldValue;
     }
 

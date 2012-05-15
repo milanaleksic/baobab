@@ -17,6 +17,8 @@ public abstract class TypedConverter<T> implements Converter<T> {
     public final void invoke(Method method, Object targetObject, JsonNode value, Map<String, Object> mappedObjects, Class<T> argType) throws TransformerException {
         try {
             method.invoke(targetObject, getValueFromJson(value, mappedObjects));
+        } catch (TransformerException e) {
+            throw e;
         } catch (Exception e) {
             throw new TransformerException("Wrapped invoke failed: ", e);
         }

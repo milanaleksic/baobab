@@ -252,6 +252,7 @@ public class MainForm {
                 currentFile == null
                         ? resourceBundle.getString("mainForm.newFile")
                         : currentFile.getName()));
+        modified = false;
     }
 
     public void init() {

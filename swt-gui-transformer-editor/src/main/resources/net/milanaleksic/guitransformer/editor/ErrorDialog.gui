@@ -7,7 +7,7 @@
         "numColumns" : 1
     },
     "text" : "[mainForm.title]",
-    "size" : "700,350",
+    "size" : "750,350",
     "_children" : [
         {
             "_type" : "text",
@@ -19,7 +19,7 @@
             },
             "font" : {
                 "name" : "Courier New",
-                "height" : 9
+                "height" : 8
             }
         }
     ]
