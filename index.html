@@ -27,12 +27,82 @@
         </ul>
       </header>
       <section>
-        <h1>Fast(er) building of SWT-based user interfaces</h1>
+        <h1>Fast(er) building of Eclipse SWT-based user interfaces in Java</h1>
+
+<h2>Motivation and design approach</h2>
+
+<p>Creating pure SWT interfaces is often a headache since it is hard to follow up what is happening in the
+code if you have a complex UI tree. </p>
+
+<p>Yes, you can divide the code into thousand methods, but it still does not make it easier to focus on the
+functional part if you have so much ui-generating code.</p>
+
+<p>There are some very innovative approaches to fix this problem (before all others - GroovySWT). This project
+goes one step further since it does similar thing while you still stay in Java without the clutter of UI code,
+which is migrated to the JSON files (extension *.gui by default). </p>
+
+<h2>Simple example</h2>
+
+<p>Let's say you plan to make a simple username/password form with a single button to accept. If you wish to use
+SGT, you need to make 2 files: java code file <code>com.foobar.MyForm</code> and GUI definition file in the same
+package (with identical name as the form class): <code>com/foobar/MyForm.gui</code></p>
+
+<p>First you define the interface (either manually or using editor):</p>
+
+<pre><code>{
+	"_type" : "shell",
+	"_style" : "{dialog_trim}",
+    "_name" : "shell",
+	"text" : "Simple username/password form",
+	"size" : "300,110",
+	"layout" : {
+		"_type" : "gridLayout",
+		"numColumns" : 2
+	},
+	"_children" : [
+		{
+			"_type" : "label",
+			"text" : "User name:",
+			"layoutData" : "[gridData](end,center,true,false)"
+		},
+		{
+			"_type" : "text",
+			"_style" : "{border}",
+			"_name" : "usernameBox",
+			"layoutData" : "[gridData](fill,center,true,false)"
+		},
+		{
+			"_type" : "label",
+			"text" : "Password:",
+			"layoutData" : "[gridData](end,center,true,false)"
+		},
+		{
+			"_type" : "text",
+			"_style" : "{border}|{password}",
+			"_name" : "passwordBox",
+			"text" : "pass",
+			"layoutData" : "[gridData](fill,center,true,false)"
+		},
+
+		{
+			"_type" : "button",
+			"_style" : "{push}",
+			"_name" : "btnLogin",
+			"text" : "Try to login",
+			"layoutData" : {
+				"_type" : "[gridData](center,center,true,false,2,1)",
+				"widthHint" : 150
+			}
+		}
+	]
+}</code></pre>
+
+<p>Then you need only to define the class</p>
 
 <h2>How to download and try it</h2>
 
 <p>This project is published as a Maven artifact so you can just go ahead and include it in your 
-Buildr, Maven, Ivy etc:</p>
+Buildr, Maven, Ant/Ivy build config:</p>
 
 <pre><code>    &lt;dependency&gt;
         &lt;groupId&gt;net.milanaleksic&lt;/groupId&gt;
@@ -61,18 +131,10 @@ via single dependency:</p>
     &lt;/repository&gt;
 </code></pre>
 
-<h2>Motivation and design approach</h2>
+<h2>Little more details</h2>
 
-<p>Creating pure SWT interfaces is often a headache since it is hard to follow up what is happening in the
-code if you have complex UI tree. </p>
-
-<p>Yes, you can divide the code into thousand methods, but it still does not make it easier to focus on the
-functional code if you have so much ui-generating code.</p>
-
-<p>There are some very innovative approaches to fix this problem (before all others - GroovySWT) but this project
-goes one step further since it does similar thing while you still stay in pure Java. </p>
-
-<p>SGT in fact uses JSON input files as definition of the UI Shell and generates all of the components for you. </p>
+<p>As you have already maybe seen, SGT fact uses JSON input files as definition of the UI Shell and generates all of the
+components for you.</p>
 
 <h3>Accessing widgets</h3>
 
@@ -90,8 +152,8 @@ reference to username/password text widgets until the user clicks on OK).</p>
 
 <h3>Event handling</h3>
 
-<p>No, you don't need to attach event listeners by your self, SGT takes care of that (unless you wish to do something
-really complex which I did not cover, in which case you need to take a look in part of text "Accessing widgets").</p>
+<p>No, you don't need to attach event listeners by yourself, SGT takes care of that (unless you wish to do something
+really complex which I did not cover, in which case you need to read the part "Accessing widgets").</p>
 
 <p>The way to handle automatic event listeners is based on injection and widget naming. If you give your widget a name
 then you can include a field of type <code>org.eclipse.swt.widgets.Listener</code> and annotate it with 
@@ -99,8 +161,6 @@ then you can include a field of type <code>org.eclipse.swt.widgets.Listener</cod
 for multiple events from multiple widgets (or same event type from multiple widgets or different event types
 from same widget - I think you got the picture), use annotation 
 <code>net.milanaleksic.guitransformer.EmbeddedEventListeners</code>.</p>
-
-<h2>Simple example</h2>
 
 <h2>Project dependencies</h2>
 
@@ -122,24 +182,44 @@ and try to hack your way through.</p>
 
 <h1>Providers</h1>
 
+<h2>What?</h2>
+
+<p>If I believe there is an extension point that you will really really like to use, there is a provider
+interface for it. You use your dependency injection framework to say "here is the implementor for the provider",
+and like magic you'll see our application messages, images from your resources or external location or even
+<strong>other beans</strong> from your DI framework showing up as possible candidates for wiring into
+SGT definition JSONs.</p>
+
 <h2>Messages string provider</h2>
 
 <p>Use your DI container to override <code>net.milanaleksic.guitransformer.providers.ResourceBundleProvider</code>
 with your implementation or just route it to SimpleResourceBundleProvider to always use messages_en.properties
-(or default messages.properties if first does not exist).</p>
+(or default messages.properties if first does not exist) as the source for resource naming pattern for string
+properties. For example:</p>
+
+<pre><code>{
+    "_type" : "label",
+    "text" : "[string.from.resources]"
+}</code></pre>
 
 <h2>Object provider</h2>
 
 <p>When you use named object syntax to ask from the DI for a named object in JSON definition,
 you basically ask it from implementation of <code>net.milanaleksic.guitransformer.providers.ObjectProvider</code>
 you registered in the DI container.
-You can though use AlwaysReturnNullObjectProvider to always embed null when named object is requested.</p>
+You can though use AlwaysReturnNullObjectProvider to always embed null when named object is requested, for example:
+</p>
+
+<pre><code>{
+    "_type" : "net.milanaleksic.application.MyCustomSWTComponent",
+    "someReallyCoolCustomObjectFromSpring" : "(customSpringObject)"
+}</code></pre>
 
 <h2>Images provider</h2>
 
 <p>Use your DI container to override <code>net.milanaleksic.guitransformer.providers.ImageProvider</code>
-with your implementation or just route it to AlwaysReturnNullImageProvider to always embed null
-when asked for image.</p>
+with your implementation or just route it to AlwaysReturnEmptyImageProvider to always embed dummy image
+with the value of the JSON value node for the image setter.</p>
 
 <h1>Some development notes:</h1>
 
@@ -157,6 +237,11 @@ in you IDE than normal artifacts! Of course in production mode do pack the non-d
 besides the jar of GUI Transformer. This is the approach used in Eclipse's testing Maven
 repository used in the POM of the project - although it is not up to date with latest
 stable SWT version - not by a long shot.</p>
+
+
+<h1>Interactive editor</h1>
+<p>To be written...</p>
+
       </section>
     </div>
     <footer>
