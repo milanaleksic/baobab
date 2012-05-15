@@ -39,6 +39,21 @@
         },
         {
             "_type" : "label"
+        },
+
+        {
+            "_type" : "org.eclipse.swt.graphics.Cursor",
+            "_style" : "{cursor_hand}",
+            "_name" : "handCursor"
+        },
+        {
+            "_type" : "label",
+            "_name" : "infoLabel",
+            "foreground" : "#ff0000",
+            "layoutData" : {
+                "_type" : "[gridData](fill,end,true,false)"
+            },
+            "cursor" : "(handCursor)"
         }
     ]
 }

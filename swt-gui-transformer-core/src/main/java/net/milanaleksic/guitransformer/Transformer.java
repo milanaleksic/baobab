@@ -7,6 +7,7 @@ import net.milanaleksic.guitransformer.typed.*;
 import org.codehaus.jackson.*;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.widgets.*;
 
 import javax.annotation.Nullable;
@@ -276,8 +277,6 @@ public class Transformer {
                 throw new IllegalArgumentException("Could not deduce the child type without explicit definition: " + objectDefinition);
             Class<?> widgetClass = objectConverter.deduceClassFromNode(objectDefinition);
 
-            Constructor<?> chosenConstructor = findAppropriateSWTStyledConstructor(widgetClass);
-
             int style = widgetClass == Shell.class ? DEFAULT_STYLE_SHELL : DEFAULT_STYLE_REST;
             if (objectDefinition.has(KEY_SPECIAL_STYLE)) {
                 JsonNode styleNode = objectDefinition.get(KEY_SPECIAL_STYLE);
@@ -285,9 +284,7 @@ public class Transformer {
                         converterFactory.getExactTypeConverter(int.class).get();
                 style = exactTypeConverter.getValueFromJson(styleNode, mappedObjects);
             }
-
-            final Object objectInstance = chosenConstructor.newInstance(parent, style);
-
+            final Object objectInstance = createInstanceOfTheObject(parent, widgetClass, style);
             deSerializeObjectFromNode(objectDefinition, objectInstance, mappedObjects);
 
             return objectInstance;
@@ -296,20 +293,40 @@ public class Transformer {
         }
     }
 
+    private Object createInstanceOfTheObject(Object parent, Class<?> widgetClass, int style) throws TransformerException, InstantiationException, IllegalAccessException, InvocationTargetException {
+        Constructor<?> chosenConstructor = findAppropriateSWTStyledConstructor(widgetClass);
+        if (Device.class.isAssignableFrom(chosenConstructor.getParameterTypes()[0])) {
+            final Widget parentAsWidget = (Widget) parent;
+            if (parentAsWidget == null)
+                throw new TransformerException("Null parent widget detected! parent="+parent+", widgetClass="+widgetClass);
+            return chosenConstructor.newInstance(parentAsWidget.getDisplay(), style);
+        }
+        else return chosenConstructor.newInstance(parent, style);
+    }
+
     private Constructor<?> findAppropriateSWTStyledConstructor(Class<?> widgetClass) throws TransformerException {
         Constructor<?>[] constructors = widgetClass.getConstructors();
         for (Constructor<?> constructor : constructors) {
             Class<?>[] parameterTypes = constructor.getParameterTypes();
             if (parameterTypes.length == 2) {
-                if ((Composite.class.isAssignableFrom(parameterTypes[0]) ||
-                        Menu.class.isAssignableFrom(parameterTypes[0]) ||
-                        Control.class.isAssignableFrom(parameterTypes[0])) &&
+                if ((Composite.class.isAssignableFrom(parameterTypes[0]) ||   // most cases
+                        Menu.class.isAssignableFrom(parameterTypes[0]) ||        // in case MenuItems
+                        Control.class.isAssignableFrom(parameterTypes[0])  ) &&   // in case of DropTarget
                         parameterTypes[1].equals(int.class)) {
                     return constructor;
                 }
             }
         }
-        throw new TransformerException("Could not find adequate constructor(? extends {Composite,Control,Menu}, int) in class "
+        for (Constructor<?> constructor : constructors) {
+            Class<?>[] parameterTypes = constructor.getParameterTypes();
+            if (parameterTypes.length == 2) {
+                if (Device.class.isAssignableFrom(parameterTypes[0])   // in case of Cursor
+                        && parameterTypes[1].equals(int.class)) {
+                    return constructor;
+                }
+            }
+        }
+        throw new TransformerException("Could not find adequate constructor(? extends {Device,Composite,Menu,Control}, int) in class "
                 + widgetClass.getName());
     }
 

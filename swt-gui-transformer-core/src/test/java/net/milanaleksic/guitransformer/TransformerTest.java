@@ -1,5 +1,6 @@
 package net.milanaleksic.guitransformer;
 
+import com.google.common.base.Optional;
 import net.milanaleksic.guitransformer.test.GuiceRunner;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
@@ -38,9 +39,9 @@ public class TransformerTest {
         GridLayout layout = (GridLayout) form.getLayout();
         assertThat(layout.numColumns, equalTo(2));
 
-        Control[] children = form.getChildren();
+        Object[] children = form.getChildren();
         assertThat(children, not(nullValue()));
-        assertThat(children.length, equalTo(4));
+        assertThat(children.length, equalTo(5));
 
         assertThat(children[0], Matchers.instanceOf(Canvas.class));
         Canvas canvas = (Canvas) children[0];
@@ -52,7 +53,7 @@ public class TransformerTest {
 
         assertThat(children[1], Matchers.instanceOf(Label.class));
         assertThat(((Label)children[1]).getText(), equalTo("Do you really wish to delete movie??"));
-        Font labelFont = children[1].getFont();
+        Font labelFont = ((Control)children[1]).getFont();
         assertThat(labelFont.getFontData()[0].getStyle() & SWT.BOLD, equalTo(SWT.BOLD));
         assertThat(labelFont.getFontData()[0].getHeight(), equalTo(12));
 
@@ -62,6 +63,12 @@ public class TransformerTest {
 
         assertThat(children[3], Matchers.instanceOf(Label.class));
         assertThat(((Label)children[3]).getText(), equalTo(""));
+
+        assertThat(children[4], Matchers.instanceOf(Label.class));
+        Optional<Cursor> cursor = context.getMappedObject("handCursor");
+        assertThat(cursor, not(nullValue()));
+        assertThat(cursor.isPresent(), equalTo(true));
+        assertThat(((Label)children[4]).getCursor(), equalTo(cursor.get()));
     }
 
 }

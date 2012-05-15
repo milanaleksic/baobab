@@ -6,6 +6,7 @@ import net.milanaleksic.guitransformer.providers.ResourceBundleProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.dnd.*;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.widgets.*;
 
 import javax.annotation.Nullable;
