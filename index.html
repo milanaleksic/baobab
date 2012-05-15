@@ -52,7 +52,6 @@ package (with identical name as the form class): <code>com/foobar/MyForm.gui</co
 <pre><code>{
 	"_type" : "shell",
 	"_style" : "{dialog_trim}",
-    "_name" : "shell",
 	"text" : "Simple username/password form",
 	"size" : "300,110",
 	"layout" : {
@@ -68,7 +67,7 @@ package (with identical name as the form class): <code>com/foobar/MyForm.gui</co
 		{
 			"_type" : "text",
 			"_style" : "{border}",
-			"_name" : "usernameBox",
+			"_name" : "uernameBox",
 			"layoutData" : "[gridData](fill,center,true,false)"
 		},
 		{
@@ -97,7 +96,63 @@ package (with identical name as the form class): <code>com/foobar/MyForm.gui</co
 	]
 }</code></pre>
 
-<p>Then you need only to define the class</p>
+<p>Then you need only to define the class. Be aware though that there is much more noise in the example below
+then it will be in real program - I wanted to present a fully functional example.</p>
+
+<pre><code>
+package com.foobar;
+
+import com.google.inject.*;
+import net.milanaleksic.guitransformer.*;
+import net.milanaleksic.guitransformer.guice.CoreModule;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.*;
+
+@SuppressWarnings({"HardCodedStringLiteral"})
+public class MyForm {
+
+    @EmbeddedComponent private Text usernameBox;
+
+    @EmbeddedComponent private Text passwordBox;
+
+    @EmbeddedComponent private Shell shell;
+
+    @EmbeddedEventListener(component = "btnLogin", event = SWT.Selection)
+    private final Listener webSiteVisitor = new Listener() {
+        @Override
+        public void handleEvent(Event event) {
+            MessageBox box = new MessageBox(shell, SWT.ICON_ERROR);
+            box.setMessage(
+                    String.format("You entered: username=%s, password=%s",
+                            usernameBox.getText(), passwordBox.getText()));
+            box.setText("Information");
+            box.open();
+        }
+    };
+
+    public static void main(String[] args) throws TransformerException {
+        Injector rootInjector = Guice.createInjector(new CoreModule());
+        rootInjector.getInstance(MyForm.class).execute(rootInjector.getInstance(Transformer.class));
+    }
+
+    public void execute(Transformer transformer) throws TransformerException {
+        final TransformationContext transformationContext = transformer.fillManagedForm(this);
+        this.shell = transformationContext.getShell();
+
+        shell.open();
+
+        Display display = Display.getDefault();
+        while (!this.shell.isDisposed()) {
+            if (!display.readAndDispatch())
+                display.sleep();
+        }
+    }
+}
+</code></pre>
+
+<p>Finally, this is what you get when you run the code:</p>
+
+<img src="images/shot.png" />
 
 <h2>How to download and try it</h2>
 
@@ -238,6 +293,8 @@ besides the jar of GUI Transformer. This is the approach used in Eclipse's testi
 repository used in the POM of the project - although it is not up to date with latest
 stable SWT version - not by a long shot.</p>
 
+<h1>Complete documentation</h1>
+<p>To be written...</p>
 
 <h1>Interactive editor</h1>
 <p>To be written...</p>
