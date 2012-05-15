@@ -25,7 +25,7 @@ public class CoreModule extends AbstractModule {
     private void prepareProviders() {
         binder().bind(ObjectProvider.class).to(AlwaysReturnNullObjectProvider.class).in(Scopes.SINGLETON);
         binder().bind(ResourceBundleProvider.class).to(SimpleResourceBundleProvider.class).in(Scopes.SINGLETON);
-        binder().bind(ImageProvider.class).to(AlwaysReturnNullImageProvider.class).in(Scopes.SINGLETON);
+        binder().bind(ImageProvider.class).to(AlwaysReturnEmptyImageProvider.class).in(Scopes.SINGLETON);
     }
 
     private void prepareRegisteredBuildersForObjectConverter() {
@@ -46,6 +46,7 @@ public class CoreModule extends AbstractModule {
         mapBinder.addBinding(org.eclipse.swt.graphics.Point.class).to(PointConverter.class);
         mapBinder.addBinding(org.eclipse.swt.graphics.Color.class).to(ColorConverter.class);
         mapBinder.addBinding(org.eclipse.swt.graphics.Font.class).to(FontConverter.class);
+        mapBinder.addBinding(org.eclipse.swt.graphics.Image.class).to(ImageConverter.class);
     }
 
 
