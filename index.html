@@ -1,0 +1,179 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Swt-gui-transformer by milanaleksic</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Swt-gui-transformer</h1>
+        <p>SWT GUI Transformer</p>
+        <p class="view"><a href="https://github.com/milanaleksic/swt-gui-transformer">View the Project on GitHub <small>milanaleksic/swt-gui-transformer</small></a></p>
+        <ul>
+          <li><a href="https://github.com/milanaleksic/swt-gui-transformer/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/milanaleksic/swt-gui-transformer/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/milanaleksic/swt-gui-transformer">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>Fast(er) building of SWT-based user interfaces</h1>
+
+<h2>How to download and try it</h2>
+
+<p>This project is published as a Maven artifact so you can just go ahead and include it in your 
+Buildr, Maven, Ivy etc:</p>
+
+<pre><code>    &lt;dependency&gt;
+        &lt;groupId&gt;net.milanaleksic&lt;/groupId&gt;
+        &lt;artifactId&gt;swt-gui-transformer-core&lt;/artifactId&gt;
+        &lt;version&gt;0.1.5&lt;/version&gt;
+    &lt;/dependency&gt;
+</code></pre>
+
+<p>If you wish to play with the GUI interactive editor you can download it and run it also
+via single dependency:</p>
+
+<pre><code>    &lt;dependency&gt;
+        &lt;groupId&gt;net.milanaleksic&lt;/groupId&gt;
+        &lt;artifactId&gt;swt-gui-transformer-editor&lt;/artifactId&gt;
+        &lt;version&gt;0.1.5&lt;/version&gt;
+    &lt;/dependency&gt;
+</code></pre>
+
+<p>The repository where this artifact is deployed is:</p>
+
+<pre><code>    &lt;repository&gt;
+        &lt;id&gt;mavenrepo-maven.milanaleksic.net&lt;/id&gt;
+        &lt;name&gt;MilanAleksic.Net repository for Maven&lt;/name&gt;
+        &lt;url&gt;http://maven.milanaleksic.net/release/&lt;/url&gt;
+        &lt;layout&gt;default&lt;/layout&gt;
+    &lt;/repository&gt;
+</code></pre>
+
+<h2>Motivation and design approach</h2>
+
+<p>Creating pure SWT interfaces is often a headache since it is hard to follow up what is happening in the
+code if you have complex UI tree. </p>
+
+<p>Yes, you can divide the code into thousand methods, but it still does not make it easier to focus on the
+functional code if you have so much ui-generating code.</p>
+
+<p>There are some very innovative approaches to fix this problem (before all others - GroovySWT) but this project
+goes one step further since it does similar thing while you still stay in pure Java. </p>
+
+<p>SGT in fact uses JSON input files as definition of the UI Shell and generates all of the components for you. </p>
+
+<h3>Accessing widgets</h3>
+
+<p>You can access all the components in the UI either</p>
+
+<ol>
+<li><p>by asking for them using their name (something similar to the Servlet attribute/parameter approach for accessing) 
+using <code>net.milanaleksic.guitransformer.TransformationContext.&lt;*widgetClass*&gt;getMappedObject(*widgetName*)</code></p></li>
+<li><p>or using annotation <code>net.milanaleksic.guitransformer.EmbeddedComponent</code> in your form class to have the component
+injected for you (approach based on dependency injection pattern)</p></li>
+</ol><p>In my opinion, first approach is useful for the cases when you wish to execute a simple and small action, like 
+setting a <em>dynamic</em> text in some component (e.g. web service version fetched from far away). Second approach
+is useful when you wish to maintain reference to the widget throughout the life of the form (e.g. you need to keep
+reference to username/password text widgets until the user clicks on OK).</p>
+
+<h3>Event handling</h3>
+
+<p>No, you don't need to attach event listeners by your self, SGT takes care of that (unless you wish to do something
+really complex which I did not cover, in which case you need to take a look in part of text "Accessing widgets").</p>
+
+<p>The way to handle automatic event listeners is based on injection and widget naming. If you give your widget a name
+then you can include a field of type <code>org.eclipse.swt.widgets.Listener</code> and annotate it with 
+<code>net.milanaleksic.guitransformer.EmbeddedEventListener</code> or, in case you wish to use the same event listeners
+for multiple events from multiple widgets (or same event type from multiple widgets or different event types
+from same widget - I think you got the picture), use annotation 
+<code>net.milanaleksic.guitransformer.EmbeddedEventListeners</code>.</p>
+
+<h2>Simple example</h2>
+
+<h2>Project dependencies</h2>
+
+<p>SWT GUI Transformer depends on following frameworks/libraries:</p>
+
+<ul>
+<li>(of course) <strong>SWT</strong>
+</li>
+<li>Google <strong>Guava</strong>
+</li>
+<li>
+<strong>Jackson</strong> - fastest JSON parser</li>
+<li>
+<strong>javax.inject</strong> provider (for example Google Guice or Spring)</li>
+</ul><p>If you don't use these libraries than you might need to fork the code
+and try to hack your way through.</p>
+
+<p>JRE required is 1.6.0</p>
+
+<h1>Providers</h1>
+
+<h2>Messages string provider</h2>
+
+<p>Use your DI container to override <code>net.milanaleksic.guitransformer.providers.ResourceBundleProvider</code>
+with your implementation or just route it to SimpleResourceBundleProvider to always use messages_en.properties
+(or default messages.properties if first does not exist).</p>
+
+<h2>Object provider</h2>
+
+<p>When you use named object syntax to ask from the DI for a named object in JSON definition,
+you basically ask it from implementation of <code>net.milanaleksic.guitransformer.providers.ObjectProvider</code>
+you registered in the DI container.
+You can though use AlwaysReturnNullObjectProvider to always embed null when named object is requested.</p>
+
+<h2>Images provider</h2>
+
+<p>Use your DI container to override <code>net.milanaleksic.guitransformer.providers.ImageProvider</code>
+with your implementation or just route it to AlwaysReturnNullImageProvider to always embed null
+when asked for image.</p>
+
+<h1>Some development notes:</h1>
+
+<p>Since Eclipse doesn't really like to use Maven to store SWT artifacts (at least for now)
+if you are not able to fetch Maven artifacts please install them locally manually.
+I know it's not a popular approach but there's nothing I can do :)</p>
+
+<pre><code>mvn install:install-file -DgroupId=org.eclipse.swt
+  -DartifactId=org.eclipse.swt.win32.win32.x86 -Dversion=3.7.2
+  -Dfile=swt-3.7.2-win32-win32-x86-debug.jar -Dpackaging=jar -DgeneratePom=true
+</code></pre>
+
+<p>I propose using debug artifacts since it allows you to do so much more in debug mode
+in you IDE than normal artifacts! Of course in production mode do pack the non-debug version
+besides the jar of GUI Transformer. This is the approach used in Eclipse's testing Maven
+repository used in the POM of the project - although it is not up to date with latest
+stable SWT version - not by a long shot.</p>
+      </section>
+    </div>
+    <footer>
+      <p>Project maintained by <a href="https://github.com/milanaleksic">milanaleksic</a></p>
+      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+    </footer>
+    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-31731496-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
