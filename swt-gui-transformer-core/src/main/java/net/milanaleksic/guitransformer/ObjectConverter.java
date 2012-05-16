@@ -136,7 +136,7 @@ public class ObjectConverter implements Converter<Object> {
 
         Matcher matcher = springObjectValue.matcher(originalValue);
         if (matcher.matches())
-            return getSpringObject(mappedObjects, matcher.group(1));
+            return provideObjectFromDIContainer(mappedObjects, matcher.group(1));
 
         matcher = builderValue.matcher(originalValue);
         if (matcher.matches())
@@ -153,7 +153,7 @@ public class ObjectConverter implements Converter<Object> {
         return builder.create(params);
     }
 
-    private Object getSpringObject(Map<String, Object> mappedObjects, String magicName) throws TransformerException {
+    private Object provideObjectFromDIContainer(Map<String, Object> mappedObjects, String magicName) throws TransformerException {
         Object mappedObject = mappedObjects.get(magicName);
         if (mappedObject == null)
             mappedObject = objectProvider.provideObjectNamed(magicName);
