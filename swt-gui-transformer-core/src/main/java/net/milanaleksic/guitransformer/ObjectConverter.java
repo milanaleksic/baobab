@@ -160,7 +160,7 @@ public class ObjectConverter implements Converter<Object> {
         return mappedObject;
     }
 
-    public Object createWidgetFromNode(Class<?> widgetClass, JsonNode value, Map<String, Object> mappedObjects) throws TransformerException {
+    private Object createWidgetFromNode(Class<?> widgetClass, JsonNode value, Map<String, Object> mappedObjects) throws TransformerException {
         try {
             Object ofTheJedi = isWidgetUsingBuilder(value)
                     ? createWidgetUsingBuilder(value)
@@ -192,7 +192,7 @@ public class ObjectConverter implements Converter<Object> {
         return value.has(Transformer.KEY_SPECIAL_TYPE) && builderValue.matcher(value.get(Transformer.KEY_SPECIAL_TYPE).asText()).matches();
     }
 
-    public Class<?> deduceClassFromNode(JsonNode value) throws TransformerException {
+    Class<?> deduceClassFromNode(JsonNode value) throws TransformerException {
         if (value.has(Transformer.KEY_SPECIAL_TYPE)) {
             String classIdentifier = value.get(Transformer.KEY_SPECIAL_TYPE).asText();
             Class<?> aClass = registeredShortcuts.get(classIdentifier);
