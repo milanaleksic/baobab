@@ -1,0 +1,127 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Swt-gui-transformer by milanaleksic</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <link rel="stylesheet" href="stylesheets/lightbox.css">
+    <tpircs src="javatpircss/jquery-1.7.2.min.js"></tpircs>
+    <tpircs src="javatpircss/scale.fix.js"></tpircs>
+    <tpircs src="javatpircss/lightbox.js"></tpircs>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!--[if lt IE 9]>
+    <tpircs src="//html5shiv.googlecode.com/svn/trunk/html5.js"></tpircs>
+    <![endif]-->
+</head>
+<body>
+<div class="wrapper">
+<header>
+    <h1>swt-gui-transformer</h1>
+
+    <p>&quot;JSON → SWT shells&quot; GUI Transformer tool for Java delopers</p>
+
+    <p class="view"><a href="https://github.com/milanaleksic/swt-gui-transformer">View the Project on GitHub
+        <small>milanaleksic/swt-gui-transformer</small>
+    </a></p>
+    <ul>
+        <li><a href="https://github.com/milanaleksic/swt-gui-transformer/zipball/master">Download <strong>ZIP
+            File</strong></a></li>
+        <li><a href="https://github.com/milanaleksic/swt-gui-transformer/tarball/master">Download <strong>TAR
+            Ball</strong></a></li>
+        <li><a href="https://github.com/milanaleksic/swt-gui-transformer">View On <strong>GitHub</strong></a></li>
+    </ul>
+</header>
+<section>
+    <blockquote>Wish to see <a href="index.html">just the basics</a>?</blockquote>
+
+    <h1>Documentation</h1>
+
+    <h2>First steps</h2>
+
+    <p>Although there are couple of things I implemented in the SGT, the basic idea is that you should use the JSON
+    to create SWT beans and to configure them using either method setters or direct field access (SGT will figure
+    out what approach to use).</p>
+
+    <p>To <strong>create</strong> beans, you open a bracket and use special tag <strong>_type</strong> to say which kind of
+    SWT bean you wish to create. To</p>
+
+    <pre><code>{
+    "_type" : "org.eclipse.swt.widgets.Label",
+    "text" : "This is a text value"
+}</code></pre>
+
+    <h3>Types</h3>
+    <p>As long as you put field names in the </p>
+
+<h1>Providers</h1>
+
+    <h2>What?</h2>
+
+    <p>If I believe there is an extension point that you will really really like to use, there is a provider
+        interface for it. You use your dependency injection framework to say "here is the implementor for the
+        provider", and like magic you'll see our application messages, images from your resources or external
+        location or even <strong>other beans</strong> from your DI framework showing up as possible candidates
+        for wiring into SGT definition JSONs.</p>
+
+    <h2>Messages string provider</h2>
+
+    <p>Use your DI container to override
+        <code>net.milanaleksic.guitransformer.providers.ResourceBundleProvider</code>
+        with your implementation or just route it to SimpleResourceBundleProvider to always use
+        messages_en.properties (or default messages.properties if first does not exist) as the source for resource
+        naming pattern for string properties. For example:</p>
+
+    <pre><code>{
+    "_type" : "label",
+    "text" : "[string.from.resources]"
+}</code></pre>
+
+    <h2>Object provider</h2>
+
+    <p>When you use named object syntax to ask from the DI for a named object in JSON definition,
+        you basically ask it from implementation of
+        <code>net.milanaleksic.guitransformer.providers.ObjectProvider</code>
+        you registered in the DI container.
+        You can though use AlwaysReturnNullObjectProvider to always embed null when named object is requested, for
+        example:
+    </p>
+
+    <pre><code>{
+    "_type" : "net.milanaleksic.application.MyCustomSWTComponent",
+    "someReallyCoolCustomObjectFromSpring" : "(customSpringObject)"
+}</code></pre>
+
+    <h2>Images provider</h2>
+
+    <p>Use your DI container to override <code>net.milanaleksic.guitransformer.providers.ImageProvider</code>
+        with your implementation or just route it to AlwaysReturnEmptyImageProvider to always embed dummy image
+        with the value of the JSON value node for the image setter.</p>
+
+</section>
+</div>
+<footer>
+    <p>Project maintained by <a href="https://github.com/milanaleksic">milanaleksic</a></p>
+
+    <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+</footer>
+<!--[if !IE]>
+<tpircs>fixScale(document);</tpircs><!--<![endif]-->
+<tpircs type="text/javatpircs">
+    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+    document.write(unescape("%3Ctpircs src='" + gaJsHost + "google-analytics.com/ga.js' " +
+            "type='text/javatpircs'%3E%3C/tpircs%3E"));
+</tpircs>
+<tpircs type="text/javatpircs">
+    try {
+        var pageTracker = _gat._getTracker("UA-31731496-1");
+        pageTracker._trackPageview();
+    } catch(err) {
+    }
+</tpircs>
+
+</body>
+</html>
