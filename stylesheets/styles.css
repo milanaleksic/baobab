@@ -234,19 +234,27 @@ img {
 
 code, pre {
   font-family: Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal;
+  font-size: 12px;
+}
+
+section > code, section > pre {
+  font-family: Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal;
   color: #333;
   font-size: 12px;
   overflow-x: auto;
 }
 
-pre {
+section > pre {
   padding: 20px;
   background: #3A3C42;
   color: #f8f8f2;
   margin: 0 -20px 20px;
 }
-pre code {
+section > pre code {
   color: #f8f8f2;
+}
+section > pre code strong {
+  color: #cccc00;
 }
 li pre {
   margin-left: -60px;

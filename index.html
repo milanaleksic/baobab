@@ -47,144 +47,35 @@ which is migrated to the JSON files (extension *.gui by default). </p>
 SGT, you need to make 2 files: java code file <code>com.foobar.MyForm</code> and GUI definition file in the same
 package (with identical name as the form class): <code>com/foobar/MyForm.gui</code></p>
 
-<p>First you define the interface (either manually or using editor):</p>
+<p>First you define the interface (either manually or using editor). Note: the correct filename is MyForm.gui,
+but for the sake of syntax highlighting by Github's Gist I appended the "json" extenion.</p>
 
-<pre><code>{
-	"_type" : "shell",
-	"_style" : "{dialog_trim}",
-	"text" : "Simple username/password form",
-	"size" : "300,110",
-	"layout" : {
-		"_type" : "gridLayout",
-		"numColumns" : 2
-	},
-	"_children" : [
-		{
-			"_type" : "label",
-			"text" : "User name:",
-			"layoutData" : "[gridData](end,center,true,false)"
-		},
-		{
-			"_type" : "text",
-			"_style" : "{border}",
-			"_name" : "uernameBox",
-			"layoutData" : "[gridData](fill,center,true,false)"
-		},
-		{
-			"_type" : "label",
-			"text" : "Password:",
-			"layoutData" : "[gridData](end,center,true,false)"
-		},
-		{
-			"_type" : "text",
-			"_style" : "{border}|{password}",
-			"_name" : "passwordBox",
-			"text" : "pass",
-			"layoutData" : "[gridData](fill,center,true,false)"
-		},
-
-		{
-			"_type" : "button",
-			"_style" : "{push}",
-			"_name" : "btnLogin",
-			"text" : "Try to login",
-			"layoutData" : {
-				"_type" : "[gridData](center,center,true,false,2,1)",
-				"widthHint" : 150
-			}
-		}
-	]
-}</code></pre>
+<script src="https://gist.github.com/2708850.js?file=MyForm.gui.json"></script>
 
 <p>Then you need only to define the class. Be aware though that there is much more noise in the example below
 then it will be in real program - I wanted to present a fully functional example.</p>
 
-<pre><code>
-package com.foobar;
-
-import com.google.inject.*;
-import net.milanaleksic.guitransformer.*;
-import net.milanaleksic.guitransformer.guice.CoreModule;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.*;
-
-@SuppressWarnings({"HardCodedStringLiteral"})
-public class MyForm {
-
-    @EmbeddedComponent private Text usernameBox;
-
-    @EmbeddedComponent private Text passwordBox;
-
-    @EmbeddedComponent private Shell shell;
-
-    @EmbeddedEventListener(component = "btnLogin", event = SWT.Selection)
-    private final Listener webSiteVisitor = new Listener() {
-        @Override
-        public void handleEvent(Event event) {
-            MessageBox box = new MessageBox(shell, SWT.ICON_ERROR);
-            box.setMessage(
-                    String.format("You entered: username=%s, password=%s",
-                            usernameBox.getText(), passwordBox.getText()));
-            box.setText("Information");
-            box.open();
-        }
-    };
-
-    public static void main(String[] args) throws TransformerException {
-        Injector rootInjector = Guice.createInjector(new CoreModule());
-        rootInjector.getInstance(MyForm.class).execute(rootInjector.getInstance(Transformer.class));
-    }
-
-    public void execute(Transformer transformer) throws TransformerException {
-        final TransformationContext transformationContext = transformer.fillManagedForm(this);
-        this.shell = transformationContext.getShell();
-
-        shell.open();
-
-        Display display = Display.getDefault();
-        while (!this.shell.isDisposed()) {
-            if (!display.readAndDispatch())
-                display.sleep();
-        }
-    }
-}
-</code></pre>
+<script src="https://gist.github.com/2708850.js?file=MyForm.java"></script>
 
 <p>Finally, this is what you get when you run the code:</p>
 
-<img src="images/shot.png" />
+<div style="text-align:center"><img src="images/shot.png" /></div>
 
 <h2>How to download and try it</h2>
 
 <p>This project is published as a Maven artifact so you can just go ahead and include it in your 
 Buildr, Maven, Ant/Ivy build config:</p>
 
-<pre><code>    &lt;dependency&gt;
-        &lt;groupId&gt;net.milanaleksic&lt;/groupId&gt;
-        &lt;artifactId&gt;swt-gui-transformer-core&lt;/artifactId&gt;
-        &lt;version&gt;0.1.5&lt;/version&gt;
-    &lt;/dependency&gt;
-</code></pre>
+<script src="https://gist.github.com/2708850.js?file=dependency1.xml"></script>
 
 <p>If you wish to play with the GUI interactive editor you can download it and run it also
 via single dependency:</p>
 
-<pre><code>    &lt;dependency&gt;
-        &lt;groupId&gt;net.milanaleksic&lt;/groupId&gt;
-        &lt;artifactId&gt;swt-gui-transformer-editor&lt;/artifactId&gt;
-        &lt;version&gt;0.1.5&lt;/version&gt;
-    &lt;/dependency&gt;
-</code></pre>
+<script src="https://gist.github.com/2708850.js?file=dependency2.xml"></script>
 
 <p>The repository where this artifact is deployed is:</p>
 
-<pre><code>    &lt;repository&gt;
-        &lt;id&gt;mavenrepo-maven.milanaleksic.net&lt;/id&gt;
-        &lt;name&gt;MilanAleksic.Net repository for Maven&lt;/name&gt;
-        &lt;url&gt;http://maven.milanaleksic.net/release/&lt;/url&gt;
-        &lt;layout&gt;default&lt;/layout&gt;
-    &lt;/repository&gt;
-</code></pre>
+<script src="https://gist.github.com/2708850.js?file=repo.xml"></script>
 
 <h2>Little more details</h2>
 
@@ -252,10 +143,7 @@ with your implementation or just route it to SimpleResourceBundleProvider to alw
 (or default messages.properties if first does not exist) as the source for resource naming pattern for string
 properties. For example:</p>
 
-<pre><code>{
-    "_type" : "label",
-    "text" : "[string.from.resources]"
-}</code></pre>
+<script src="https://gist.github.com/2708850.js?file=Messages string provider.json"></script>
 
 <h2>Object provider</h2>
 
@@ -265,10 +153,7 @@ you registered in the DI container.
 You can though use AlwaysReturnNullObjectProvider to always embed null when named object is requested, for example:
 </p>
 
-<pre><code>{
-    "_type" : "net.milanaleksic.application.MyCustomSWTComponent",
-    "someReallyCoolCustomObjectFromSpring" : "(customSpringObject)"
-}</code></pre>
+<script src="https://gist.github.com/2708850.js?file=Object provider.json"></script>
 
 <h2>Images provider</h2>
 
@@ -282,10 +167,7 @@ with the value of the JSON value node for the image setter.</p>
 if you are not able to fetch Maven artifacts please install them locally manually.
 I know it's not a popular approach but there's nothing I can do :)</p>
 
-<pre><code>mvn install:install-file -DgroupId=org.eclipse.swt
-  -DartifactId=org.eclipse.swt.win32.win32.x86 -Dversion=3.7.2
-  -Dfile=swt-3.7.2-win32-win32-x86-debug.jar -Dpackaging=jar -DgeneratePom=true
-</code></pre>
+<script src="https://gist.github.com/2708850.js?file=installSWT.cmd"></script>
 
 <p>I propose using debug artifacts since it allows you to do so much more in debug mode
 in you IDE than normal artifacts! Of course in production mode do pack the non-debug version
@@ -297,7 +179,9 @@ stable SWT version - not by a long shot.</p>
 <p>To be written...</p>
 
 <h1>Interactive editor</h1>
-<p>To be written...</p>
+<p>Editor is a tool that should allow you to quickly change existing or make new GUI files. While you type
+you will be able to see changes immediately, or error message which should make it easier for you
+to understand what is wrong with the GUI definition.</p>
 
       </section>
     </div>
