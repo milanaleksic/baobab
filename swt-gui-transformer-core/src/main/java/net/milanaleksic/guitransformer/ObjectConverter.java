@@ -20,7 +20,7 @@ import static com.google.common.base.Preconditions.checkState;
  */
 public class ObjectConverter implements Converter<Object> {
 
-    private static final Pattern factoryValue = Pattern.compile("\\[([^\\]]+)\\]\\(([^\\)]*)\\)"); //NON-NLS
+    private static final Pattern builderValue = Pattern.compile("\\[([^\\]]+)\\]\\(([^\\)]*)\\)"); //NON-NLS
 
     private static final Pattern springObjectValue = Pattern.compile("\\((.*)\\)");
 
@@ -138,16 +138,16 @@ public class ObjectConverter implements Converter<Object> {
         if (matcher.matches())
             return getSpringObject(mappedObjects, matcher.group(1));
 
-        matcher = factoryValue.matcher(originalValue);
+        matcher = builderValue.matcher(originalValue);
         if (matcher.matches())
-            return constructObjectUsingFactoryNotation(matcher.group(1), matcher.group(2));
+            return constructObjectUsingBuilderNotation(matcher.group(1), matcher.group(2));
 
         throw new TransformerException("Invalid syntax for object definition - " + originalValue);
     }
 
-    private Object constructObjectUsingFactoryNotation(String factoryName, String parameters) throws TransformerException {
+    private Object constructObjectUsingBuilderNotation(String builderName, String parameters) throws TransformerException {
         final List<String> params = Lists.newArrayList(Splitter.on(",").trimResults().split(parameters));
-        final Builder<?> builder = registeredBuilders.get(factoryName);
+        final Builder<?> builder = registeredBuilders.get(builderName);
         if (builder == null)
             throw new TransformerException("Builder is not registered: " + builder);
         return builder.create(params);
@@ -162,8 +162,8 @@ public class ObjectConverter implements Converter<Object> {
 
     public Object createWidgetFromNode(Class<?> widgetClass, JsonNode value, Map<String, Object> mappedObjects) throws TransformerException {
         try {
-            Object ofTheJedi = isWidgetUsingFactory(value)
-                    ? createWidgetUsingFactory(value)
+            Object ofTheJedi = isWidgetUsingBuilder(value)
+                    ? createWidgetUsingBuilder(value)
                     : createWidgetUsingClassInstantination(widgetClass, value);
             transformer.transformNodeToProperties(value, ofTheJedi, mappedObjects);
             return ofTheJedi;
@@ -172,11 +172,11 @@ public class ObjectConverter implements Converter<Object> {
         }
     }
 
-    private Object createWidgetUsingFactory(JsonNode value) throws TransformerException {
-        final Matcher matcher = factoryValue.matcher(value.get(Transformer.KEY_SPECIAL_TYPE).asText());
+    private Object createWidgetUsingBuilder(JsonNode value) throws TransformerException {
+        final Matcher matcher = builderValue.matcher(value.get(Transformer.KEY_SPECIAL_TYPE).asText());
         final boolean processingResult = matcher.matches();
         checkState(processingResult);
-        return constructObjectUsingFactoryNotation(matcher.group(1), matcher.group(2));
+        return constructObjectUsingBuilderNotation(matcher.group(1), matcher.group(2));
     }
 
     private Object createWidgetUsingClassInstantination(Class<?> widgetClass, JsonNode value) throws TransformerException, IllegalAccessException, InstantiationException {
@@ -188,8 +188,8 @@ public class ObjectConverter implements Converter<Object> {
         return ofTheJedi;
     }
 
-    private boolean isWidgetUsingFactory(JsonNode value) {
-        return value.has(Transformer.KEY_SPECIAL_TYPE) && factoryValue.matcher(value.get(Transformer.KEY_SPECIAL_TYPE).asText()).matches();
+    private boolean isWidgetUsingBuilder(JsonNode value) {
+        return value.has(Transformer.KEY_SPECIAL_TYPE) && builderValue.matcher(value.get(Transformer.KEY_SPECIAL_TYPE).asText()).matches();
     }
 
     public Class<?> deduceClassFromNode(JsonNode value) throws TransformerException {
