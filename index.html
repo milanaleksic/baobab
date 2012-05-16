@@ -1,205 +1,246 @@
 <!doctype html>
 <html>
-  <head>
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>Swt-gui-transformer by milanaleksic</title>
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <link rel="stylesheet" href="stylesheets/lightbox.css">
+    <script src="javascripts/jquery-1.7.2.min.js"></script>
     <script src="javascripts/scale.fix.js"></script>
+    <script src="javascripts/lightbox.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-  </head>
-  <body>
-    <div class="wrapper">
-      <header>
+</head>
+<body>
+<div class="wrapper">
+    <header>
         <h1>Swt-gui-transformer</h1>
+
         <p>SWT GUI Transformer</p>
-        <p class="view"><a href="https://github.com/milanaleksic/swt-gui-transformer">View the Project on GitHub <small>milanaleksic/swt-gui-transformer</small></a></p>
+
+        <p class="view"><a href="https://github.com/milanaleksic/swt-gui-transformer">View the Project on GitHub
+            <small>milanaleksic/swt-gui-transformer</small>
+        </a></p>
         <ul>
-          <li><a href="https://github.com/milanaleksic/swt-gui-transformer/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/milanaleksic/swt-gui-transformer/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/milanaleksic/swt-gui-transformer">View On <strong>GitHub</strong></a></li>
+            <li><a href="https://github.com/milanaleksic/swt-gui-transformer/zipball/master">Download <strong>ZIP
+                File</strong></a></li>
+            <li><a href="https://github.com/milanaleksic/swt-gui-transformer/tarball/master">Download <strong>TAR
+                Ball</strong></a></li>
+            <li><a href="https://github.com/milanaleksic/swt-gui-transformer">View On <strong>GitHub</strong></a></li>
         </ul>
-      </header>
-      <section>
+    </header>
+    <section>
         <h1>Fast(er) building of Eclipse SWT-based user interfaces in Java</h1>
 
-<h2>Motivation and design approach</h2>
+        <h2>Motivation and design approach</h2>
 
-<p>Creating pure SWT interfaces is often a headache since it is hard to follow up what is happening in the
-code if you have a complex UI tree. </p>
+        <p>Creating pure SWT interfaces is often a headache since it is hard to follow up what is happening in the
+            code if you have a complex UI tree. </p>
 
-<p>Yes, you can divide the code into thousand methods, but it still does not make it easier to focus on the
-functional part if you have so much ui-generating code.</p>
+        <p>Yes, you can divide the code into thousand methods, but it still does not make it easier to focus on the
+            functional part if you have so much ui-generating code.</p>
 
-<p>There are some very innovative approaches to fix this problem (before all others - GroovySWT). This project
-goes one step further since it does similar thing while you still stay in Java without the clutter of UI code,
-which is migrated to the JSON files (extension *.gui by default). </p>
+        <p>There are some very innovative approaches to fix this problem (before all others - GroovySWT). This project
+            goes one step further since it does similar thing while you still stay in Java without the clutter of UI
+            code,
+            which is migrated to the JSON files (extension *.gui by default). </p>
 
-<h2>Simple example</h2>
+        <h2>Simple example</h2>
 
-<p>Let's say you plan to make a simple username/password form with a single button to accept. If you wish to use
-SGT, you need to make 2 files: java code file <code>com.foobar.MyForm</code> and GUI definition file in the same
-package (with identical name as the form class): <code>com/foobar/MyForm.gui</code></p>
+        <p>Let's say you plan to make a simple username/password form with a single button to accept. If you wish to use
+            SGT, you need to make 2 files: java code file <code>com.foobar.MyForm</code> and GUI definition file in the
+            same
+            package (with identical name as the form class): <code>com/foobar/MyForm.gui</code></p>
 
-<p>First you define the interface (either manually or using editor). Note: the correct filename is MyForm.gui,
-but for the sake of syntax highlighting by Github's Gist I appended the "json" extenion.</p>
+        <p>First you define the interface (either manually or using editor). Note: the correct filename is MyForm.gui,
+            but for the sake of syntax highlighting by Github's Gist I appended the "json" extenion.</p>
 
-<script src="https://gist.github.com/2708850.js?file=MyForm.gui.json"></script>
+        <script src="https://gist.github.com/2708850.js?file=MyForm.gui.json"></script>
 
-<p>Then you need only to define the class. Be aware though that there is much more noise in the example below
-then it will be in real program - I wanted to present a fully functional example.</p>
+        <p>Then you need only to define the class. Be aware though that there is much more noise in the example below
+            then it will be in real program - I wanted to present a fully functional example.</p>
 
-<script src="https://gist.github.com/2708850.js?file=MyForm.java"></script>
+        <script src="https://gist.github.com/2708850.js?file=MyForm.java"></script>
 
-<p>Finally, this is what you get when you run the code:</p>
+        <p>Finally, this is what you get when you run the code:</p>
 
-<div style="text-align:center"><img src="images/shot.png" /></div>
+        <div style="text-align:center"><img src="images/shot.png"/></div>
 
-<h2>How to download and try it</h2>
+        <h2>How to download and try it</h2>
 
-<p>This project is published as a Maven artifact so you can just go ahead and include it in your 
-Buildr, Maven, Ant/Ivy build config:</p>
+        <p>This project is published as a Maven artifact so you can just go ahead and include it in your
+            Buildr, Maven, Ant/Ivy build config:</p>
 
-<script src="https://gist.github.com/2708850.js?file=dependency1.xml"></script>
+        <script src="https://gist.github.com/2708850.js?file=dependency1.xml"></script>
 
-<p>If you wish to play with the GUI interactive editor you can download it and run it also
-via single dependency:</p>
+        <p>If you wish to play with the GUI interactive editor you can download it and run it also
+            via single dependency:</p>
 
-<script src="https://gist.github.com/2708850.js?file=dependency2.xml"></script>
+        <script src="https://gist.github.com/2708850.js?file=dependency2.xml"></script>
 
-<p>The repository where this artifact is deployed is:</p>
+        <p>The repository where this artifact is deployed is:</p>
 
-<script src="https://gist.github.com/2708850.js?file=repo.xml"></script>
+        <script src="https://gist.github.com/2708850.js?file=repo.xml"></script>
 
-<h2>Little more details</h2>
+        <h2>Little more details</h2>
 
-<p>As you have already maybe seen, SGT fact uses JSON input files as definition of the UI Shell and generates all of the
-components for you.</p>
+        <p>As you have already maybe seen, SGT fact uses JSON input files as definition of the UI Shell and generates
+            all of the
+            components for you.</p>
 
-<h3>Accessing widgets</h3>
+        <h3>Accessing widgets</h3>
 
-<p>You can access all the components in the UI either</p>
+        <p>You can access all the components in the UI either</p>
 
-<ol>
-<li><p>by asking for them using their name (something similar to the Servlet attribute/parameter approach for accessing) 
-using <code>net.milanaleksic.guitransformer.TransformationContext.&lt;*widgetClass*&gt;getMappedObject(*widgetName*)</code></p></li>
-<li><p>or using annotation <code>net.milanaleksic.guitransformer.EmbeddedComponent</code> in your form class to have the component
-injected for you (approach based on dependency injection pattern)</p></li>
-</ol><p>In my opinion, first approach is useful for the cases when you wish to execute a simple and small action, like 
-setting a <em>dynamic</em> text in some component (e.g. web service version fetched from far away). Second approach
-is useful when you wish to maintain reference to the widget throughout the life of the form (e.g. you need to keep
-reference to username/password text widgets until the user clicks on OK).</p>
+        <ol>
+            <li><p>by asking for them using their name (something similar to the Servlet attribute/parameter approach
+                for accessing)
+                using <code>net.milanaleksic.guitransformer.TransformationContext.&lt;*widgetClass*&gt;getMappedObject(*widgetName*)</code>
+            </p></li>
+            <li><p>or using annotation <code>net.milanaleksic.guitransformer.EmbeddedComponent</code> in your form class
+                to have the component
+                injected for you (approach based on dependency injection pattern)</p></li>
+        </ol>
+        <p>In my opinion, first approach is useful for the cases when you wish to execute a simple and small action,
+            like
+            setting a <em>dynamic</em> text in some component (e.g. web service version fetched from far away). Second
+            approach
+            is useful when you wish to maintain reference to the widget throughout the life of the form (e.g. you need
+            to keep
+            reference to username/password text widgets until the user clicks on OK).</p>
 
-<h3>Event handling</h3>
+        <h3>Event handling</h3>
 
-<p>No, you don't need to attach event listeners by yourself, SGT takes care of that (unless you wish to do something
-really complex which I did not cover, in which case you need to read the part "Accessing widgets").</p>
+        <p>No, you don't need to attach event listeners by yourself, SGT takes care of that (unless you wish to do
+            something
+            really complex which I did not cover, in which case you need to read the part "Accessing widgets").</p>
 
-<p>The way to handle automatic event listeners is based on injection and widget naming. If you give your widget a name
-then you can include a field of type <code>org.eclipse.swt.widgets.Listener</code> and annotate it with 
-<code>net.milanaleksic.guitransformer.EmbeddedEventListener</code> or, in case you wish to use the same event listeners
-for multiple events from multiple widgets (or same event type from multiple widgets or different event types
-from same widget - I think you got the picture), use annotation 
-<code>net.milanaleksic.guitransformer.EmbeddedEventListeners</code>.</p>
+        <p>The way to handle automatic event listeners is based on injection and widget naming. If you give your widget
+            a name
+            then you can include a field of type <code>org.eclipse.swt.widgets.Listener</code> and annotate it with
+            <code>net.milanaleksic.guitransformer.EmbeddedEventListener</code> or, in case you wish to use the same
+            event listeners
+            for multiple events from multiple widgets (or same event type from multiple widgets or different event types
+            from same widget - I think you got the picture), use annotation
+            <code>net.milanaleksic.guitransformer.EmbeddedEventListeners</code>.</p>
 
-<h2>Project dependencies</h2>
+        <h2>Project dependencies</h2>
 
-<p>SWT GUI Transformer depends on following frameworks/libraries:</p>
+        <p>SWT GUI Transformer depends on following frameworks/libraries:</p>
 
-<ul>
-<li>(of course) <strong>SWT</strong>
-</li>
-<li>Google <strong>Guava</strong>
-</li>
-<li>
-<strong>Jackson</strong> - fastest JSON parser</li>
-<li>
-<strong>javax.inject</strong> provider (for example Google Guice or Spring)</li>
-</ul><p>If you don't use these libraries than you might need to fork the code
-and try to hack your way through.</p>
+        <ul>
+            <li>(of course) <strong>SWT</strong>
+            </li>
+            <li>Google <strong>Guava</strong>
+            </li>
+            <li>
+                <strong>Jackson</strong> - fastest JSON parser
+            </li>
+            <li>
+                <strong>javax.inject</strong> provider (for example Google Guice or Spring)
+            </li>
+        </ul>
+        <p>If you don't use these libraries than you might need to fork the code
+            and try to hack your way through.</p>
 
-<p>JRE required is 1.6.0</p>
+        <p>JRE required is 1.6.0</p>
 
-<h1>Providers</h1>
+        <h1>Providers</h1>
 
-<h2>What?</h2>
+        <h2>What?</h2>
 
-<p>If I believe there is an extension point that you will really really like to use, there is a provider
-interface for it. You use your dependency injection framework to say "here is the implementor for the provider",
-and like magic you'll see our application messages, images from your resources or external location or even
-<strong>other beans</strong> from your DI framework showing up as possible candidates for wiring into
-SGT definition JSONs.</p>
+        <p>If I believe there is an extension point that you will really really like to use, there is a provider
+            interface for it. You use your dependency injection framework to say "here is the implementor for the
+            provider",
+            and like magic you'll see our application messages, images from your resources or external location or even
+            <strong>other beans</strong> from your DI framework showing up as possible candidates for wiring into
+            SGT definition JSONs.</p>
 
-<h2>Messages string provider</h2>
+        <h2>Messages string provider</h2>
 
-<p>Use your DI container to override <code>net.milanaleksic.guitransformer.providers.ResourceBundleProvider</code>
-with your implementation or just route it to SimpleResourceBundleProvider to always use messages_en.properties
-(or default messages.properties if first does not exist) as the source for resource naming pattern for string
-properties. For example:</p>
+        <p>Use your DI container to override
+            <code>net.milanaleksic.guitransformer.providers.ResourceBundleProvider</code>
+            with your implementation or just route it to SimpleResourceBundleProvider to always use
+            messages_en.properties
+            (or default messages.properties if first does not exist) as the source for resource naming pattern for
+            string
+            properties. For example:</p>
 
-<script src="https://gist.github.com/2708850.js?file=Messages string provider.json"></script>
+        <script src="https://gist.github.com/2708850.js?file=Messages string provider.json"></script>
 
-<h2>Object provider</h2>
+        <h2>Object provider</h2>
 
-<p>When you use named object syntax to ask from the DI for a named object in JSON definition,
-you basically ask it from implementation of <code>net.milanaleksic.guitransformer.providers.ObjectProvider</code>
-you registered in the DI container.
-You can though use AlwaysReturnNullObjectProvider to always embed null when named object is requested, for example:
-</p>
+        <p>When you use named object syntax to ask from the DI for a named object in JSON definition,
+            you basically ask it from implementation of
+            <code>net.milanaleksic.guitransformer.providers.ObjectProvider</code>
+            you registered in the DI container.
+            You can though use AlwaysReturnNullObjectProvider to always embed null when named object is requested, for
+            example:
+        </p>
 
-<script src="https://gist.github.com/2708850.js?file=Object provider.json"></script>
+        <script src="https://gist.github.com/2708850.js?file=Object provider.json"></script>
 
-<h2>Images provider</h2>
+        <h2>Images provider</h2>
 
-<p>Use your DI container to override <code>net.milanaleksic.guitransformer.providers.ImageProvider</code>
-with your implementation or just route it to AlwaysReturnEmptyImageProvider to always embed dummy image
-with the value of the JSON value node for the image setter.</p>
+        <p>Use your DI container to override <code>net.milanaleksic.guitransformer.providers.ImageProvider</code>
+            with your implementation or just route it to AlwaysReturnEmptyImageProvider to always embed dummy image
+            with the value of the JSON value node for the image setter.</p>
 
-<h1>Some development notes:</h1>
+        <h1>Some development notes:</h1>
 
-<p>Since Eclipse doesn't really like to use Maven to store SWT artifacts (at least for now)
-if you are not able to fetch Maven artifacts please install them locally manually.
-I know it's not a popular approach but there's nothing I can do :)</p>
+        <p>Since Eclipse doesn't really like to use Maven to store SWT artifacts (at least for now)
+            if you are not able to fetch Maven artifacts please install them locally manually.
+            I know it's not a popular approach but there's nothing I can do :)</p>
 
-<script src="https://gist.github.com/2708850.js?file=installSWT.cmd"></script>
+        <script src="https://gist.github.com/2708850.js?file=installSWT.cmd"></script>
 
-<p>I propose using debug artifacts since it allows you to do so much more in debug mode
-in you IDE than normal artifacts! Of course in production mode do pack the non-debug version
-besides the jar of GUI Transformer. This is the approach used in Eclipse's testing Maven
-repository used in the POM of the project - although it is not up to date with latest
-stable SWT version - not by a long shot.</p>
+        <p>I propose using debug artifacts since it allows you to do so much more in debug mode
+            in you IDE than normal artifacts! Of course in production mode do pack the non-debug version
+            besides the jar of GUI Transformer. This is the approach used in Eclipse's testing Maven
+            repository used in the POM of the project - although it is not up to date with latest
+            stable SWT version - not by a long shot.</p>
 
-<h1>Complete documentation</h1>
-<p>To be written...</p>
+        <h1>Complete documentation</h1>
 
-<h1>Interactive editor</h1>
-<p>Editor is a tool that should allow you to quickly change existing or make new GUI files. While you type
-you will be able to see changes immediately, or error message which should make it easier for you
-to understand what is wrong with the GUI definition.</p>
+        <p>To be written...</p>
 
-      </section>
-    </div>
-    <footer>
-      <p>Project maintained by <a href="https://github.com/milanaleksic">milanaleksic</a></p>
-      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
-    </footer>
-    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
-              <script type="text/javascript">
-            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-          </script>
-          <script type="text/javascript">
-            try {
-              var pageTracker = _gat._getTracker("UA-31731496-1");
-            pageTracker._trackPageview();
-            } catch(err) {}
-          </script>
+        <h1>Interactive editor</h1>
 
-  </body>
+        <p>Editor is a tool that should allow you to quickly change existing or make new GUI files. While you type
+            you will be able to see changes immediately, or error message which should make it easier for you
+            to understand what is wrong with the GUI definition.</p>
+
+        <p>
+           <a href="images/editor.png" rel="lightbox" title="my caption">
+                <img src="images/editor_mini.jpg" />
+            </a>
+        </p>
+
+    </section>
+</div>
+<footer>
+    <p>Project maintained by <a href="https://github.com/milanaleksic">milanaleksic</a></p>
+    <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+</footer>
+<!--[if !IE]>
+<script>fixScale(document);</script><!--<![endif]-->
+<script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+    try {
+        var pageTracker = _gat._getTracker("UA-31731496-1");
+        pageTracker._trackPageview();
+    } catch(err) {
+    }
+</script>
+
+</body>
 </html>
