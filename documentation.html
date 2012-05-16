@@ -19,98 +19,107 @@
 </head>
 <body>
 <div class="wrapper">
-    <header>
-        <h1>swt-gui-transformer</h1>
+<header>
+    <h1>swt-gui-transformer</h1>
 
-        <p>&quot;JSON → SWT shells&quot; GUI Transformer tool for Java delopers</p>
+    <p>&quot;JSON → SWT shells&quot; GUI Transformer tool for Java delopers</p>
 
-        <p class="view"><a href="https://github.com/milanaleksic/swt-gui-transformer">View the Project on GitHub
-            <small>milanaleksic/swt-gui-transformer</small>
-        </a></p>
-        <ul>
-            <li><a href="https://github.com/milanaleksic/swt-gui-transformer/zipball/master">Download <strong>ZIP
-                File</strong></a></li>
-            <li><a href="https://github.com/milanaleksic/swt-gui-transformer/tarball/master">Download <strong>TAR
-                Ball</strong></a></li>
-            <li><a href="https://github.com/milanaleksic/swt-gui-transformer">View On <strong>GitHub</strong></a></li>
-        </ul>
-    </header>
-    <section>
-        <blockquote>Wish to see <a href="index.html">just the basics</a>?</blockquote>
+    <p class="view"><a href="https://github.com/milanaleksic/swt-gui-transformer">View the Project on GitHub
+        <small>milanaleksic/swt-gui-transformer</small>
+    </a></p>
+    <ul>
+        <li><a href="https://github.com/milanaleksic/swt-gui-transformer/zipball/master">Download <strong>ZIP
+            File</strong></a></li>
+        <li><a href="https://github.com/milanaleksic/swt-gui-transformer/tarball/master">Download <strong>TAR
+            Ball</strong></a></li>
+        <li><a href="https://github.com/milanaleksic/swt-gui-transformer">View On <strong>GitHub</strong></a></li>
+    </ul>
+</header>
+<section>
+    <blockquote>Wish to see <a href="index.html">just the basics</a>?</blockquote>
 
-        <h1>Documentation</h1>
+    <h1>Documentation</h1>
 
-        <p>You use SGT to convert JSON to create SWT beans using:</p>
-        <ol>
-            <li><a href="#explicit-notation">explicit class mention</a>,</li>
-            <li><a href="#shortcut-notation">shortcut notation</a> or</li>
-            <li><a href="#factory-notation">factory notation</a>.</li>
-        </ol>
-        <p>and then to configure them using either</p>
-        <ol>
-            <li>method setters or</li>
-            <li>direct field access</li>
-        </ol>
-        <p>When configuring beans, SGT will figure out what approach to use, you should just make sure the property
-            you are configuring isexposed in the means of setter methods or public fields.</p>
+    <p>You use SGT to convert JSON to create SWT beans using:</p>
+    <ol>
+        <li><a href="#explicit-notation">explicit class mention</a>,</li>
+        <li><a href="#shortcut-notation">shortcut notation</a> or</li>
+        <li><a href="#builder-notation">builder notation</a>.</li>
+    </ol>
+    <p>and then to configure them using either</p>
+    <ol>
+        <li>method setters or</li>
+        <li>direct field access</li>
+    </ol>
+    <p>When configuring beans, SGT will figure out what approach to use, you should just make sure the property
+        you are configuring is exposed in the means of setter methods or public fields.</p>
 
-        <p>SGT uses type information to find out which <a href="#converters">converter</a> to use to map the JSON node
-            value to
-            the target object (more info later on this page).</p>
+    <!--TODO: children-->
+    <!--TODO: other special tags-->
+    <p>SGT uses type information to find out which <a href="#converters">converter</a> to use to map the JSON node
+        value to the target object (more info later on this page).</p>
 
-        <h2 id="explicit-notation">Explicit class mention</h2>
+    <p>If you wish to use resource bundle messages, images and beans injections into your beans you
+        should definitely take a look at how to implement <a href="#providers">providers</a>.</p>
 
-        <p>To <strong>create</strong> beans using this approach, you should open a bracket and use special
-            tag <strong>_type</strong> to note exact class you wish to instantiate:</p>
+    <p>Finally, when you have finished working with the interface, you need to be able to use all those widgets
+        and to react on their events, right? Take a look how I implemented event and widgets annotation-driven<a
+                href="#embedding">embedding</a>.
+    </p>
 
-    <pre>    {
+    <h2 id="explicit-notation">Explicit class mention</h2>
+
+    <p>To <strong>create</strong> beans using this approach, you should open a bracket and use special
+        tag <strong>_type</strong> to note exact class you wish to instantiate:</p>
+
+        <pre>    {
         "_type" : "org.eclipse.swt.widgets.Label",
         .....
     }</pre>
 
-        <h2 id="shortcut-notation">Shortcut notation</h2>
+    <h2 id="shortcut-notation">Shortcut notation</h2>
 
-        <p>This approach is used to make definition writing faster since it allows you to use quick type identifiers
-            instead of full class names.</p>
+    <p>This approach is used to make definition writing faster since it allows you to use quick type identifiers
+        instead of full class names.</p>
 
         <pre>    {
         "_type" : "label",
         .....
     }</pre>
 
-        <p>If you wish to see entire list of supported shortcuts out-of-the-box in SGT, take a look at the
-            current version's <code>knownShortcuts</code> field in
-            <a href="https://github.com/milanaleksic/swt-gui-transformer/blob/master/swt-gui-transformer-core/src/main/java/net/milanaleksic/guitransformer/ObjectConverter.java">ObjectConverter
-                class</a>.</p>
+    <p>If you wish to see entire list of supported shortcuts out-of-the-box in SGT, take a look at the
+        current version's <code>knownShortcuts</code> field in
+        <a href="https://github.com/milanaleksic/swt-gui-transformer/blob/master/swt-gui-transformer-core/src/main/java/net/milanaleksic/guitransformer/ObjectConverter.java">ObjectConverter
+            class</a>.</p>
 
-        <h3>Wish to extend?</h3>
+    <h3>Wish to extend?</h3>
 
-        <p>If you wish to extend the list of the items to use some additional SWT classes or if you wish to
-            use shortcuts for your own widgets, you can create properties file <code>/META-INF/guitransformer.shortcuts.properties</code>
-            like I did it in <a
-                    href="https://github.com/milanaleksic/MovieCatalogSystem/blob/master/source/java/META-INF/guitransformer.shortcuts.properties">MovieCatalogSystem</a>.
-            If you use this approach and wish to use SGT's interactive editor for your project's GUI files,
-            just include the compiled output to the editor's classpath.
-        </p>
+    <p>If you wish to extend the list of the items to use some additional SWT classes or if you wish to
+        use shortcuts for your own widgets, you can create properties file <code>/META-INF/guitransformer.shortcuts.properties</code>
+        like I did it in <a
+                href="https://github.com/milanaleksic/MovieCatalogSystem/blob/master/source/java/META-INF/guitransformer.shortcuts.properties">MovieCatalogSystem</a>.
+        If you use this approach and wish to use SGT's interactive editor for your project's GUI files,
+        just include the compiled output to the editor's classpath.
+    </p>
 
-        <h2 id="factory-notation">Factory notation</h2>
+    <h2 id="builder-notation">Builder notation</h2>
 
-        <p>For some complex cases it is too exhausting to set all properties manually, especially if the widget
-            appears too often. Factory pattern should help you with this problem by lowering the amount of text
-            you need to enter to get the same result.</p>
+    <p>For some complex cases it is too exhausting to set all properties manually, especially if the widget
+        appears too often. Builder pattern should help you with this problem by lowering the amount of text
+        you need to enter to get the same result.</p>
 
-        <p>Notation is as follows:</p>
+    <p>Notation is as follows:</p>
 
-        <pre>    [FactoryName](param1,param2...)</pre>
+    <pre>    [builderName](param1,param2...)</pre>
 
-        <p>The param count is generic, implementation of <code>net.milanaleksic.guitransformer.Builder&lt;T&gt;</code>
-            has only one method create that gets List of all parameters.</p>
+    <p>The param count is generic, implementation of <code>net.milanaleksic.guitransformer.Builder&lt;T&gt;</code>
+        has only one method create that gets List of all parameters.</p>
 
-        <h3>Example: GridDataBuilder</h3>
+    <h3>Example: GridDataBuilder</h3>
 
-        <p>This approach is used in SGT to replace creation of the GridData object which can be
-            quite cumbersome if you base you layout on it a lot. Using GridDataBuilder you can replace following block
-            of code:</p>
+    <p>This approach is used in SGT to replace creation of the GridData object which can be
+        quite cumbersome if you base you layout on it a lot. Using GridDataBuilder you can replace following block
+        of code:</p>
 
         <pre>   "_type" : "composite",
     "layoutData" : {
@@ -121,67 +130,177 @@
         "grabExcessVerticalSpace" : false
     },</pre>
 
-        <p>with following shorter variant:</p>
+    <p>with following shorter variant:</p>
 
         <pre>    "_type" : "composite",
     "layoutData" : "[gridData](center,begin,true,false)",</pre>
 
-        <h3>Wish to extend?</h3>
+    <h3>Wish to extend?</h3>
 
-        <p>First, you need to make your own implementations of interface <code>net.milanaleksic.guitransformer.Builder&lt;T&gt;</code>.
-        </p>
+    <p>First, you need to make your own implementations of interface <code>net.milanaleksic.guitransformer.Builder&lt;T&gt;</code>.
+    </p>
 
-        <p>Second thing to do is to use DI and extend the <code>net.milanaleksic.guitransformer.guice.CoreModule</code>
-            and implement your own <code>prepareRegisteredBuildersForObjectConverter</code> method if you're using
-            Guice or just introduce more mappings in Spring configuration for field <code>registeredBuilders</code>
-            for bean of type <code>net.milanaleksic.guitransformer.ObjectConverter</code>.</p>
+    <p>Second thing to do is to use DI and extend the <code>net.milanaleksic.guitransformer.guice.CoreModule</code>
+        and implement your own <code>prepareRegisteredBuildersForObjectConverter</code> method if you're using
+        Guice or just introduce more mappings in Spring configuration for field <code>registeredBuilders</code>
+        for bean of type <code>net.milanaleksic.guitransformer.ObjectConverter</code>.</p>
 
-        <h2 id="converters">Converters</h2>
+    <h2 id="converters">Converters</h2>
 
-        <h2>Providers</h2>
+    <p>Converters are critical to the SGT application. JSON only recognizes Strings, booleans and number values.
+        How can you possibly map a <code>TabItem</code>? The trick is in converters - they are specialized
+        for converting a JSON node (which can be text, number, boolean, array or object node) into a specific
+        <strong>target type</strong>.</p>
 
-        <p>If I believe there is an extension point that you will really really like to use, there is a provider
-            interface for it. You use your dependency injection framework to say "here is the implementor for the
-            provider", and like magic you'll see our application messages, images from your resources or external
-            location or even <strong>other beans</strong> from your DI framework showing up as possible candidates
-            for wiring into SGT definition JSONs.</p>
+    <p>To detect target type, SGT uses type introspection at runtime. For example, when it encounters
+        a field of type <code>int</code>, it will use <code>IntegerConverter</code> to convert the value
+        on the right side of JSON property to appropriate type - int. IntegerConverter is, though, more
+        powerful because it has magic value notation, which you can read in details later.</p>
 
-        <h3>Messages string provider</h3>
+    <p>Using dependency injection you can extend the currently supported list to other items as well. </p>
 
-        <p>Use your DI container to override
-            <code>net.milanaleksic.guitransformer.providers.ResourceBundleProvider</code>
-            with your implementation or just route it to SimpleResourceBundleProvider to always use
-            messages_en.properties (or default messages.properties if first does not exist) as the source for resource
-            naming pattern for string properties. For example:</p>
+    <p>Currently supported converters (most of them are in package <code>net.milanaleksic.guitransformer.typed</code>)
+        are:</p>
+
+    <ol>
+        <li><code>BooleanConverter</code></li>
+        <li><code>ColorConverter</code></li>
+        <li><code>IntegerConverter</code></li>
+        <li><code>FontConverter</code></li>
+        <li><code>ImageConverter</code></li>
+        <li><code>PointConverter</code></li>
+        <li><code>StringConverter</code></li>
+        <li>if none is appropriate - fallback to <code>net.milanaleksic.guitransformer.ObjectConverter</code></li>
+    </ol>
+
+    <h4>BooleanConverter</h4>
+
+    <p>This converter is the most basic one - it just converts the JSON native boolean value to Java's. Nothing else
+        to it.</p>
+
+    <h4>ColorConverter</h4>
+
+    <p>This converter can be used in 2 different ways:</p>
+    <ol>
+        <li>it allows you to use classic CSS color notation in GUI files (which is in my opinion cool),</li>
+        <li>you can reference SWT system colors by using the name of the color in <em>lowercase</em>.</li>
+    </ol>
+    <pre>    {
+        "_type" : "label",
+        "foreground" : "#0000ff",              // HTML/CSS color definition: r:0, g:0, b:255
+        "background" : "color_list_foreground" // system color org.eclipse.swt.SWT.COLOR_LIST_FOREGROUND
+    }</pre>
+
+    <h4>IntegerConverter</h4>
+
+    <p>Allows not only exact integer value to be placed as property value, but also to use magic number notation
+        to reference the colors from the SWT class (but in lower case). This approach can be combined with
+        the special tag <strong>_style</strong> used to set the widget's style when creating instance.
+    </p>
+
+    <p>Since it is quite often needed to use bitwise OR when declaring values (styles before all else),
+        IntegerConverter also accepts OR operator:</p>
+
+    <pre>    {
+        "_type" : "text",
+        "_style" : "{multi}|{wrap}|{v_scroll}|{border}" // SWT.MULTI | SWT.WRAP | SWT.V_SCROLL | SWT.BORDER
+    }</pre>
+
+    <h4>FontConverter</h4>
+    <p>This converter expects an object notation on the right side of the property with one of following
+        properties:</p>
+    <ol>
+        <li><code>name</code> - font name face,</li>
+        <li><code>height</code> - height of the font</li>
+        <li><code>style</code> - it can be set to text values <strong>bold</strong> or <strong>italic</strong></li>
+    </ol>
+    <p>For whatever is not set, FontConverter will use values from default system font.</p>
+    <pre>    {
+        "_type" : "label",
+        "font" : {
+            "height" : 12,
+            "style" : "bold",
+            "name" : "Courier New"
+        }
+    }</pre>
+
+    <h4>ImageConverter</h4>
+    <p>This converter just delegates the image name to image provider to do whatever it wants with it.</p>
+    <p>For example, in MCS I have image provider implementation that uses the value as a full path
+        to the location in application resources, from where it fetches it for SGT to embed.</p>
+
+    <pre>    {
+        "_type" : "toolItem",
+        "image" : "/net/milanaleksic/mcs/application/res/media.png"
+    }</pre>
+
+    <h4>PointConverter</h4>
+    <p>Very basic converter that uses simple string pattern <code>x,y</code> as the value definition.</p>
+    <pre>    {
+        "_type" : "shell",
+        "size" : "412,326"
+    }</pre>
+
+    <h4>StringConverter</h4>
+    <p>What ever string you enter on the right side of the property, it will be set in the bean's property.</p>
+    <p>If you put part of the text in the square brackets ([]), messageProvider will be asked for the value
+        behind it. That should be, most logically, a String from the resourceBundle for the current application
+        locale, but doesn't have to be.</p>
+
+    <pre>    {
+        "_type" : "label",
+        "text" : "[delete.doYouReallyWishToDeleteMovie]"
+    }</pre>
+
+    <h4>ObjectConverter</h4>
+    <p>
+        <!--TODO-->
+    </p>
+
+    <h2 id="providers">Providers</h2>
+
+    <p>If I believe there is an extension point that you will really really like to use, there is a provider
+        interface for it. You use your dependency injection framework to say "here is the implementor for the
+        provider", and like magic you'll see our application messages, images from your resources or external
+        location or even <strong>other beans</strong> from your DI framework showing up as possible candidates
+        for wiring into SGT definition JSONs.</p>
+
+    <h3>Messages string provider</h3>
+
+    <p>Use your DI container to override
+        <code>net.milanaleksic.guitransformer.providers.ResourceBundleProvider</code>
+        with your implementation or just route it to SimpleResourceBundleProvider to always use
+        messages_en.properties (or default messages.properties if first does not exist) as the source for resource
+        naming pattern for string properties. For example:</p>
 
     <pre>    {
         "_type" : "label",
         "text" : "[string.from.resources]"
     }</pre>
 
-        <h3>Object provider</h3>
+    <h3>Object provider</h3>
 
-        <p>When you use named object syntax to ask from the DI for a named object in JSON definition,
-            you basically ask it from implementation of
-            <code>net.milanaleksic.guitransformer.providers.ObjectProvider</code>
-            you registered in the DI container.
-            You can though use AlwaysReturnNullObjectProvider to always embed null when named object is requested, for
-            example:
-        </p>
+    <p>When you use named object syntax to ask from the DI for a named object in JSON definition,
+        you basically ask it from implementation of
+        <code>net.milanaleksic.guitransformer.providers.ObjectProvider</code>
+        you registered in the DI container.
+        You can though use AlwaysReturnNullObjectProvider to always embed null when named object is requested, for
+        example:</p>
 
     <pre>    {
         "_type" : "net.milanaleksic.application.MyCustomSWTComponent",
         "someReallyCoolCustomObjectFromSpring" : "(customSpringObject)"
     }</pre>
 
-        <h3>Images provider</h3>
+    <h3>Images provider</h3>
 
-        <p>Use your DI container to override <code>net.milanaleksic.guitransformer.providers.ImageProvider</code>
-            with your implementation or just route it to AlwaysReturnEmptyImageProvider to always embed dummy image
-            with the value of the JSON value node for the image setter.</p>
+    <p>Use your DI container to override <code>net.milanaleksic.guitransformer.providers.ImageProvider</code>
+        with your implementation or just route it to AlwaysReturnEmptyImageProvider to always embed dummy image
+        with the value of the JSON value node for the image setter.</p>
 
+    <h2 id="embedding">Embedding</h2>
 
-    </section>
+</section>
 </div>
 <footer>
     <p>Project maintained by <a href="https://github.com/milanaleksic">milanaleksic</a></p>
