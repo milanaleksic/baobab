@@ -19,176 +19,178 @@
 </head>
 <body>
 <div class="wrapper">
-<header>
-    <h1>swt-gui-transformer</h1>
+    <header>
+        <h1>swt-gui-transformer</h1>
 
-    <p>Fast(er) building of Eclipse SWT-based user interfaces in Java using JSON</p>
+        <p>Fast(er) building of Eclipse SWT-based user interfaces in Java using JSON</p>
 
-    <p class="view"><a href="https://github.com/milanaleksic/swt-gui-transformer">View the Project on GitHub
-        <small>milanaleksic/swt-gui-transformer</small>
-    </a></p>
-    <ul>
-        <li><a href="https://github.com/milanaleksic/swt-gui-transformer/zipball/master">Download <strong>ZIP
-            File</strong></a></li>
-        <li><a href="https://github.com/milanaleksic/swt-gui-transformer/tarball/master">Download <strong>TAR
-            Ball</strong></a></li>
-        <li><a href="https://github.com/milanaleksic/swt-gui-transformer">View On <strong>GitHub</strong></a></li>
-    </ul>
-</header>
-<section>
-    <blockquote>Wish to see <a href="documentation.html">all documentation detail</a>?</blockquote>
+        <p class="view"><a href="https://github.com/milanaleksic/swt-gui-transformer">View the Project on GitHub
+            <small>milanaleksic/swt-gui-transformer</small>
+        </a></p>
+        <ul>
+            <li><a href="https://github.com/milanaleksic/swt-gui-transformer/zipball/master">Download <strong>ZIP
+                File</strong></a></li>
+            <li><a href="https://github.com/milanaleksic/swt-gui-transformer/tarball/master">Download <strong>TAR
+                Ball</strong></a></li>
+            <li><a href="https://github.com/milanaleksic/swt-gui-transformer">View On <strong>GitHub</strong></a></li>
+        </ul>
+    </header>
+    <section>
+        <blockquote>Wish to see <a href="documentation.html">all documentation detail</a>?</blockquote>
 
-    <h2>Motivation and design approach</h2>
+        <h1>Basics</h1>
 
-    <p>Creating pure SWT interfaces is often a headache since it is hard to follow up what is happening in the
-        code if you have a complex UI tree. </p>
+        <h2>Motivation and design approach</h2>
 
-    <p>Yes, you can divide the code into thousand methods, but it still does not make it easier to focus on the
-        functional part if you have so much ui-generating code.</p>
+        <p>Creating pure SWT interfaces is often a headache since it is hard to follow up what is happening in the
+            code if you have a complex UI tree. </p>
 
-    <p>There are some very innovative approaches to fix this problem (before all others - GroovySWT). This project
-        goes one step further since it does similar thing while you still stay in Java without the clutter of UI
-        code, which is migrated to the JSON files (extension *.gui by default). </p>
+        <p>Yes, you can divide the code into thousand methods, but it still does not make it easier to focus on the
+            functional part if you have so much ui-generating code.</p>
 
-    <h2>Simple example</h2>
+        <p>There are some very innovative approaches to fix this problem (before all others - GroovySWT). This project
+            goes one step further since it does similar thing while you still stay in Java without the clutter of UI
+            code, which is migrated to the JSON files (extension *.gui by default). </p>
 
-    <p>Let's say you plan to make a simple username/password form with a single button to accept. If you wish to use
-        SGT, you need to make 2 files: java code file <code>com.foobar.MyForm</code> and GUI definition file in the
-        same package (with identical name as the form class): <code>com/foobar/MyForm.gui</code></p>
+        <h2>Simple example</h2>
 
-    <p>First you define the interface (either manually or using editor). Note: the correct filename is MyForm.gui,
-        but for the sake of syntax highlighting by Github's Gist I appended the "json" extenion.</p>
+        <p>Let's say you plan to make a simple username/password form with a single button to accept. If you wish to use
+            SGT, you need to make 2 files: java code file <code>com.foobar.MyForm</code> and GUI definition file in the
+            same package (with identical name as the form class): <code>com/foobar/MyForm.gui</code></p>
 
-    <script src="https://gist.github.com/2708850.js?file=MyForm.gui.json"></script>
+        <p>First you define the interface (either manually or using editor). Note: the correct filename is MyForm.gui,
+            but for the sake of syntax highlighting by Github's Gist I appended the "json" extenion.</p>
 
-    <p>Then you need only to define the class. Be aware though that there is much more noise in the example below
-        then it will be in real program - I wanted to present a fully functional example.</p>
+        <script src="https://gist.github.com/2708850.js?file=MyForm.gui.json"></script>
 
-    <script src="https://gist.github.com/2708850.js?file=MyForm.java"></script>
+        <p>Then you need only to define the class. Be aware though that there is much more noise in the example below
+            then it will be in real program - I wanted to present a fully functional example.</p>
 
-    <p>Finally, this is what you get when you run the code:</p>
+        <script src="https://gist.github.com/2708850.js?file=MyForm.java"></script>
 
-    <div style="text-align:center"><img src="images/shot.png"/></div>
+        <p>Finally, this is what you get when you run the code:</p>
 
-    <h2>How to download and try it</h2>
+        <div style="text-align:center"><img src="images/shot.png"/></div>
 
-    <p>This project is published as a Maven artifact so you can just go ahead and include it in your
-        Buildr, Maven, Ant/Ivy build config:</p>
+        <h2>How to download and try it</h2>
+
+        <p>This project is published as a Maven artifact so you can just go ahead and include it in your
+            Buildr, Maven, Ant/Ivy build config:</p>
 
         <script src="https://gist.github.com/2708850.js?file=dependency1.xml"></script>
 
-    <p>If you wish to play with the GUI interactive editor you can download it and run it also
-        via single dependency:</p>
+        <p>If you wish to play with the GUI interactive editor you can download it and run it also
+            via single dependency:</p>
 
         <script src="https://gist.github.com/2708850.js?file=dependency2.xml"></script>
 
-    <p>The repository where this artifact is deployed is:</p>
+        <p>The repository where this artifact is deployed is:</p>
 
         <script src="https://gist.github.com/2708850.js?file=repo.xml"></script>
 
-    <p>Since Eclipse doesn't really like to use Maven to store SWT artifacts (at least for now)
-        if you are not able to fetch Maven artifacts please install them locally manually.
-        I know it's not a popular approach but there's nothing I can do :)</p>
+        <p>Since Eclipse doesn't really like to use Maven to store SWT artifacts (at least for now)
+            if you are not able to fetch Maven artifacts please install them locally manually.
+            I know it's not a popular approach but there's nothing I can do :)</p>
 
-    <script src="https://gist.github.com/2708850.js?file=installSWT.cmd"></script>
+        <script src="https://gist.github.com/2708850.js?file=installSWT.cmd"></script>
 
-    <p>I propose using debug artifacts since it allows you to do so much more in debug mode
-        in you IDE than normal artifacts! Of course in production mode do pack the non-debug version
-        besides the jar of GUI Transformer. This is the approach used in Eclipse's testing Maven
-        repository used in the POM of the project - although it is not up to date with latest
-        stable SWT version - not by a long shot.</p>
+        <p>I propose using debug artifacts since it allows you to do so much more in debug mode
+            in you IDE than normal artifacts! Of course in production mode do pack the non-debug version
+            besides the jar of GUI Transformer. This is the approach used in Eclipse's testing Maven
+            repository used in the POM of the project - although it is not up to date with latest
+            stable SWT version - not by a long shot.</p>
 
-    <h2>Little more details</h2>
+        <h2>Little more details</h2>
 
-    <p>As you have already maybe seen, SGT fact uses JSON input files as definition of the UI Shell and generates
-        all of the components for you.</p>
+        <p>As you have already maybe seen, SGT fact uses JSON input files as definition of the UI Shell and generates
+            all of the components for you.</p>
 
-    <h3>Accessing widgets</h3>
+        <h3>Accessing widgets</h3>
 
-    <p>You can access all the components in the UI either</p>
+        <p>You can access all the components in the UI either</p>
 
-    <ol>
-        <li><p>by asking for them using their name (something similar to the Servlet attribute/parameter approach
-            for accessing)
-            using <code>net.milanaleksic.guitransformer.TransformationContext.&lt;*widgetClass*&gt;getMappedObject(*widgetName*)</code>
-        </p></li>
-        <li><p>or using annotation <code>net.milanaleksic.guitransformer.EmbeddedComponent</code> in your form class
-            to have the component
-            injected for you (approach based on dependency injection pattern)</p></li>
-    </ol>
-    <p>In my opinion, first approach is useful for the cases when you wish to execute a simple and small action,
-        like setting a <em>dynamic</em> text in some component (e.g. web service version fetched from far away).
-        Second approach is useful when you wish to maintain reference to the widget throughout the life of the form
-        (e.g. you need to keep reference to username/password text widgets until the user clicks on OK).</p>
+        <ol>
+            <li><p>by asking for them using their name (something similar to the Servlet attribute/parameter approach
+                for accessing)
+                using <code>net.milanaleksic.guitransformer.TransformationContext.&lt;*widgetClass*&gt;getMappedObject(*widgetName*)</code>
+            </p></li>
+            <li><p>or using annotation <code>net.milanaleksic.guitransformer.EmbeddedComponent</code> in your form class
+                to have the component
+                injected for you (approach based on dependency injection pattern)</p></li>
+        </ol>
+        <p>In my opinion, first approach is useful for the cases when you wish to execute a simple and small action,
+            like setting a <em>dynamic</em> text in some component (e.g. web service version fetched from far away).
+            Second approach is useful when you wish to maintain reference to the widget throughout the life of the form
+            (e.g. you need to keep reference to username/password text widgets until the user clicks on OK).</p>
 
-    <h3>Event handling</h3>
+        <h3>Event handling</h3>
 
-    <p>No, you don't need to attach event listeners by yourself, SGT takes care of that (unless you wish to do
-        something really complex which I did not cover, in which case you need to read the part "Accessing
-        widgets").</p>
+        <p>No, you don't need to attach event listeners by yourself, SGT takes care of that (unless you wish to do
+            something really complex which I did not cover, in which case you need to read the part "Accessing
+            widgets").</p>
 
-    <p>The way to handle automatic event listeners is based on injection and widget naming. If you give your widget
-        a name
-        then you can include a field of type <code>org.eclipse.swt.widgets.Listener</code> and annotate it with
-        <code>net.milanaleksic.guitransformer.EmbeddedEventListener</code> or, in case you wish to use the same
-        event listeners
-        for multiple events from multiple widgets (or same event type from multiple widgets or different event types
-        from same widget - I think you got the picture), use annotation
-        <code>net.milanaleksic.guitransformer.EmbeddedEventListeners</code>.</p>
+        <p>The way to handle automatic event listeners is based on injection and widget naming. If you give your widget
+            a name
+            then you can include a field of type <code>org.eclipse.swt.widgets.Listener</code> and annotate it with
+            <code>net.milanaleksic.guitransformer.EmbeddedEventListener</code> or, in case you wish to use the same
+            event listeners
+            for multiple events from multiple widgets (or same event type from multiple widgets or different event types
+            from same widget - I think you got the picture), use annotation
+            <code>net.milanaleksic.guitransformer.EmbeddedEventListeners</code>.</p>
 
-    <h2>Project dependencies</h2>
+        <h2>Project dependencies</h2>
 
-    <p>SWT GUI Transformer depends on following frameworks/libraries:</p>
+        <p>SWT GUI Transformer depends on following frameworks/libraries:</p>
 
-    <ul>
-        <li>(of course) <strong>SWT</strong>
-        </li>
-        <li>Google <strong>Guava</strong>
-        </li>
-        <li>
-            <strong>Jackson</strong> - fastest JSON parser
-        </li>
-        <li>
-            <strong>javax.inject</strong> provider (for example Google Guice or Spring)
-        </li>
-    </ul>
-    <p>If you don't use these libraries than you might need to fork the code
-        and try to hack your way through.</p>
+        <ul>
+            <li>(of course) <strong>SWT</strong>
+            </li>
+            <li>Google <strong>Guava</strong>
+            </li>
+            <li>
+                <strong>Jackson</strong> - fastest JSON parser
+            </li>
+            <li>
+                <strong>javax.inject</strong> provider (for example Google Guice or Spring)
+            </li>
+        </ul>
+        <p>If you don't use these libraries than you might need to fork the code
+            and try to hack your way through.</p>
 
-    <p>JRE required is 1.6.0</p>
+        <p>JRE required is 1.6.0</p>
 
-    <h1>Interactive editor</h1>
+        <h1>Interactive editor</h1>
 
-    <p>Editor is a tool that should allow you to quickly change existing or make new GUI files. While you type
-        you will be able to see changes immediately, or an error message (the thin red line at the bottom of the
-        window) on which you can click to see the stack trace.</p>
+        <p>Editor is a tool that should allow you to quickly change existing or make new GUI files. While you type
+            you will be able to see changes immediately, or an error message (the thin red line at the bottom of the
+            window) on which you can click to see the stack trace.</p>
 
-    <p>
-        <a href="images/editor.png" rel="lightbox" title="Interactive editor for SGT">
-            <img src="images/editor_mini.jpg"/>
-        </a>
-    </p>
+        <p>
+            <a href="images/editor.png" rel="lightbox" title="Interactive editor for SGT">
+                <img src="images/editor_mini.jpg"/>
+            </a>
+        </p>
 
-    <p>To run the editor, you have 2 options:</p>
-    <ol>
-        <li>checkout the project and <code>mvn package</code> - you will get executable
-            <code>swt-gui-transformer-editor-{version}-jar-with-dependencies.jar</code>,
-        </li>
-        <li>download the assembled artifact from the github page.</li>
-    </ol>
+        <p>To run the editor, you have 2 options:</p>
+        <ol>
+            <li>checkout the project and <code>mvn package</code> - you will get executable
+                <code>swt-gui-transformer-editor-{version}-jar-with-dependencies.jar</code>,
+            </li>
+            <li>download the assembled artifact from the github page.</li>
+        </ol>
 
-    <p>If you wish to open GUIs that use <strong>additional shortcuts</strong> for classes, you need to add to the
-        classpath of the editor the output jar/dir of your project.</p>
+        <p>If you wish to open GUIs that use <strong>additional shortcuts</strong> for classes, you need to add to the
+            classpath of the editor the output jar/dir of your project.</p>
 
-    <p>Editor is a tool that should allow you to quickly change existing or make new GUI files. While you type JSON
-        definition of the interface you will be able to see changes immediately, or an error message (the thin red
-        line at the bottom of the window) on which you can click to see the stack trace.</p>
+        <p>Editor is a tool that should allow you to quickly change existing or make new GUI files. While you type JSON
+            definition of the interface you will be able to see changes immediately, or an error message (the thin red
+            line at the bottom of the window) on which you can click to see the stack trace.</p>
 
-    <p>Editor uses Guice 3.0 as the DI container (required dependency).</p>
+        <p>Editor uses Guice 3.0 as the DI container (required dependency).</p>
 
-    <p>For specific syntax details of the GUI files please take a look at the
-        <a href="documentation.html">documentation page</a>.</p>
-</section>
+        <p>For specific syntax details of the GUI files please take a look at the
+            <a href="documentation.html">documentation page</a>.</p>
+    </section>
 </div>
 <footer>
     <p>Project maintained by <a href="https://github.com/milanaleksic">milanaleksic</a></p>

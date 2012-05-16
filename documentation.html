@@ -44,50 +44,104 @@
 
         <p>The basic idea is that you should use the JSON to first create SWT beans using:</p>
         <ol>
-            <li>explicit class mention,</li>
-            <li>shortcut notation or</li>
-            <li>factory pattern</li>
+            <li><a href="#explicit-notation">explicit class mention</a>,</li>
+            <li><a href="#shortcut-notation">shortcut notation</a> or</li>
+            <li><a href="#factory-notation">factory notation</a>.</li>
         </ol>
         <p>and then to configure them using either</p>
         <ol>
             <li>method setters or</li>
             <li>direct field access</li>
         </ol>
-        <p>When configuring beans, SGT will figure out what approach to use, you should just make sure some property is
-            exposed in the means of setter methods or public fields.</p>
+        <p>When configuring beans, SGT will figure out what approach to use, you should just make sure the property
+            you are configuring isexposed in the means of setter methods or public fields.</p>
 
-        <h3>Explicit class metion</h3>
+        <p>SGT uses type information to find out which <code>Converter</code> to use to map the JSON node value to
+            the target object (more info later on this page).</p>
+
+        <h3 id="explicit-notation">Explicit class mention</h3>
 
         <p>To <strong>create</strong> beans using this approach, you should open a bracket and use special
             tag <strong>_type</strong> to note exact class you wish to instantiate:</p>
 
-    <pre><code>{
+    <pre>    {
         "_type" : "org.eclipse.swt.widgets.Label",
         .....
-        }</code></pre>
+    }</pre>
 
-        <h3>Shortcut notation</h3>
+        <h3 id="shortcut-notation">Shortcut notation</h3>
 
         <p>This approach is used to make definition writing faster since it allows you to use quick type identifiers
             instead of full class names.</p>
 
-    <pre><code>{
+        <pre>    {
         "_type" : "label",
         .....
-        }</code></pre>
+    }</pre>
 
         <p>If you wish to see entire list of supported shortcuts out-of-the-box in SGT, take a look at the
             current version's <code>knownShortcuts</code> field in
             <a href="https://github.com/milanaleksic/swt-gui-transformer/blob/master/swt-gui-transformer-core/src/main/java/net/milanaleksic/guitransformer/ObjectConverter.java">ObjectConverter
                 class</a>.</p>
 
+        <h4>Wish to extend?</h4>
+
+        <p>If you wish to extend the list of the items to use some additional SWT classes or if you wish to
+            use shortcuts for your own widgets, you can create properties file <code>/META-INF/guitransformer.shortcuts.properties</code>
+            like I did it in <a
+                    href="https://github.com/milanaleksic/MovieCatalogSystem/blob/master/source/java/META-INF/guitransformer.shortcuts.properties">MovieCatalogSystem</a>.
+            If you use this approach and wish to use SGT's interactive editor for your project's GUI files,
+            just include the compiled output to the editor's classpath.
+        </p>
+
+        <h3 id="factory-notation">Factory notation</h3>
+
+        <p>For some complex cases it is too exhausting to set all properties manually, especially if the widget
+            appears too often. Factory pattern should help you with this problem by lowering the amount of text
+            you need to enter to get the same result.</p>
+
+        <p>Notation is as follows:</p>
+
+        <pre>    [FactoryName](param1,param2...)</pre>
+
+        <p>The param count is generic, implementation of <code>net.milanaleksic.guitransformer.Builder&lt;T&gt;</code>
+            has only one method create that gets List of all parameters.</p>
+
+        <h4>Example: GridDataBuilder</h4>
+
+        <p>This approach is used in SGT to replace creation of the GridData object which can be
+            quite cumbersome if you base you layout on it a lot. Using GridDataBuilder you can replace following block
+            of code:</p>
+
+        <pre>   "_type" : "composite",
+    "layoutData" : {
+        "_type" : "gridData",
+        "horizontalAlignment" : "{center}", // what are these {???} things? Wait for Integer Converter part
+        "verticalAlignment" : "{beginning}",
+        "grabExcessHorizontalSpace" : true,
+        "grabExcessVerticalSpace" : false
+    },</pre>
+
+        <p>with following shorter variant:</p>
+
+        <pre>    "_type" : "composite",
+    "layoutData" : "[gridData](center,begin,true,false)",</pre>
+
+        <h4>Wish to extend?</h4>
+
+        <p>First, you need to make your own implementations of interface <code>net.milanaleksic.guitransformer.Builder&lt;T&gt;</code>.
+        </p>
+
+        <p>Second thing to do is to use DI and extend the <code>net.milanaleksic.guitransformer.guice.CoreModule</code>
+            and implement your own <code>prepareRegisteredBuildersForObjectConverter</code> method if you're using
+            Guice or just introduce more mappings in Spring configuration for field <code>registeredBuilders</code>
+            for bean of type <code>net.milanaleksic.guitransformer.ObjectConverter</code>.</p>
+
         <h3>Types</h3>
 
         <p>As long as you put field names in the </p>
 
         <h1>Providers</h1>
-
-        <h2>What?</h2>
 
         <p>If I believe there is an extension point that you will really really like to use, there is a provider
             interface for it. You use your dependency injection framework to say "here is the implementor for the
@@ -103,10 +157,10 @@
             messages_en.properties (or default messages.properties if first does not exist) as the source for resource
             naming pattern for string properties. For example:</p>
 
-    <pre><code>{
+    <pre>    {
         "_type" : "label",
         "text" : "[string.from.resources]"
-        }</code></pre>
+    }</pre>
 
         <h2>Object provider</h2>
 
@@ -118,10 +172,10 @@
             example:
         </p>
 
-    <pre><code>{
+    <pre>    {
         "_type" : "net.milanaleksic.application.MyCustomSWTComponent",
         "someReallyCoolCustomObjectFromSpring" : "(customSpringObject)"
-        }</code></pre>
+    }</pre>
 
         <h2>Images provider</h2>
 
