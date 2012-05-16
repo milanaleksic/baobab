@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.milanaleksic</groupId>
@@ -30,10 +31,9 @@
     </distributionManagement>
 
     <scm>
-        <connection>scm:git:file:///M:\SourceCode\workspaces\GanymedeWorkspace\swt-gui-transformer</connection>
-        <developerConnection>scm:git:file:///M:\SourceCode\workspaces\GanymedeWorkspace\swt-gui-transformer</developerConnection>
-      <tag>HEAD</tag>
-  </scm>
+        <connection>scm:git:file://${basedir}</connection>
+        <developerConnection>scm:git:file://${basedir}</developerConnection>
+    </scm>
 
     <properties>
         <sourceEncoding>UTF-8</sourceEncoding>
@@ -41,6 +41,7 @@
         <swt.version>3.7.2</swt.version>
         <guava.version>11.0.2</guava.version>
         <jackson.version>1.9.0</jackson.version>
+        <guice.version>3.0</guice.version>
     </properties>
 
     <modules>
