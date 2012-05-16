@@ -40,9 +40,7 @@
 
         <h1>Documentation</h1>
 
-        <h2>First steps</h2>
-
-        <p>The basic idea is that you should use the JSON to first create SWT beans using:</p>
+        <p>You use SGT to convert JSON to create SWT beans using:</p>
         <ol>
             <li><a href="#explicit-notation">explicit class mention</a>,</li>
             <li><a href="#shortcut-notation">shortcut notation</a> or</li>
@@ -56,10 +54,11 @@
         <p>When configuring beans, SGT will figure out what approach to use, you should just make sure the property
             you are configuring isexposed in the means of setter methods or public fields.</p>
 
-        <p>SGT uses type information to find out which <code>Converter</code> to use to map the JSON node value to
+        <p>SGT uses type information to find out which <a href="#converters">converter</a> to use to map the JSON node
+            value to
             the target object (more info later on this page).</p>
 
-        <h3 id="explicit-notation">Explicit class mention</h3>
+        <h2 id="explicit-notation">Explicit class mention</h2>
 
         <p>To <strong>create</strong> beans using this approach, you should open a bracket and use special
             tag <strong>_type</strong> to note exact class you wish to instantiate:</p>
@@ -69,7 +68,7 @@
         .....
     }</pre>
 
-        <h3 id="shortcut-notation">Shortcut notation</h3>
+        <h2 id="shortcut-notation">Shortcut notation</h2>
 
         <p>This approach is used to make definition writing faster since it allows you to use quick type identifiers
             instead of full class names.</p>
@@ -84,7 +83,7 @@
             <a href="https://github.com/milanaleksic/swt-gui-transformer/blob/master/swt-gui-transformer-core/src/main/java/net/milanaleksic/guitransformer/ObjectConverter.java">ObjectConverter
                 class</a>.</p>
 
-        <h4>Wish to extend?</h4>
+        <h3>Wish to extend?</h3>
 
         <p>If you wish to extend the list of the items to use some additional SWT classes or if you wish to
             use shortcuts for your own widgets, you can create properties file <code>/META-INF/guitransformer.shortcuts.properties</code>
@@ -94,7 +93,7 @@
             just include the compiled output to the editor's classpath.
         </p>
 
-        <h3 id="factory-notation">Factory notation</h3>
+        <h2 id="factory-notation">Factory notation</h2>
 
         <p>For some complex cases it is too exhausting to set all properties manually, especially if the widget
             appears too often. Factory pattern should help you with this problem by lowering the amount of text
@@ -107,7 +106,7 @@
         <p>The param count is generic, implementation of <code>net.milanaleksic.guitransformer.Builder&lt;T&gt;</code>
             has only one method create that gets List of all parameters.</p>
 
-        <h4>Example: GridDataBuilder</h4>
+        <h3>Example: GridDataBuilder</h3>
 
         <p>This approach is used in SGT to replace creation of the GridData object which can be
             quite cumbersome if you base you layout on it a lot. Using GridDataBuilder you can replace following block
@@ -127,7 +126,7 @@
         <pre>    "_type" : "composite",
     "layoutData" : "[gridData](center,begin,true,false)",</pre>
 
-        <h4>Wish to extend?</h4>
+        <h3>Wish to extend?</h3>
 
         <p>First, you need to make your own implementations of interface <code>net.milanaleksic.guitransformer.Builder&lt;T&gt;</code>.
         </p>
@@ -137,11 +136,9 @@
             Guice or just introduce more mappings in Spring configuration for field <code>registeredBuilders</code>
             for bean of type <code>net.milanaleksic.guitransformer.ObjectConverter</code>.</p>
 
-        <h3>Types</h3>
+        <h2 id="converters">Converters</h2>
 
-        <p>As long as you put field names in the </p>
-
-        <h1>Providers</h1>
+        <h2>Providers</h2>
 
         <p>If I believe there is an extension point that you will really really like to use, there is a provider
             interface for it. You use your dependency injection framework to say "here is the implementor for the
@@ -149,7 +146,7 @@
             location or even <strong>other beans</strong> from your DI framework showing up as possible candidates
             for wiring into SGT definition JSONs.</p>
 
-        <h2>Messages string provider</h2>
+        <h3>Messages string provider</h3>
 
         <p>Use your DI container to override
             <code>net.milanaleksic.guitransformer.providers.ResourceBundleProvider</code>
@@ -162,7 +159,7 @@
         "text" : "[string.from.resources]"
     }</pre>
 
-        <h2>Object provider</h2>
+        <h3>Object provider</h3>
 
         <p>When you use named object syntax to ask from the DI for a named object in JSON definition,
             you basically ask it from implementation of
@@ -177,11 +174,12 @@
         "someReallyCoolCustomObjectFromSpring" : "(customSpringObject)"
     }</pre>
 
-        <h2>Images provider</h2>
+        <h3>Images provider</h3>
 
         <p>Use your DI container to override <code>net.milanaleksic.guitransformer.providers.ImageProvider</code>
             with your implementation or just route it to AlwaysReturnEmptyImageProvider to always embed dummy image
             with the value of the JSON value node for the image setter.</p>
+
 
     </section>
 </div>
