@@ -22,7 +22,7 @@ public class ObjectConverter implements Converter<Object> {
 
     private static final Pattern builderValue = Pattern.compile("\\[([^\\]]+)\\]\\(([^\\)]*)\\)"); //NON-NLS
 
-    private static final Pattern springObjectValue = Pattern.compile("\\((.*)\\)");
+    private static final Pattern injectedObjectValue = Pattern.compile("\\((.*)\\)");
 
     public static final String GUI_TRANSFORMER_SHORTCUTS_PROPERTIES = "/META-INF/guitransformer.shortcuts.properties"; //NON-NLS
 
@@ -134,7 +134,7 @@ public class ObjectConverter implements Converter<Object> {
 
         String originalValue = node.asText();
 
-        Matcher matcher = springObjectValue.matcher(originalValue);
+        Matcher matcher = injectedObjectValue.matcher(originalValue);
         if (matcher.matches())
             return provideObjectFromDIContainer(mappedObjects, matcher.group(1));
 
