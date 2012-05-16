@@ -22,20 +22,20 @@ public class CoreModule extends AbstractModule {
         prepareRegisteredConvertersForConverterFactory();
     }
 
-    private void prepareProviders() {
+    protected void prepareProviders() {
         binder().bind(ObjectProvider.class).to(AlwaysReturnNullObjectProvider.class).in(Scopes.SINGLETON);
         binder().bind(ResourceBundleProvider.class).to(SimpleResourceBundleProvider.class).in(Scopes.SINGLETON);
         binder().bind(ImageProvider.class).to(AlwaysReturnEmptyImageProvider.class).in(Scopes.SINGLETON);
     }
 
-    private void prepareRegisteredBuildersForObjectConverter() {
+    protected void prepareRegisteredBuildersForObjectConverter() {
         MapBinder<String, Builder<?>> mapBinder = MapBinder.newMapBinder(binder(),
                 new TypeLiteral<String>() {},
                 new TypeLiteral<Builder<?>>() {});
         mapBinder.addBinding("gridData").to(GridDataBuilder.class); //NON-NLS
     }
 
-    private void prepareRegisteredConvertersForConverterFactory() {
+    protected void prepareRegisteredConvertersForConverterFactory() {
         MapBinder<Class<?>, Converter<?>> mapBinder = MapBinder.newMapBinder(binder(),
                 new TypeLiteral<Class<?>>() {},
                 new TypeLiteral<Converter<?>>() {});
