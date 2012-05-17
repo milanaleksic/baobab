@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
 import javax.inject.*;
 import java.io.*;
 import java.util.ResourceBundle;
+import java.util.concurrent.*;
 
 /**
  * User: Milan Aleksic
@@ -79,18 +80,39 @@ public class MainForm {
         }
     };
 
-    @EmbeddedEventListener(component = "editor", event = SWT.Modify)
-    private final Listener editorModifyListener = new Listener() {
+    private class RunnableListener implements Listener, Runnable {
+
+        private ExecutorService executor = Executors.newSingleThreadExecutor();
+
         @Override
         public void handleEvent(Event event) {
             showInformation("", null);
             String text = editor.getText();
+            if (Strings.isNullOrEmpty(text))
+                return;
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    shell.getDisplay().syncExec(RunnableListener.this);
+                }
+            });
+        }
+
+        private void removePreviousShell() {
+            if (currentShell == null)
+                return;
+            Shell shell = currentShell;
+            if (!shell.isDisposed())
+                shell.dispose();
+            currentShell = null;
+        }
+
+        @Override
+        public void run() {
             try {
-                if (Strings.isNullOrEmpty(text))
-                    return;
-                TransformationContext nonManagedForm = editorTransformer.createNonManagedForm(text);
+                TransformationContext nonManagedForm = editorTransformer.createNonManagedForm(editor.getText());
                 Shell newShell = nonManagedForm.getShell();
-                newShell.setLocation(20,20);
+                newShell.setLocation(20, 20);
 
                 removePreviousShell();
 
@@ -105,15 +127,13 @@ public class MainForm {
             }
         }
 
-        private void removePreviousShell() {
-            if (currentShell == null)
-                return;
-            Shell shell = currentShell;
-            if (!shell.isDisposed())
-                shell.dispose();
-            currentShell = null;
+        public void shutdown() {
+            executor.shutdownNow();
         }
-    };
+    }
+
+    @EmbeddedEventListener(component = "editor", event = SWT.Modify)
+    private final RunnableListener editorModifyListener = new RunnableListener();
 
     @EmbeddedEventListener(component = "btnNew", event = SWT.Selection)
     private final Listener btnNewSelectionListener = new Listener() {
@@ -129,8 +149,8 @@ public class MainForm {
         @Override
         public void handleEvent(Event event) {
             FileDialog dlg = new FileDialog(shell, SWT.OPEN);
-            dlg.setFilterNames( new String[] { resourceBundle.getString("mainForm.openFilters") } );
-            dlg.setFilterExtensions( new String[] { "*.gui" } ); //NON-NLS
+            dlg.setFilterNames(new String[]{resourceBundle.getString("mainForm.openFilters")});
+            dlg.setFilterExtensions(new String[]{"*.gui"}); //NON-NLS
             final String selectedFile = dlg.open();
             if (selectedFile == null)
                 return;
@@ -173,17 +193,18 @@ public class MainForm {
             messageBox.setText(resourceBundle.getString("mainForm.information"));
             messageBox.setMessage(resourceBundle.getString("mainForm.saveBeforeClosing"));
             switch (messageBox.open()) {
-                case SWT.CANCEL :
+                case SWT.CANCEL:
                     event.doit = false;
                     break;
-                case SWT.YES :
+                case SWT.YES:
                     saveCurrentDocument();
                     event.doit = true;
                     break;
-                case SWT.NO :
+                case SWT.NO:
                     event.doit = true;
                     break;
             }
+            editorModifyListener.shutdown();
         }
     };
 
@@ -203,7 +224,7 @@ public class MainForm {
     }
 
     private void saveCurrentDocument() {
-        if (currentFile == null && editor.getText().trim().length()==0)
+        if (currentFile == null && editor.getText().trim().length() == 0)
             return;
         if (currentFile == null) {
             saveDocumentAs();
@@ -220,8 +241,8 @@ public class MainForm {
 
     private void saveDocumentAs() {
         FileDialog dlg = new FileDialog(shell, SWT.SAVE);
-        dlg.setFilterNames( new String[] { resourceBundle.getString("mainForm.openFilters") } );
-        dlg.setFilterExtensions( new String[] { "*.gui" } ); //NON-NLS
+        dlg.setFilterNames(new String[]{resourceBundle.getString("mainForm.openFilters")});
+        dlg.setFilterExtensions(new String[]{"*.gui"}); //NON-NLS
         final String selectedFile = dlg.open();
         if (selectedFile == null)
             return;
