@@ -62,8 +62,7 @@
 
     <p>Finally, after you have finished working with the user interface, you need to be able to use all those widgets
         and to react on their events, right? Take a look how I implemented events and widgets annotation-driven <a
-                href="#embedding">embedding</a>.
-    </p>
+                href="#embedding">embedding</a> and how to, finally, <a href="#wiring">transform the form</a>.</p>
 
     <h2 id="creation-notations">Creation notations</h2>
 
@@ -374,7 +373,9 @@
         <li>the same GUI file (you have the example for this in <a href="#object-converter">ObjectConverter part</a>)</li>
         <li>you can attach event listeners in the Java code to it using the name of the reference
             using <code>@EmbeddedEventListener</code>/<code>@EmbeddedEventListeners</code> annotations,</li>
-        <li>you can embed (inject) the widget reference in the code using <code>@EmbeddedComponent</code>.</li>
+        <li>you can embed (inject) the widget reference in the code using <code>@EmbeddedComponent</code>,</li>
+        <li>you can dereference named widgets from the transformationContext using call
+            <code>net.milanaleksic.guitransformer.TransformationContext.getMappedObject(String name)</code>.</li>
     </ol>
 
     <p>Examples for the reference and event embedding are given in the <a href="#embedding">embedding part</a>.</p>
@@ -433,7 +434,69 @@
         with the value of the JSON value node for the image setter.</p>
 
     <h2 id="embedding">Embedding</h2>
-<!--TODO: Embedding docs-->
+    <p>Embedding is the process of wiring back to code all that you created in the interface GUI files.
+    To be able to reference widgets (or other beans) you created in the GUI file they have to be named
+    using special tag <strong>_name</strong>.</p>
+
+    <p>Java files that have identical name and package position as the GUI file are called <strong>managed forms</strong>
+        since you can embed components and event listeners directly using the
+        <code>net.milanaleksic.guitransformer.Transformer.fillManagedForm(Shell parent, Object managedFormObject)</code>.
+        When Transformer analyzes the managedFormObject it will find all the fields with embedding annotations
+        and either inject values into them or attach listeners, depending on the annotation. It is
+        important to remember that SGT expects the GUI file to be named exactly like the Java managedFormObject
+        from the call, just having <strong>.gui</strong> instead of java/class.</p>
+
+    <h3>EmbeddedComponent</h3>
+    <p>This annotation can be used on fields (should be but don't <em>have to be</em> private) in the form file.</p>
+    <p>So, if you have a field named "myLabel" in the GUI file:</p>
+    <pre>    {
+        "_type" : "label",
+        "_name" : "myLabel"
+    }</pre>
+    <p>in the managed form Java file you just mark the appropriate field with the annotation:</p>
+    <pre>    @EmbeddedComponent
+    private Label myLabel;</pre>
+    <p>After transformation, you can just dereference the value in it - it will be injected by SGT.</p>
+
+    <h3>@EmbeddedEventListener and @EmbeddedEventListeners</h3>
+    <p>To wire event listeners you also need just to reference the component with the name and
+        then ask for a specific event to attach the listener to. Listener implementation fields
+        can be <em>but don't have to be</em> static.</p>
+<pre>    @EmbeddedEventListener(component="myLabel", event= SWT.Selection)
+    private final Listener myLabelSelectionListener  = new Listener() {
+        public void handleEvent(Event event) {
+            // handle event
+        }
+    }</pre>
+    <p>Latter annotation (<code>EmbeddedEventListeners)</code> is just a helper annotation in cases
+        where you want to use same listener implementation for multiple event sources for one or more
+        event sources:</p>
+    <pre>     @EmbeddedEventListeners({
+            @EmbeddedEventListener(component = "comboMediumType", event = SWT.Selection),
+            @EmbeddedEventListener(component = "comboMediumType", event = SWT.Modify),
+            @EmbeddedEventListener(component = "comboGenre", event = SWT.Selection)
+    })
+    private final Listener complexListener  = new Listener() {
+        public void handleEvent(Event event) {
+            // handle event
+        }
+    }</pre>
+
+    <h3>Wiring it all up</h3>
+    <p>Transformer should already have all of its dependencies wired before calling it using your
+    dependency injection. Guice and Spring are the frameworks I used:</p>
+
+    <ol>
+        <li>if you use Spring, take a look at <a href="https://github.com/milanaleksic/MovieCatalogSystem/blob/master/source/java/spring-beans-transformer.xml">
+            XML wiring used in the MovieCatalogSystem</a>,</li>
+        <li>if you use Guice, there is already a <a href="https://github.com/milanaleksic/swt-gui-transformer/blob/master/swt-gui-transformer-core/src/main/java/net/milanaleksic/guitransformer/guice/CoreModule.java">
+            basic module</a> defined in the SGT code.</li>
+    </ol>
+
+    <p>The code for wiring the form and GUI file uses the entry point to SGT - <code>Transformer</code>.</p>
+    <p>On the basics page you have <a href="index.html#wiring-example">entire example</a> how to use the
+        Transformer to transform one form file.</p>
+
 </section>
 </div>
 <footer>
