@@ -299,7 +299,7 @@
     <pre>    {
         "_type" : "composite",
         "_name" : "<em>settingsTab</em>"
-    }
+    },
     {
         "_type" : "tabItem",
         "text" : "[settings.basicSettings]",
@@ -323,21 +323,21 @@
         of the documentation - creation notations, now is a good time to <a href="#creation-notations">read it</a>.</p>
 
     <h2 id="special-tags">Special tags</h2>
-    <p>Special tags are used for various situations where there is no way to do it differently. Practically, special
-    tags are only JSON node names which are not based on the property name in the target widget / bean.</p>
+    <p>Special tags are used for situations when JSON limitations become apparent. In practice, special
+    tags are <em>only JSON node names</em> which are not based on the property name in the target widget / bean.</p>
 
     <h3>_type tag</h3>
     <p>This tag is used in object nodes to say which class/builder/shortcut to use to create the object. More details
     in the <a href="#creation-notations">creation notations</a> part.</p>
 
     <h3>_children tag</h3>
-    <p>What is quite specific for SWT widgets, controls etc is their constructor. More specifically, they don't have
-        no-arg constructor. If you wish to create a new widget, you have to explicitly say what is the parent
+    <p>What is quite specific for SWT widgets, controls etc. is that no-arg constructor does not exist.
+        If you wish to create a new widget, you have to explicitly say what is the parent
         and what is the style (or style mix) you wish to enforce.</p>
 
-    <p>This tag allows creation of "children" components meaning that when items inside it are created the parent will
-        be set to the bean that has the "_children" tag. If you wish to make shell with two labels you do it
-        like this:
+    <p>So, this tag was introduced to allow creation of "children" components by remembering what is the parent
+        when creating the nodes in the _children array. For example, if you wish to make shell with two labels
+        you do it like this:
     </p>
 
     <pre>    {
@@ -360,7 +360,7 @@
 
     <h3>_style tag</h3>
     <p>Since style is set during the creation of the SWT widgets, normal setter does not exist. That was the
-        reason for inclusion of this tag. Since style is of integer type, you are using <a href="#integer-converter">>IntegerConverter</a>
+        reason for inclusion of this tag. Since style is of integer type, you are using <a href="#integer-converter">IntegerConverter</a>
         when setting the value, which gives you the freedom of using SWT's magic constants.</p>
 
     <h3>_name tag</h3>
@@ -381,10 +381,10 @@
     <p>Examples for the reference and event embedding are given in the <a href="#embedding">embedding part</a>.</p>
 
     <h3>__comment tag</h3>
-    <p>This is trivial special tag to be used if you have need to comment something in the GUI code. As you know,
-        JSON should not have comments so the only way to have a proper JSON is to use a custom JSON field. So,
-        just put it in any object definition and put in the value field whatever you wish - it will not be
-        taken into consideration by SGT.</p>
+    <p>This is trivial special tag to be used if you have need to comment something in the GUI code. Proper JSON
+        should not have JavaScript-styled comments so the only way to have a proper JSON is to use a custom JSON
+        field which will be omitted by content parsers. So, just put it in any object definition and put in the
+        value field whatever you wish - it will not be taken into consideration by SGT.</p>
 
     <pre>    {
         "_type" : "label",
@@ -404,13 +404,13 @@
 
     <p>Use your DI container to override
         <code>net.milanaleksic.guitransformer.providers.ResourceBundleProvider</code>
-        with your implementation or just route it to SimpleResourceBundleProvider to always use
+        with your implementation or just route it to <code>SimpleResourceBundleProvider</code> to always use
         messages_en.properties (or default messages.properties if first does not exist) as the source for resource
         naming pattern for string properties. For example:</p>
 
     <pre>    {
         "_type" : "label",
-        "text" : "[string.from.resources]"
+        "text" : "[string.from.bundle]"
     }</pre>
 
     <h3>Object provider</h3>
@@ -419,8 +419,8 @@
         you basically ask it from implementation of
         <code>net.milanaleksic.guitransformer.providers.ObjectProvider</code>
         you registered in the DI container.
-        You can though use AlwaysReturnNullObjectProvider to always embed null when named object is requested, for
-        example:</p>
+        You can though use <code>AlwaysReturnNullObjectProvider</code> to always embed null when named object
+        is requested, for example:</p>
 
     <pre>    {
         "_type" : "net.milanaleksic.application.MyCustomSWTComponent",
@@ -434,7 +434,7 @@
         with the value of the JSON value node for the image setter.</p>
 
     <h2 id="embedding">Embedding</h2>
-    <p>Embedding is the process of wiring back to code all that you created in the interface GUI files.
+    <p>Embedding is the process of wiring back with code all that you created in the interface GUI files.
     To be able to reference widgets (or other beans) you created in the GUI file they have to be named
     using special tag <strong>_name</strong>.</p>
 
