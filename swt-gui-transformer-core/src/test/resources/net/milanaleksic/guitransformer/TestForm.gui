@@ -54,6 +54,21 @@
                 "_type" : "[gridData](fill,end,true,false)"
             },
             "cursor" : "(handCursor)"
+        },
+        {
+            "_type" : "composite",
+            "layout" : {
+                "_type" : "gridLayout",
+                "numColumns" : 2
+            },
+            "text" : "[delete.deleteAMovie]",
+            "size" : "431,154",
+            "_children" : {
+                "label(test1)" : {
+                    "_style" : "{wrap}|{shadow_out}|{horizontal}|{center}",
+                    "layoutData" : "[gridData](center,begin,true,false)"
+                }
+            }
         }
     ]
 }
