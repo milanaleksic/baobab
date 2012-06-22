@@ -178,14 +178,6 @@ public class Transformer {
         }
     }
 
-    private void deSerializeObjectFromNode(JsonNode jsonNode, Object object, Map<String, Object> mappedObjects) throws TransformerException {
-        if (jsonNode.has(KEY_SPECIAL_NAME)) {
-            String objectName = jsonNode.get(KEY_SPECIAL_NAME).asText();
-            mappedObjects.put(objectName, object);
-        }
-        transformNodeToProperties(jsonNode, object, mappedObjects);
-    }
-
     private void transformChildren(JsonNode childrenNodes, Object parentWidget, Map<String, Object> mappedObjects) throws TransformerException {
         if (!(parentWidget instanceof Composite) && !(parentWidget instanceof Menu))
             throw new IllegalStateException("Can not create children for parent which is not Composite nor Menu (" + parentWidget.getClass().getName() + " in this case)");
@@ -279,25 +271,34 @@ public class Transformer {
         try {
             if (!objectDefinition.has(KEY_SPECIAL_TYPE))
                 throw new IllegalArgumentException("Could not deduce the child type without explicit definition: " + objectDefinition);
-            Class<?> widgetClass = objectConverter.deduceClassFromNode(objectDefinition);
+            Object objectInstance = null;
+            if (objectConverter.isWidgetUsingBuilder(objectDefinition))
+                objectInstance = objectConverter.createWidgetUsingBuilder(parent, objectDefinition, mappedObjects);
+            else {
 
-            int style = widgetClass == Shell.class ? DEFAULT_STYLE_SHELL : DEFAULT_STYLE_REST;
-            if (objectDefinition.has(KEY_SPECIAL_STYLE)) {
-                JsonNode styleNode = objectDefinition.get(KEY_SPECIAL_STYLE);
-                TypedConverter<Integer> exactTypeConverter = (TypedConverter<Integer>)
-                        converterFactory.getExactTypeConverter(int.class).get();
-                style = exactTypeConverter.getValueFromJson(styleNode, mappedObjects);
+                Class<?> widgetClass = objectConverter.deduceClassFromNode(objectDefinition);
+
+                int style = widgetClass == Shell.class ? DEFAULT_STYLE_SHELL : DEFAULT_STYLE_REST;
+                if (objectDefinition.has(KEY_SPECIAL_STYLE)) {
+                    JsonNode styleNode = objectDefinition.get(KEY_SPECIAL_STYLE);
+                    TypedConverter<Integer> exactTypeConverter = (TypedConverter<Integer>)
+                            converterFactory.getExactTypeConverter(int.class).get();
+                    style = exactTypeConverter.getValueFromJson(styleNode, mappedObjects);
+                }
+
+                if (doNotCreateModalDialogs) {
+                    style = style & (~SWT.APPLICATION_MODAL);
+                    style = style & (~SWT.SYSTEM_MODAL);
+                    style = style & (~SWT.PRIMARY_MODAL);
+                }
+
+                objectInstance = createInstanceOfTheObject(parent, widgetClass, style);
+                if (objectDefinition.has(KEY_SPECIAL_NAME)) {
+                    String objectName = objectDefinition.get(KEY_SPECIAL_NAME).asText();
+                    mappedObjects.put(objectName, objectInstance);
+                }
             }
-
-            if (doNotCreateModalDialogs) {
-                style = style & (~SWT.APPLICATION_MODAL);
-                style = style & (~SWT.SYSTEM_MODAL);
-                style = style & (~SWT.PRIMARY_MODAL);
-            }
-
-            final Object objectInstance = createInstanceOfTheObject(parent, widgetClass, style);
-            deSerializeObjectFromNode(objectDefinition, objectInstance, mappedObjects);
-
+            transformNodeToProperties(objectDefinition, objectInstance, mappedObjects);
             return objectInstance;
         } catch (TransformerException e) {
             throw e;
@@ -311,10 +312,10 @@ public class Transformer {
         if (Device.class.isAssignableFrom(chosenConstructor.getParameterTypes()[0])) {
             final Widget parentAsWidget = (Widget) parent;
             if (parentAsWidget == null)
-                throw new TransformerException("Null parent widget detected! parent="+parent+", widgetClass="+widgetClass);
+                throw new TransformerException("Null parent widget detected! parent=" + parent + ", widgetClass=" + widgetClass);
             return chosenConstructor.newInstance(parentAsWidget.getDisplay(), style);
-        }
-        else return chosenConstructor.newInstance(parent, style);
+        } else
+            return chosenConstructor.newInstance(parent, style);
     }
 
     private Constructor<?> findAppropriateSWTStyledConstructor(Class<?> widgetClass) throws TransformerException {
@@ -324,7 +325,7 @@ public class Transformer {
             if (parameterTypes.length == 2) {
                 if ((Composite.class.isAssignableFrom(parameterTypes[0]) ||   // most cases
                         Menu.class.isAssignableFrom(parameterTypes[0]) ||        // in case MenuItems
-                        Control.class.isAssignableFrom(parameterTypes[0])  ) &&   // in case of DropTarget
+                        Control.class.isAssignableFrom(parameterTypes[0])) &&   // in case of DropTarget
                         parameterTypes[1].equals(int.class)) {
                     return constructor;
                 }

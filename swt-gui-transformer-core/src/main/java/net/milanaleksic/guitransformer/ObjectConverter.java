@@ -2,6 +2,7 @@ package net.milanaleksic.guitransformer;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.*;
+import net.milanaleksic.guitransformer.builders.BuilderContext;
 import net.milanaleksic.guitransformer.providers.ObjectProvider;
 import org.codehaus.jackson.JsonNode;
 
@@ -105,7 +106,7 @@ public class ObjectConverter implements Converter<Object> {
     @Override
     public final void invoke(Method method, Object targetObject, JsonNode value, Map<String, Object> mappedObjects, Class<Object> argType) throws TransformerException {
         try {
-            method.invoke(targetObject, getValueFromJson(value, mappedObjects, argType));
+            method.invoke(targetObject, getValueFromJson(targetObject, value, mappedObjects, argType));
         } catch (TransformerException e) {
             throw e;
         } catch (Exception e) {
@@ -118,7 +119,7 @@ public class ObjectConverter implements Converter<Object> {
     @Override
     public final void setField(Field field, Object targetObject, JsonNode value, Map<String, Object> mappedObjects, Class<Object> argType) throws TransformerException {
         try {
-            field.set(targetObject, getValueFromJson(value, mappedObjects, argType));
+            field.set(targetObject, getValueFromJson(targetObject, value, mappedObjects, argType));
         } catch (IllegalAccessException e) {
             throw new TransformerException("Wrapped setField failed: ", e);
         }
@@ -128,9 +129,9 @@ public class ObjectConverter implements Converter<Object> {
     public void cleanUp() {
     }
 
-    protected Object getValueFromJson(JsonNode node, Map<String, Object> mappedObjects, Class<?> argType) throws TransformerException {
+    protected Object getValueFromJson(Object parent, JsonNode node, Map<String, Object> mappedObjects, Class<?> argType) throws TransformerException {
         if (!node.isTextual())
-            return createWidgetFromNode(argType, node, mappedObjects);
+            return createWidgetFromNode(parent, argType, node, mappedObjects);
 
         String originalValue = node.asText();
 
@@ -139,18 +140,22 @@ public class ObjectConverter implements Converter<Object> {
             return provideObjectFromDIContainer(mappedObjects, matcher.group(1));
 
         matcher = builderValue.matcher(originalValue);
-        if (matcher.matches())
-            return constructObjectUsingBuilderNotation(matcher.group(1), matcher.group(2));
+        if (matcher.matches()) {
+            final BuilderContext<?> builderContext = constructObjectUsingBuilderNotation(parent, matcher.group(1), matcher.group(2));
+            if (builderContext.getName() != null)
+                mappedObjects.put(builderContext.getName(), builderContext.getBuiltElement());
+            return builderContext.getBuiltElement();
+        }
 
         throw new TransformerException("Invalid syntax for object definition - " + originalValue);
     }
 
-    private Object constructObjectUsingBuilderNotation(String builderName, String parameters) throws TransformerException {
+    private BuilderContext<?> constructObjectUsingBuilderNotation(Object parent, String builderName, String parameters) throws TransformerException {
         final List<String> params = Lists.newArrayList(Splitter.on(",").trimResults().split(parameters));
         final Builder<?> builder = registeredBuilders.get(builderName);
         if (builder == null)
-            throw new TransformerException("Builder is not registered: " + builder);
-        return builder.create(params);
+            throw new TransformerException("Builder is not registered: " + builderName);
+        return builder.create(parent, params);
     }
 
     private Object provideObjectFromDIContainer(Map<String, Object> mappedObjects, String magicName) throws TransformerException {
@@ -160,11 +165,11 @@ public class ObjectConverter implements Converter<Object> {
         return mappedObject;
     }
 
-    private Object createWidgetFromNode(Class<?> widgetClass, JsonNode value, Map<String, Object> mappedObjects) throws TransformerException {
+    private Object createWidgetFromNode(Object parent, Class<?> widgetClass, JsonNode value, Map<String, Object> mappedObjects) throws TransformerException {
         try {
             Object ofTheJedi = isWidgetUsingBuilder(value)
-                    ? createWidgetUsingBuilder(value)
-                    : createWidgetUsingClassInstantination(widgetClass, value);
+                    ? createWidgetUsingBuilder(parent, value, mappedObjects)
+                    : createWidgetUsingClassInstantination(parent, widgetClass, value);
             transformer.transformNodeToProperties(value, ofTheJedi, mappedObjects);
             return ofTheJedi;
         } catch (Exception e) {
@@ -172,14 +177,17 @@ public class ObjectConverter implements Converter<Object> {
         }
     }
 
-    private Object createWidgetUsingBuilder(JsonNode value) throws TransformerException {
+    Object createWidgetUsingBuilder(Object parent, JsonNode value, Map<String, Object> mappedObjects) throws TransformerException {
         final Matcher matcher = builderValue.matcher(value.get(Transformer.KEY_SPECIAL_TYPE).asText());
         final boolean processingResult = matcher.matches();
         checkState(processingResult);
-        return constructObjectUsingBuilderNotation(matcher.group(1), matcher.group(2));
+        final BuilderContext<?> builderContext = constructObjectUsingBuilderNotation(parent, matcher.group(1), matcher.group(2));
+        if (builderContext.getName() != null)
+            mappedObjects.put(builderContext.getName(), builderContext.getBuiltElement());
+        return builderContext.getBuiltElement();
     }
 
-    private Object createWidgetUsingClassInstantination(Class<?> widgetClass, JsonNode value) throws TransformerException, IllegalAccessException, InstantiationException {
+    private Object createWidgetUsingClassInstantination(Object parent, Class<?> widgetClass, JsonNode value) throws TransformerException, IllegalAccessException, InstantiationException {
         Object ofTheJedi;
         Class<?> deducedClass = deduceClassFromNode(value);
         if (deducedClass != null)
@@ -188,7 +196,7 @@ public class ObjectConverter implements Converter<Object> {
         return ofTheJedi;
     }
 
-    private boolean isWidgetUsingBuilder(JsonNode value) {
+    boolean isWidgetUsingBuilder(JsonNode value) {
         return value.has(Transformer.KEY_SPECIAL_TYPE) && builderValue.matcher(value.get(Transformer.KEY_SPECIAL_TYPE).asText()).matches();
     }
 
