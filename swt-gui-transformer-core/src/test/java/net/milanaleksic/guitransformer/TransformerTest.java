@@ -28,8 +28,10 @@ public class TransformerTest {
 
     @Test
     public void form_creation() throws TransformerException {
-        TransformationContext context = transformer
-                .createFormFromResource("/net/milanaleksic/guitransformer/TestForm.gui");
+        test_form_creation(transformer.createFormFromResource("/net/milanaleksic/guitransformer/TestForm.gui"));
+    }
+
+    private void test_form_creation(TransformationContext context) {
         Shell form = context.getShell();
         assertThat(form, not(nullValue()));
         assertThat(form.getText(), equalTo("Delete movie"));
@@ -69,6 +71,7 @@ public class TransformerTest {
         assertThat(cursor, not(nullValue()));
         assertThat(cursor.isPresent(), equalTo(true));
         assertThat(((Label)children[4]).getCursor(), equalTo(cursor.get()));
+        assertThat(((Label)children[4]).getForeground(), equalTo(Display.getDefault().getSystemColor(SWT.COLOR_RED)));
     }
 
 }
