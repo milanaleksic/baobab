@@ -61,8 +61,7 @@
                 "_type" : "gridLayout",
                 "numColumns" : 2
             },
-            "text" : "[delete.deleteAMovie]",
-            "size" : "431,154",
+            "size" : "100,100",
             "_children" : {
                 "label(test1)" : {
                     "_style" : "{wrap}|{shadow_out}|{horizontal}|{center}",
