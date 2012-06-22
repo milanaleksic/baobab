@@ -31,6 +31,11 @@ public class TransformerTest {
         test_form_creation(transformer.createFormFromResource("/net/milanaleksic/guitransformer/TestForm.gui"));
     }
 
+    @Test
+    public void form_creation_short_notation() throws TransformerException {
+        test_form_creation(transformer.createFormFromResource("/net/milanaleksic/guitransformer/TestForm_ShortChildrenNotation.gui"));
+    }
+
     private void test_form_creation(TransformationContext context) {
         Shell form = context.getShell();
         assertThat(form, not(nullValue()));
