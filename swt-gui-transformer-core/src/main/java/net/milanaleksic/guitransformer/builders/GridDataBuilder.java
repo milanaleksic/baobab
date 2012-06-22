@@ -1,7 +1,7 @@
 package net.milanaleksic.guitransformer.builders;
 
 import com.google.common.collect.ImmutableMap;
-import net.milanaleksic.guitransformer.Builder;
+import net.milanaleksic.guitransformer.*;
 import org.eclipse.swt.layout.GridData;
 
 import java.util.*;
@@ -23,12 +23,12 @@ public class GridDataBuilder implements Builder<GridData> {
                     .build();
 
     @Override
-    public GridData create(List<String> parameters) {
+    public BuilderContext<GridData> create(Object parent, List<String> parameters) throws TransformerException {
         if (parameters.size() == 4)
-            return createGridDataBasedOn4Params(parameters);
+            return new BuilderContext<GridData>(createGridDataBasedOn4Params(parameters));
         if (parameters.size() == 6)
-            return createGridDataBasedOn6Params(parameters);
-        return null;
+            return new BuilderContext<GridData>(createGridDataBasedOn6Params(parameters));
+        throw new TransformerException("GridData builder supports only either 4 or 6 parameters!");
     }
 
     private GridData createGridDataBasedOn6Params(List<String> parameters) {

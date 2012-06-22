@@ -3,7 +3,7 @@ package net.milanaleksic.guitransformer.guice;
 import com.google.inject.*;
 import com.google.inject.multibindings.MapBinder;
 import net.milanaleksic.guitransformer.*;
-import net.milanaleksic.guitransformer.builders.GridDataBuilder;
+import net.milanaleksic.guitransformer.builders.*;
 import net.milanaleksic.guitransformer.providers.*;
 import net.milanaleksic.guitransformer.providers.impl.*;
 import net.milanaleksic.guitransformer.typed.*;
@@ -33,6 +33,7 @@ public class CoreModule extends AbstractModule {
                 new TypeLiteral<String>() {},
                 new TypeLiteral<Builder<?>>() {});
         mapBinder.addBinding("gridData").to(GridDataBuilder.class); //NON-NLS
+        mapBinder.addBinding("label").to(LabelBuilder.class); //NON-NLS
     }
 
     protected void prepareRegisteredConvertersForConverterFactory() {
