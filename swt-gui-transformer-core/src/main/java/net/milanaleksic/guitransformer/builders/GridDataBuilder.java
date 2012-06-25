@@ -13,6 +13,8 @@ import java.util.*;
  */
 public class GridDataBuilder implements Builder<GridData> {
 
+    public static final String BUILDER_NAME = "gridData";
+
     @SuppressWarnings({"HardCodedStringLiteral"})
     private static final Map<String, Integer> stringToAlignmentConversionTable =
             ImmutableMap.<String, Integer>builder()
