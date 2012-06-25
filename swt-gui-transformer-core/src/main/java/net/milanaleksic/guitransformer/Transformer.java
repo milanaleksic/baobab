@@ -18,9 +18,6 @@ import java.util.List;
  * User: Milan Aleksic
  * Date: 4/19/12
  * Time: 11:35 AM
- *
- * Transformer class is used to convert root items and its children. Instantiation and property setting is delegated
- * to ObjectConverter.
  */
 public class Transformer {
 
@@ -126,14 +123,17 @@ public class Transformer {
     }
 
     private TransformationContext transformFromResourceName(@Nullable Shell parent, String fullName) throws TransformerException {
-        Map<String, Object> mappedObjects = Maps.newHashMap();
-        mappedObjects.put("bundle", resourceBundleProvider.getResourceBundle()); //NON-NLS
+        TransformationWorkingContext context = new TransformationWorkingContext();
         InputStream resourceAsStream = null;
         try {
+            context.mapObject("bundle", resourceBundleProvider.getResourceBundle()); //NON-NLS
+            context.setDoNotCreateModalDialogs(doNotCreateModalDialogs);
+            context.setWorkItem(parent);
+
             resourceAsStream = Transformer.class.getResourceAsStream(fullName);
             final JsonNode shellDefinition = mapper.readValue(resourceAsStream, JsonNode.class);
-            Object shellObject = objectConverter.createObject(parent, shellDefinition, mappedObjects, doNotCreateModalDialogs);
-            return new TransformationContext((Shell) shellObject, mappedObjects);
+            context = objectConverter.createWidgetFromNode(context, shellDefinition);
+            return context.createTransformationContext();
         } catch (IOException e) {
             throw new TransformerException("IO Error while trying to find and parse required form: " + fullName, e);
         } finally {
@@ -145,13 +145,14 @@ public class Transformer {
     }
 
     private TransformationContext transformFromContent(String content) throws TransformerException {
-        Map<String, Object> mappedObjects = Maps.newHashMap();
-        mappedObjects.put("bundle", resourceBundleProvider.getResourceBundle()); //NON-NLS
-        final JsonNode shellDefinition;
+        TransformationWorkingContext context = new TransformationWorkingContext();
         try {
-            shellDefinition = mapper.readValue(content, JsonNode.class);
-            Object shellObject = objectConverter.createObject(null, shellDefinition, mappedObjects, doNotCreateModalDialogs);
-            return new TransformationContext((Shell) shellObject, mappedObjects);
+            context.mapObject("bundle", resourceBundleProvider.getResourceBundle()); //NON-NLS
+            context.setDoNotCreateModalDialogs(doNotCreateModalDialogs);
+
+            final JsonNode shellDefinition = mapper.readValue(content, JsonNode.class);
+            context = objectConverter.createWidgetFromNode(context, shellDefinition);
+            return context.createTransformationContext();
         } catch (IOException e) {
             throw new TransformerException("IO Error while trying to parse content: " + content, e);
         }
