@@ -271,11 +271,10 @@ public class Transformer {
         try {
             if (!objectDefinition.has(KEY_SPECIAL_TYPE))
                 throw new IllegalArgumentException("Could not deduce the child type without explicit definition: " + objectDefinition);
-            Object objectInstance = null;
+            Object objectInstance;
             if (objectConverter.isWidgetUsingBuilder(objectDefinition))
                 objectInstance = objectConverter.createWidgetUsingBuilder(parent, objectDefinition, mappedObjects);
             else {
-
                 Class<?> widgetClass = objectConverter.deduceClassFromNode(objectDefinition);
 
                 int style = widgetClass == Shell.class ? DEFAULT_STYLE_SHELL : DEFAULT_STYLE_REST;
