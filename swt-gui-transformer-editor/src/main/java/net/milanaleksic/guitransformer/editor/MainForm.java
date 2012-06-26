@@ -32,6 +32,9 @@ public class MainForm {
     private ErrorDialog errorDialog;
 
     @Inject
+    private FindDialog findDialog;
+
+    @Inject
     private ResourceBundleProvider resourceBundleProvider;
 
     @EmbeddedComponent
@@ -200,6 +203,24 @@ public class MainForm {
         @Override
         public void handleEvent(Event event) {
             saveCurrentDocument();
+        }
+    };
+
+    @EmbeddedEventListener(component = "btnFindText", event = SWT.Selection)
+    private final Listener btnFindTextSelectionListener = new Listener() {
+        @Override
+        public void handleEvent(Event event) {
+            String searchString = findDialog.getSearchString();
+            System.out.println("search for: "+searchString);
+            throw new IllegalStateException("Not yet implemented!");
+        }
+    };
+
+    @EmbeddedEventListener(component = "btnFindNext", event = SWT.Selection)
+    private final Listener btnFindNextSelectionListener = new Listener() {
+        @Override
+        public void handleEvent(Event event) {
+            throw new IllegalStateException("Not yet implemented!");
         }
     };
 

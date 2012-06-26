@@ -25,14 +25,14 @@
 				}
 			}
 	    },
-		"button(acceptBtn)" : {
+		"button(btnAccept)" : {
 			"layoutData" : {
 				"_type" : "[gridData](center, center, true, true)",
 				"widthHint" : 100
 			},
 			"text" : "[findDialog.buttonSearch]"
 		},
-		"button(cancelBtn)" : {
+		"button(btnCancel)" : {
 			"layoutData" : {
 				"_type" : "[gridData](center, center, true, true)",
 				"widthHint" : 100

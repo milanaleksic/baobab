@@ -1,6 +1,6 @@
 {
     "_type" : "shell",
-    "_style" : "{shell_trim}",
+    "_style" : "{shell_trim}|{application_modal}",
     "_name" : "shell",
     "layout" : {
         "_type" : "gridLayout",
@@ -22,6 +22,12 @@
                 },
                 "toolItem(btnSaveAs,{push})" : {
                     "text" : "[mainForm.toolBar.saveAs]"
+                },
+                "toolItem(btnFindText,{push})" : {
+                    "text" : "[mainForm.toolBar.findText]"
+                },
+                "toolItem(btnFindNext,{push})" : {
+                    "text" : "[mainForm.toolBar.findNext]"
                 },
                 "toolItem(btnExit,{push})" : {
                     "text" : "[mainForm.toolBar.exit]"
