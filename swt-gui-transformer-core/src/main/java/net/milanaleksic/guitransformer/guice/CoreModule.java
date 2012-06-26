@@ -32,8 +32,8 @@ public class CoreModule extends AbstractModule {
         MapBinder<String, Builder<?>> mapBinder = MapBinder.newMapBinder(binder(),
                 new TypeLiteral<String>() {},
                 new TypeLiteral<Builder<?>>() {});
-        mapBinder.addBinding("gridData").to(GridDataBuilder.class); //NON-NLS
-        mapBinder.addBinding("label").to(LabelBuilder.class); //NON-NLS
+        mapBinder.addBinding(GridDataBuilder.BUILDER_NAME).to(GridDataBuilder.class); //NON-NLS
+        mapBinder.addBinding(LabelBuilder.BUILDER_NAME).to(LabelBuilder.class); //NON-NLS
     }
 
     protected void prepareRegisteredConvertersForConverterFactory() {
