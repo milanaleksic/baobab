@@ -280,6 +280,8 @@ public class MainForm {
     }
 
     private void showInformation(String infoText, @Nullable Exception exception) {
+        infoText = infoText.replaceAll("\r","");
+        infoText = infoText.replaceAll("\n","");
         infoLabel.setText(infoText);
         lastException = exception;
     }
