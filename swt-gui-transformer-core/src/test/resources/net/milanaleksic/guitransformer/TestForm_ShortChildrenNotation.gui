@@ -33,7 +33,6 @@
             "layoutData" : "[gridData](center,begin,true,false)"
         },
         "label(label2)" : {},
-
         "org.eclipse.swt.graphics.Cursor(handCursor)" : {
             "_style" : "{cursor_hand}"
         },
@@ -44,4 +43,5 @@
             },
             "cursor" : "(handCursor)"
         }
+    }
 }
