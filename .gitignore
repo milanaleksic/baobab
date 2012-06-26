@@ -7,3 +7,8 @@
 
 *.iml
 .idea
+*.versionsBackup
+
+target
+swt-gui-transformer-core/target
+swt-gui-transformer-editor/target
