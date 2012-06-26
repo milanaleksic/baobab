@@ -24,7 +24,7 @@ import static com.google.common.base.Preconditions.checkState;
  * User: Milan Aleksic
  * Date: 4/19/12
  * Time: 3:03 PM
- *
+ * <p/>
  * ObjectConverter's soul purpose is to convert object nodes to SWT objects
  */
 public class ObjectConverter implements Converter<Object> {
@@ -141,9 +141,9 @@ public class ObjectConverter implements Converter<Object> {
         } catch (TransformerException e) {
             throw e;
         } catch (Exception e) {
-            throw new TransformerException("Wrapped invoke failed: method="+method+
-                    ", targetObject="+targetObject+", json="+(value==null?"<NULL>":value.asText())+
-                    ", argType="+argType, e);
+            throw new TransformerException("Wrapped invoke failed: method=" + method +
+                    ", targetObject=" + targetObject + ", json=" + (value == null ? "<NULL>" : value.asText()) +
+                    ", argType=" + argType, e);
         }
     }
 
@@ -161,14 +161,14 @@ public class ObjectConverter implements Converter<Object> {
     public void cleanUp() {
     }
 
-    Object getValueFromJson(Object targetObject, JsonNode value, Map<String, Object> mappedObjects) throws TransformerException {
+    private Object getValueFromJson(Object targetObject, JsonNode value, Map<String, Object> mappedObjects) throws TransformerException {
         final TransformationWorkingContext transformationWorkingContext = new TransformationWorkingContext();
         transformationWorkingContext.setWorkItem(targetObject);
         transformationWorkingContext.mapAll(mappedObjects);
         return getValueFromJson(transformationWorkingContext, value);
     }
 
-    Object getValueFromJson(TransformationWorkingContext context, JsonNode node) throws TransformerException {
+    private Object getValueFromJson(TransformationWorkingContext context, JsonNode node) throws TransformerException {
         if (!node.isTextual()) {
             final TransformationWorkingContext widgetFromNode = createWidgetFromNode(context, node);
             if (node.has(KEY_SPECIAL_NAME)) {
@@ -330,12 +330,27 @@ public class ObjectConverter implements Converter<Object> {
         if (!(parentWidget instanceof Composite) && !(parentWidget instanceof Menu))
             throw new IllegalStateException("Can not create children for parent which is not Composite nor Menu (" + parentWidget.getClass().getName() + " in this case)");
         try {
-            for (JsonNode node : mapper.readValue(childrenNodes, JsonNode[].class)) {
-                // TODO: parent hierarchy stack!
-                getValueFromJson(context, node);
-            }
+            if (childrenNodes.isArray())
+                transformChildrenAsArray(context, childrenNodes);
+            else
+                transformChildrenAsShortHandSyntax(context, childrenNodes);
         } catch (IOException e) {
             throw new TransformerException("IO exception while trying to parse child nodes", e);
+        }
+    }
+
+    private void transformChildrenAsShortHandSyntax(TransformationWorkingContext context, JsonNode childrenNodes) {
+        final Iterator<String> fieldNames = childrenNodes.getFieldNames();
+        while (fieldNames.hasNext()) {
+            final String field = fieldNames.next();
+            System.out.println("Found field " + field);
+            System.out.println("Field value is " + childrenNodes.get(field));
+        }
+    }
+
+    private void transformChildrenAsArray(TransformationWorkingContext context, JsonNode childrenNodes) throws TransformerException, IOException {
+        for (JsonNode node : mapper.readValue(childrenNodes, JsonNode[].class)) {
+            getValueFromJson(context, node);
         }
     }
 
