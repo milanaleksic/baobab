@@ -10,22 +10,22 @@
     "size" : "705,500",
     "_children" : {
         "toolBar(_,{flat})" : {
-			"_children" : {
+            "_children" : {
                 "toolItem(btnNew,{push})" : {
                     "text" : "[mainForm.toolBar.new]"
-				},
-				"toolItem(btnOpen,{push})" : {
+                },
+                "toolItem(btnOpen,{push})" : {
                     "text" : "[mainForm.toolBar.open]"
-				},
-				"toolItem(btnSave,{push})" : {
-					"text" : "[mainForm.toolBar.save]"
-				},
-				"toolItem(btnSaveAs,{push})" : {
-					"text" : "[mainForm.toolBar.saveAs]"
-				},
-				"toolItem(btnExit,{push})" : {
-					"text" : "[mainForm.toolBar.exit]"
-				}
+                },
+                "toolItem(btnSave,{push})" : {
+                    "text" : "[mainForm.toolBar.save]"
+                },
+                "toolItem(btnSaveAs,{push})" : {
+                    "text" : "[mainForm.toolBar.saveAs]"
+                },
+                "toolItem(btnExit,{push})" : {
+                    "text" : "[mainForm.toolBar.exit]"
+                }
             }
         },
 
@@ -35,14 +35,10 @@
                 "_type" : "gridLayout",
                 "numColumns" : 2
             },
-            "layoutData" : {
-                "_type" : "[gridData](fill,fill,true,true)"
-            },
+            "layoutData" : "[gridData](fill,fill,true,true)",
             "_children" : {
                 "styledText(editor,{multi}|{wrap}|{border}|{v_scroll})" : {
-                    "layoutData" : {
-                        "_type" : "[gridData](fill,fill,true,true)"
-                    },
+                    "layoutData" : "[gridData](fill,fill,true,true)",
                     "font" : {
                         "name" : "Courier New",
                         "height" : 9
@@ -61,29 +57,26 @@
                         "widthHint" : "150"
                     },
                     "_children" : {
-                        "label(_)" : {
+                        "label(_1)" : {
                             "text": "Widgets in context:"
                         },
                         "list(contextWidgets,{v_scroll}|{multi}|{border}|{read_only})" : {
-                            "layoutData" : {
-                                "_type" : "[gridData](fill,fill,true,true)"
-                            }
+                            "layoutData" : "[gridData](fill,fill,true,true)"
+                        },
+                        "label(caretPositionLabel)" : {
+                            "text": "1x1",
+                            "layoutData" : "[gridData](fill,begin,true,false)"
                         }
                     }
                 }
             },
-            "weights" : [
-                    2,
-                    1
-            ]
+            "weights" : [ 2, 1 ]
         },
 
         "cursor(handCursor,{cursor_hand})" : {},
         "label(infoLabel)" : {
             "foreground" : "#ff0000",
-            "layoutData" : {
-                "_type" : "[gridData](fill,end,true,false)"
-            },
+            "layoutData" : "[gridData](fill,end,true,false)",
             "cursor" : "(handCursor)"
         }
     }

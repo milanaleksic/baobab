@@ -43,6 +43,9 @@ public class MainForm {
     @EmbeddedComponent
     private org.eclipse.swt.widgets.List contextWidgets;
 
+    @EmbeddedComponent
+    private Label caretPositionLabel;
+
     /* editing context */
     private Shell currentShell = null;
     private File currentFile = null;
@@ -135,8 +138,8 @@ public class MainForm {
         }
 
         private void updateAvailableWidgets(TransformationContext nonManagedForm) {
-            contextWidgets.setItems(new String[] {});
-            for (Map.Entry<String,Object> entry : nonManagedForm.getMappedObjects().entrySet()) {
+            contextWidgets.setItems(new String[]{});
+            for (Map.Entry<String, Object> entry : nonManagedForm.getMappedObjects().entrySet()) {
                 contextWidgets.add(String.format("[%s] - %s", entry.getKey(), entry.getValue().getClass().getName()));
             }
         }
@@ -158,6 +161,15 @@ public class MainForm {
                 return;
             }
         }
+    };
+
+    @EmbeddedEventListener(component = "editor", event = 3011 /*StyledText.CaretMoved*/)
+    private final Listener editorMouseDown = new Listener() {
+        @Override
+        public void handleEvent(Event event) {
+            refreshCaretPositionInformation();
+        }
+
     };
 
     @EmbeddedEventListener(component = "btnNew", event = SWT.Selection)
@@ -280,8 +292,8 @@ public class MainForm {
     }
 
     private void showInformation(String infoText, @Nullable Exception exception) {
-        infoText = infoText.replaceAll("\r","");
-        infoText = infoText.replaceAll("\n","");
+        infoText = infoText.replaceAll("\r", "");
+        infoText = infoText.replaceAll("\n", "");
         infoLabel.setText(infoText);
         lastException = exception;
     }
@@ -331,5 +343,13 @@ public class MainForm {
 
     Shell getShell() {
         return shell;
+    }
+
+    private void refreshCaretPositionInformation() {
+        final int caretOffset = editor.getCaretOffset();
+        final int line = editor.getLineAtOffset(caretOffset);
+        caretPositionLabel.setText(String.format("%dx%d",
+                line+1,
+                caretOffset - editor.getContent().getOffsetAtLine(line)+1));
     }
 }
