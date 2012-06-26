@@ -45,6 +45,7 @@ public class CoreModule extends AbstractModule {
         mapBinder.addBinding(boolean.class).to(BooleanConverter.class);
         mapBinder.addBinding(int.class).to(IntegerConverter.class);
         mapBinder.addBinding(org.eclipse.swt.graphics.Point.class).to(PointConverter.class);
+        mapBinder.addBinding(int[].class).to(IntegerArrayConverter.class);
         mapBinder.addBinding(org.eclipse.swt.graphics.Color.class).to(ColorConverter.class);
         mapBinder.addBinding(org.eclipse.swt.graphics.Font.class).to(FontConverter.class);
         mapBinder.addBinding(org.eclipse.swt.graphics.Image.class).to(ImageConverter.class);

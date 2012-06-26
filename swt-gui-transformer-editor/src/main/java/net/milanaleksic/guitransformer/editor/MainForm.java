@@ -11,7 +11,7 @@ import org.eclipse.swt.widgets.*;
 import javax.annotation.Nullable;
 import javax.inject.*;
 import java.io.*;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.*;
 
 /**
@@ -39,6 +39,9 @@ public class MainForm {
 
     @EmbeddedComponent
     private Label infoLabel;
+
+    @EmbeddedComponent
+    private org.eclipse.swt.widgets.List contextWidgets;
 
     /* editing context */
     private Shell currentShell = null;
@@ -119,6 +122,8 @@ public class MainForm {
                 currentShell = newShell;
                 currentShell.open();
 
+                updateAvailableWidgets(nonManagedForm);
+
                 editor.setFocus();
 
                 modified = true;
@@ -126,6 +131,13 @@ public class MainForm {
                 showInformation(String.format(resourceBundle.getString("mainForm.transformationError"), e.getMessage()), e);
             } catch (Exception e) {
                 showInformation(resourceBundle.getString("mainForm.error"), e);
+            }
+        }
+
+        private void updateAvailableWidgets(TransformationContext nonManagedForm) {
+            contextWidgets.setItems(new String[] {});
+            for (Map.Entry<String,Object> entry : nonManagedForm.getMappedObjects().entrySet()) {
+                contextWidgets.add(String.format("[%s] - %s", entry.getKey(), entry.getValue().getClass().getName()));
             }
         }
 

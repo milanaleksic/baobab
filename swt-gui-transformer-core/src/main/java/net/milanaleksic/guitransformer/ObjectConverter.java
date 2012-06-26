@@ -101,6 +101,7 @@ public class ObjectConverter implements Converter<Object> {
 
             .put("scrolledComposite", org.eclipse.swt.custom.ScrolledComposite.class)
             .put("styledText", org.eclipse.swt.custom.StyledText.class)
+            .put("sashForm", org.eclipse.swt.custom.SashForm.class)
 
             .put("dropTarget", org.eclipse.swt.dnd.DropTarget.class)
             .put("dragSource", org.eclipse.swt.dnd.DragSource.class)

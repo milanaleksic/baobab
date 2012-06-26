@@ -29,18 +29,55 @@
             }
         },
 
-        "styledText(editor,{multi}|{wrap}|{border}|{v_scroll})" : {
+        "sashForm(_)" : {
+            "__comment" : "to set sashForm's weights you need to wait until components have been added",
+            "layout" : {
+                "_type" : "gridLayout",
+                "numColumns" : 2
+            },
             "layoutData" : {
                 "_type" : "[gridData](fill,fill,true,true)"
             },
-            "font" : {
-                "name" : "Courier New",
-                "height" : 9
-            },
             "_children" : {
-                "dropTarget(editorDropTarget,{dnd.drop_default}|{dnd.drop_copy}|{dnd.drop_link}|{dnd.drop_move})" : {}
-            }
+                "styledText(editor,{multi}|{wrap}|{border}|{v_scroll})" : {
+                    "layoutData" : {
+                        "_type" : "[gridData](fill,fill,true,true)"
+                    },
+                    "font" : {
+                        "name" : "Courier New",
+                        "height" : 9
+                    },
+                    "_children" : {
+                        "dropTarget(editorDropTarget,{dnd.drop_default}|{dnd.drop_copy}|{dnd.drop_link}|{dnd.drop_move})" : {}
+                    }
+                },
+                "composite(_)" : {
+                    "layout" : {
+                        "_type" : "gridLayout",
+                        "numColumns" : 1
+                    },
+                    "layoutData" : {
+                        "_type" : "[gridData](fill,fill,false,true)",
+                        "widthHint" : "150"
+                    },
+                    "_children" : {
+                        "label(_)" : {
+                            "text": "Widgets in context:"
+                        },
+                        "list(contextWidgets,{v_scroll}|{multi}|{border}|{read_only})" : {
+                            "layoutData" : {
+                                "_type" : "[gridData](fill,fill,true,true)"
+                            }
+                        }
+                    }
+                }
+            },
+            "weights" : [
+                    2,
+                    1
+            ]
         },
+
         "cursor(handCursor,{cursor_hand})" : {},
         "label(infoLabel)" : {
             "foreground" : "#ff0000",
