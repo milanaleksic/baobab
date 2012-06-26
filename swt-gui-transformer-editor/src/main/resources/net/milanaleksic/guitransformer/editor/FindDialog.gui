@@ -1,6 +1,6 @@
 {
     "_type" : "shell",
-    "_style" : "{shell_trim}|{application_modal}",
+    "_style" : "{shell_trim}",
 	"_name" : "shell",
     "layout" : {
         "_type" : "gridLayout",
@@ -14,11 +14,11 @@
         		"_type" : "gridLayout",
 		        "numColumns" : 2
 		    },
-			"layoutData" : "[gridData](end, center, true, true,2,1)",
+			"layoutData" : "[gridData](fill, center, true, true,2,1)",
 			"_children" : {
 				"label(_1)" : {
-					"layoutData" : "[gridData](end, center, true, true)",
-					"text" : "[findDialog.buttonSearch]"
+					"layoutData" : "[gridData](end, center, false, true)",
+					"text" : "[findDialog.labelFind]"
 				},
 				"text(searchText,{border})" : {
 					"layoutData" : "[gridData](fill, center, true, true)"
@@ -26,11 +26,17 @@
 			}
 	    },
 		"button(acceptBtn)" : {
-			"layoutData" : "[gridData](end, center, true, true)",
+			"layoutData" : {
+				"_type" : "[gridData](center, center, true, true)",
+				"widthHint" : 100
+			},
 			"text" : "[findDialog.buttonSearch]"
 		},
 		"button(cancelBtn)" : {
-			"layoutData" : "[gridData](end, center, true, true)",
+			"layoutData" : {
+				"_type" : "[gridData](center, center, true, true)",
+				"widthHint" : 100
+			},
 			"text" : "[findDialog.buttonCancel]"
 		}
     }
