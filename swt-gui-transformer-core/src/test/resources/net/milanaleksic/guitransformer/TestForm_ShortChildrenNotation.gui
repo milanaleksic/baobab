@@ -28,14 +28,11 @@
             "text" : "[delete.doYouReallyWishToDeleteMovie]",
             "foreground" : "#ff0000"
         },
-        "label(labFilmNaziv)" : {
-            "_style" : "{wrap}|{shadow_out}|{horizontal}|{center}",
+        "label(labFilmNaziv,{wrap}|{shadow_out}|{horizontal}|{center})" : {
             "layoutData" : "[gridData](center,begin,true,false)"
         },
         "label(label2)" : {},
-        "org.eclipse.swt.graphics.Cursor(handCursor)" : {
-            "_style" : "{cursor_hand}"
-        },
+        "org.eclipse.swt.graphics.Cursor(handCursor,{cursor_hand})" : {},
         "[label]({wrap}|{center},infoLabel)(infoLabel)" : {
             "foreground" : "#ff0000",
             "layoutData" : {
