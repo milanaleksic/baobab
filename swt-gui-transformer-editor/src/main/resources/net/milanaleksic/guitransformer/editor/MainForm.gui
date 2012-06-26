@@ -35,7 +35,7 @@
             }
         },
 
-        "sashForm(_)" : {
+        "sashForm(_,{smooth})" : {
             "__comment" : "to set sashForm's weights you need to wait until components have been added",
             "layout" : {
                 "_type" : "gridLayout",

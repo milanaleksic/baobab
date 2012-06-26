@@ -54,6 +54,7 @@ public class MainForm {
     private File currentFile = null;
     private boolean modified = false;
     private Exception lastException = null;
+    private String lastSearchString = null;
 
     /* editor's own context */
     private Shell shell;
@@ -163,6 +164,14 @@ public class MainForm {
                 editor.selectAll();
                 return;
             }
+            if (Character.toLowerCase(event.keyCode) == 'f' && (event.stateMask & SWT.CTRL) == SWT.CTRL) {
+                findText();
+                return;
+            }
+            if (event.keyCode == SWT.F3) {
+                findNext();
+                return;
+            }
         }
     };
 
@@ -210,9 +219,7 @@ public class MainForm {
     private final Listener btnFindTextSelectionListener = new Listener() {
         @Override
         public void handleEvent(Event event) {
-            String searchString = findDialog.getSearchString();
-            System.out.println("search for: "+searchString);
-            throw new IllegalStateException("Not yet implemented!");
+            findText();
         }
     };
 
@@ -220,7 +227,7 @@ public class MainForm {
     private final Listener btnFindNextSelectionListener = new Listener() {
         @Override
         public void handleEvent(Event event) {
-            throw new IllegalStateException("Not yet implemented!");
+            findNext();
         }
     };
 
@@ -247,7 +254,7 @@ public class MainForm {
             try {
                 if (!modified)
                     return;
-                int style = SWT.APPLICATION_MODAL | SWT.YES | SWT.NO | SWT.CANCEL;
+                int style = SWT.APPLICATION_MODAL | SWT.YES | SWT.NO | SWT.CANCEL | SWT.ICON_QUESTION;
                 MessageBox messageBox = new MessageBox(shell, style);
                 messageBox.setText(resourceBundle.getString("mainForm.information"));
                 messageBox.setMessage(resourceBundle.getString("mainForm.saveBeforeClosing"));
@@ -370,7 +377,40 @@ public class MainForm {
         final int caretOffset = editor.getCaretOffset();
         final int line = editor.getLineAtOffset(caretOffset);
         caretPositionLabel.setText(String.format("%dx%d",
-                line+1,
-                caretOffset - editor.getContent().getOffsetAtLine(line)+1));
+                line + 1,
+                caretOffset - editor.getContent().getOffsetAtLine(line) + 1));
+    }
+
+    private void findText() {
+        lastSearchString = findDialog.getSearchString();
+        executeSearch();
+    }
+
+    private void findNext() {
+        if (lastSearchString == null)
+            lastSearchString = findDialog.getSearchString();
+        executeSearch();
+    }
+
+    private void executeSearch() {
+        if (lastSearchString == null)
+            return;
+        try {
+            showInformation("", null);
+            int carretOffset = editor.getCaretOffset();
+            int loc = editor.getText().indexOf(lastSearchString, carretOffset);
+            if (loc == -1) {
+                showInformation(resourceBundle.getString("mainForm.find.noMore"), null);
+                loc = editor.getText().indexOf(lastSearchString, 0);
+            }
+            if (loc == -1) {
+                showInformation(resourceBundle.getString("mainForm.find.noMoreForSure"), null);
+                return;
+            }
+            editor.setSelection(loc, loc + lastSearchString.length());
+        } catch (Throwable t) {
+            t.printStackTrace();
+            showError(t.getMessage());
+        }
     }
 }
