@@ -1,6 +1,6 @@
 package net.milanaleksic.guitransformer;
 
-import com.google.common.base.Preconditions;
+import com.google.common.base.*;
 import com.google.common.collect.*;
 import org.eclipse.swt.widgets.Shell;
 
@@ -61,6 +61,9 @@ class TransformationWorkingContext {
     }
 
     public void mapObject(String key, Object object) {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(key));
+        if (key.startsWith("_"))
+            return;
         getRootMappedObjects().put(key, object);
     }
 
