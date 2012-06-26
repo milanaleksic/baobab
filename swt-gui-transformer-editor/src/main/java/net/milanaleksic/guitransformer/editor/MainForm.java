@@ -44,7 +44,7 @@ public class MainForm {
     private Shell currentShell = null;
     private File currentFile = null;
     private boolean modified = false;
-    private TransformerException lastException = null;
+    private Exception lastException = null;
 
     /* editor's own context */
     private Shell shell;
@@ -124,6 +124,8 @@ public class MainForm {
                 modified = true;
             } catch (TransformerException e) {
                 showInformation(String.format(resourceBundle.getString("mainForm.transformationError"), e.getMessage()), e);
+            } catch (Exception e) {
+                showInformation(resourceBundle.getString("mainForm.error"), e);
             }
         }
 
@@ -134,6 +136,17 @@ public class MainForm {
 
     @EmbeddedEventListener(component = "editor", event = SWT.Modify)
     private final RunnableListener editorModifyListener = new RunnableListener();
+
+    @EmbeddedEventListener(component = "editor", event = SWT.KeyDown)
+    private final Listener editorKeyDown = new Listener() {
+        @Override
+        public void handleEvent(Event event) {
+            if (Character.toLowerCase(event.keyCode) == 'a' && (event.stateMask & SWT.CTRL) == SWT.CTRL) {
+                editor.selectAll();
+                return;
+            }
+        }
+    };
 
     @EmbeddedEventListener(component = "btnNew", event = SWT.Selection)
     private final Listener btnNewSelectionListener = new Listener() {
@@ -254,7 +267,7 @@ public class MainForm {
         saveCurrentDocument();
     }
 
-    private void showInformation(String infoText, @Nullable TransformerException exception) {
+    private void showInformation(String infoText, @Nullable Exception exception) {
         infoLabel.setText(infoText);
         lastException = exception;
     }
