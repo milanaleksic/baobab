@@ -186,25 +186,29 @@ public class MainForm {
     private final Listener shellCloseListener = new Listener() {
         @Override
         public void handleEvent(Event event) {
-            if (!modified)
-                return;
-            int style = SWT.APPLICATION_MODAL | SWT.YES | SWT.NO | SWT.CANCEL;
-            MessageBox messageBox = new MessageBox(shell, style);
-            messageBox.setText(resourceBundle.getString("mainForm.information"));
-            messageBox.setMessage(resourceBundle.getString("mainForm.saveBeforeClosing"));
-            switch (messageBox.open()) {
-                case SWT.CANCEL:
-                    event.doit = false;
-                    break;
-                case SWT.YES:
-                    saveCurrentDocument();
-                    event.doit = true;
-                    break;
-                case SWT.NO:
-                    event.doit = true;
-                    break;
+            try {
+                if (!modified)
+                    return;
+                int style = SWT.APPLICATION_MODAL | SWT.YES | SWT.NO | SWT.CANCEL;
+                MessageBox messageBox = new MessageBox(shell, style);
+                messageBox.setText(resourceBundle.getString("mainForm.information"));
+                messageBox.setMessage(resourceBundle.getString("mainForm.saveBeforeClosing"));
+                switch (messageBox.open()) {
+                    case SWT.CANCEL:
+                        event.doit = false;
+                        break;
+                    case SWT.YES:
+                        saveCurrentDocument();
+                        event.doit = true;
+                        break;
+                    case SWT.NO:
+                        event.doit = true;
+                        break;
+                }
+            } finally {
+                if (event.doit)
+                    editorModifyListener.shutdown();
             }
-            editorModifyListener.shutdown();
         }
     };
 
