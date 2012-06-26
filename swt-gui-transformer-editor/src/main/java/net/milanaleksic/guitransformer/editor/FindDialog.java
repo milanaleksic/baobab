@@ -31,7 +31,6 @@ public class FindDialog {
         @Override
         public void handleEvent(Event event) {
             shell.dispose();
-            shell = null;
         }
     };
 
@@ -40,6 +39,7 @@ public class FindDialog {
         @Override
         public void handleEvent(Event event) {
             text = searchText.getText();
+            shell.dispose();
         }
     };
 
@@ -59,6 +59,13 @@ public class FindDialog {
             text = null;
 
             shell.open();
+
+            Display display = shell.getDisplay();
+            while (!shell.isDisposed()) {
+                if (!display.readAndDispatch()) {
+                    display.sleep();
+                }
+            }
 
             return text;
         } catch (TransformerException e) {
