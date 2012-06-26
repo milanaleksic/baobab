@@ -27,6 +27,13 @@ public class TransformerTest {
     Transformer transformer;
 
     @Test
+    public void exclude_widgets_with_leading_line_in_name() throws TransformerException {
+        final TransformationContext formFromResource = transformer.createFormFromResource("/net/milanaleksic/guitransformer/ExcludeWidgetsWithLeadingLineInName.gui");
+        assertThat(formFromResource.getMappedObject("test").isPresent(), equalTo(true));
+        assertThat(formFromResource.getMappedObject("_test").isPresent(), equalTo(false));
+    }
+
+    @Test
     public void form_creation() throws TransformerException {
         test_form_creation(transformer.createFormFromResource("/net/milanaleksic/guitransformer/TestForm.gui"));
     }

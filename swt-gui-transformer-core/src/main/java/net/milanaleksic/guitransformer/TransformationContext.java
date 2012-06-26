@@ -1,7 +1,7 @@
 package net.milanaleksic.guitransformer;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.*;
 import org.eclipse.swt.widgets.Shell;
 
 import java.util.Map;
@@ -36,6 +36,9 @@ public class TransformationContext {
     }
 
     public void dispose() {
+    }
 
+    public Map<String, Object> getMappedObjects() {
+        return ImmutableMap.copyOf(mappedObjects);
     }
 }

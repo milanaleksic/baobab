@@ -1,6 +1,6 @@
 {
     "_type" : "shell",
-    "_style" : "{shell_trim}",
+    "_style" : "{shell_trim}|{application_modal}",
     "_name" : "shell",
     "layout" : {
         "_type" : "gridLayout",
@@ -8,76 +8,82 @@
     },
     "text" : "[mainForm.title]",
     "size" : "705,500",
-    "_children" : [
-        {
-            "_type" : "toolBar",
-			"_style" : "{flat}",
-			"_children" : [
-				{
-					"_type" : "toolItem",
-					"_style" : "{push}",
-					"_name" : "btnNew",
+    "_children" : {
+        "toolBar(_,{flat})" : {
+            "_children" : {
+                "toolItem(btnNew,{push})" : {
                     "text" : "[mainForm.toolBar.new]"
-				},
-				{
-					"_type" : "toolItem",
-					"_style" : "{push}",
-					"_name" : "btnOpen",
+                },
+                "toolItem(btnOpen,{push})" : {
                     "text" : "[mainForm.toolBar.open]"
-				},
-				{
-					"_type" : "toolItem",
-					"_style" : "{push}",
-					"_name" : "btnSave",
-					"text" : "[mainForm.toolBar.save]"
-				},
-				{
-					"_type" : "toolItem",
-					"_style" : "{push}",
-					"_name" : "btnSaveAs",
-					"text" : "[mainForm.toolBar.saveAs]"
-				},
-				{
-					"_type" : "toolItem",
-					"_style" : "{push}",
-					"_name" : "btnExit",
-					"text" : "[mainForm.toolBar.exit]"
-				}
-			]
+                },
+                "toolItem(btnSave,{push})" : {
+                    "text" : "[mainForm.toolBar.save]"
+                },
+                "toolItem(btnSaveAs,{push})" : {
+                    "text" : "[mainForm.toolBar.saveAs]"
+                },
+                "toolItem(btnFindText,{push})" : {
+                    "text" : "[mainForm.toolBar.findText]"
+                },
+                "toolItem(btnFindNext,{push})" : {
+                    "text" : "[mainForm.toolBar.findNext]"
+                },
+                "toolItem(btnExit,{push})" : {
+                    "text" : "[mainForm.toolBar.exit]"
+                }
+            }
         },
 
-        {
-            "_type" : "styledText",
-            "_style" : "{multi}|{wrap}|{border}|{v_scroll}",
-            "_name" : "editor",
-            "layoutData" : {
-                "_type" : "[gridData](fill,fill,true,true)"
+        "sashForm(_,{smooth})" : {
+            "__comment" : "to set sashForm's weights you need to wait until components have been added",
+            "layout" : {
+                "_type" : "gridLayout",
+                "numColumns" : 2
             },
-            "font" : {
-                "name" : "Courier New",
-                "height" : 9
-            },
-            "_children" : [
-                {
-                    "_type" : "dropTarget",
-                    "_style" : "{dnd.drop_default}|{dnd.drop_copy}|{dnd.drop_link}|{dnd.drop_move}",
-                    "_name" : "editorDropTarget"
+            "layoutData" : "[gridData](fill,fill,true,true)",
+            "_children" : {
+                "styledText(editor,{multi}|{wrap}|{border}|{v_scroll})" : {
+                    "layoutData" : "[gridData](fill,fill,true,true)",
+                    "font" : {
+                        "name" : "Courier New",
+                        "height" : 9
+                    },
+                    "_children" : {
+                        "dropTarget(editorDropTarget,{dnd.drop_default}|{dnd.drop_copy}|{dnd.drop_link}|{dnd.drop_move})" : {}
+                    }
+                },
+                "composite(_)" : {
+                    "layout" : {
+                        "_type" : "gridLayout",
+                        "numColumns" : 1
+                    },
+                    "layoutData" : {
+                        "_type" : "[gridData](fill,fill,false,true)",
+                        "widthHint" : "150"
+                    },
+                    "_children" : {
+                        "label(_1)" : {
+                            "text": "Widgets in context:"
+                        },
+                        "list(contextWidgets,{v_scroll}|{multi}|{border}|{read_only})" : {
+                            "layoutData" : "[gridData](fill,fill,true,true)"
+                        },
+                        "label(caretPositionLabel)" : {
+                            "text": "1x1",
+                            "layoutData" : "[gridData](fill,begin,true,false)"
+                        }
+                    }
                 }
-            ]
-        },
-        {
-            "_type" : "cursor",
-            "_style" : "{cursor_hand}",
-            "_name" : "handCursor"
-        },
-        {
-            "_type" : "label",
-            "_name" : "infoLabel",
-            "foreground" : "#ff0000",
-            "layoutData" : {
-                "_type" : "[gridData](fill,end,true,false)"
             },
+            "weights" : [ 2, 1 ]
+        },
+
+        "cursor(handCursor,{cursor_hand})" : {},
+        "label(infoLabel)" : {
+            "foreground" : "#ff0000",
+            "layoutData" : "[gridData](fill,end,true,false)",
             "cursor" : "(handCursor)"
         }
-    ]
+    }
 }

@@ -11,7 +11,7 @@ import org.eclipse.swt.widgets.*;
 import javax.annotation.Nullable;
 import javax.inject.*;
 import java.io.*;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.*;
 
 /**
@@ -32,6 +32,9 @@ public class MainForm {
     private ErrorDialog errorDialog;
 
     @Inject
+    private FindDialog findDialog;
+
+    @Inject
     private ResourceBundleProvider resourceBundleProvider;
 
     @EmbeddedComponent
@@ -40,11 +43,18 @@ public class MainForm {
     @EmbeddedComponent
     private Label infoLabel;
 
+    @EmbeddedComponent
+    private org.eclipse.swt.widgets.List contextWidgets;
+
+    @EmbeddedComponent
+    private Label caretPositionLabel;
+
     /* editing context */
     private Shell currentShell = null;
     private File currentFile = null;
     private boolean modified = false;
-    private TransformerException lastException = null;
+    private Exception lastException = null;
+    private String lastSearchString = null;
 
     /* editor's own context */
     private Shell shell;
@@ -119,11 +129,22 @@ public class MainForm {
                 currentShell = newShell;
                 currentShell.open();
 
+                updateAvailableWidgets(nonManagedForm);
+
                 editor.setFocus();
 
                 modified = true;
             } catch (TransformerException e) {
                 showInformation(String.format(resourceBundle.getString("mainForm.transformationError"), e.getMessage()), e);
+            } catch (Exception e) {
+                showInformation(resourceBundle.getString("mainForm.error"), e);
+            }
+        }
+
+        private void updateAvailableWidgets(TransformationContext nonManagedForm) {
+            contextWidgets.setItems(new String[]{});
+            for (Map.Entry<String, Object> entry : nonManagedForm.getMappedObjects().entrySet()) {
+                contextWidgets.add(String.format("[%s] - %s", entry.getKey(), entry.getValue().getClass().getName()));
             }
         }
 
@@ -134,6 +155,34 @@ public class MainForm {
 
     @EmbeddedEventListener(component = "editor", event = SWT.Modify)
     private final RunnableListener editorModifyListener = new RunnableListener();
+
+    @EmbeddedEventListener(component = "editor", event = SWT.KeyDown)
+    private final Listener editorKeyDown = new Listener() {
+        @Override
+        public void handleEvent(Event event) {
+            if (Character.toLowerCase(event.keyCode) == 'a' && (event.stateMask & SWT.CTRL) == SWT.CTRL) {
+                editor.selectAll();
+                return;
+            }
+            if (Character.toLowerCase(event.keyCode) == 'f' && (event.stateMask & SWT.CTRL) == SWT.CTRL) {
+                findText();
+                return;
+            }
+            if (event.keyCode == SWT.F3) {
+                findNext();
+                return;
+            }
+        }
+    };
+
+    @EmbeddedEventListener(component = "editor", event = 3011 /*StyledText.CaretMoved*/)
+    private final Listener editorMouseDown = new Listener() {
+        @Override
+        public void handleEvent(Event event) {
+            refreshCaretPositionInformation();
+        }
+
+    };
 
     @EmbeddedEventListener(component = "btnNew", event = SWT.Selection)
     private final Listener btnNewSelectionListener = new Listener() {
@@ -166,6 +215,22 @@ public class MainForm {
         }
     };
 
+    @EmbeddedEventListener(component = "btnFindText", event = SWT.Selection)
+    private final Listener btnFindTextSelectionListener = new Listener() {
+        @Override
+        public void handleEvent(Event event) {
+            findText();
+        }
+    };
+
+    @EmbeddedEventListener(component = "btnFindNext", event = SWT.Selection)
+    private final Listener btnFindNextSelectionListener = new Listener() {
+        @Override
+        public void handleEvent(Event event) {
+            findNext();
+        }
+    };
+
     @EmbeddedEventListener(component = "btnSaveAs", event = SWT.Selection)
     private final Listener btnSaveAsSelectionListener = new Listener() {
         @Override
@@ -189,7 +254,7 @@ public class MainForm {
             try {
                 if (!modified)
                     return;
-                int style = SWT.APPLICATION_MODAL | SWT.YES | SWT.NO | SWT.CANCEL;
+                int style = SWT.APPLICATION_MODAL | SWT.YES | SWT.NO | SWT.CANCEL | SWT.ICON_QUESTION;
                 MessageBox messageBox = new MessageBox(shell, style);
                 messageBox.setText(resourceBundle.getString("mainForm.information"));
                 messageBox.setMessage(resourceBundle.getString("mainForm.saveBeforeClosing"));
@@ -254,7 +319,9 @@ public class MainForm {
         saveCurrentDocument();
     }
 
-    private void showInformation(String infoText, @Nullable TransformerException exception) {
+    private void showInformation(String infoText, @Nullable Exception exception) {
+        infoText = infoText.replaceAll("\r", "");
+        infoText = infoText.replaceAll("\n", "");
         infoLabel.setText(infoText);
         lastException = exception;
     }
@@ -304,5 +371,46 @@ public class MainForm {
 
     Shell getShell() {
         return shell;
+    }
+
+    private void refreshCaretPositionInformation() {
+        final int caretOffset = editor.getCaretOffset();
+        final int line = editor.getLineAtOffset(caretOffset);
+        caretPositionLabel.setText(String.format("%dx%d",
+                line + 1,
+                caretOffset - editor.getContent().getOffsetAtLine(line) + 1));
+    }
+
+    private void findText() {
+        lastSearchString = findDialog.getSearchString();
+        executeSearch();
+    }
+
+    private void findNext() {
+        if (lastSearchString == null)
+            lastSearchString = findDialog.getSearchString();
+        executeSearch();
+    }
+
+    private void executeSearch() {
+        if (lastSearchString == null)
+            return;
+        try {
+            showInformation("", null);
+            int carretOffset = editor.getCaretOffset();
+            int loc = editor.getText().indexOf(lastSearchString, carretOffset);
+            if (loc == -1) {
+                showInformation(resourceBundle.getString("mainForm.find.noMore"), null);
+                loc = editor.getText().indexOf(lastSearchString, 0);
+            }
+            if (loc == -1) {
+                showInformation(resourceBundle.getString("mainForm.find.noMoreForSure"), null);
+                return;
+            }
+            editor.setSelection(loc, loc + lastSearchString.length());
+        } catch (Throwable t) {
+            t.printStackTrace();
+            showError(t.getMessage());
+        }
     }
 }
