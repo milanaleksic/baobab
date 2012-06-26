@@ -132,7 +132,7 @@ public class Transformer {
 
             resourceAsStream = Transformer.class.getResourceAsStream(fullName);
             final JsonNode shellDefinition = mapper.readValue(resourceAsStream, JsonNode.class);
-            context = objectConverter.createWidgetFromNode(context, shellDefinition);
+            context = objectConverter.createHierarchy(context, shellDefinition);
             return context.createTransformationContext();
         } catch (IOException e) {
             throw new TransformerException("IO Error while trying to find and parse required form: " + fullName, e);
@@ -151,7 +151,7 @@ public class Transformer {
             context.setDoNotCreateModalDialogs(doNotCreateModalDialogs);
 
             final JsonNode shellDefinition = mapper.readValue(content, JsonNode.class);
-            context = objectConverter.createWidgetFromNode(context, shellDefinition);
+            context = objectConverter.createHierarchy(context, shellDefinition);
             return context.createTransformationContext();
         } catch (IOException e) {
             throw new TransformerException("IO Error while trying to parse content: " + content, e);

@@ -11,6 +11,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.widgets.*;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.io.*;
 import java.lang.reflect.*;
@@ -110,6 +111,165 @@ public class ObjectConverter implements Converter<Object> {
 
             .build();
 
+    private abstract class ObjectCreator {
+
+        protected abstract boolean isWidgetUsingBuilder(String key, JsonNode value) ;
+
+        protected abstract TransformationWorkingContext createWidgetUsingBuilder(TransformationWorkingContext context, @Nullable String key, JsonNode value)
+                throws TransformerException;
+
+        protected abstract TransformationWorkingContext createWidgetUsingClassInstantiation(TransformationWorkingContext context, @Nullable String key, JsonNode objectDefinition)
+                throws TransformerException, IllegalAccessException, InstantiationException, InvocationTargetException;
+
+        public TransformationWorkingContext create(TransformationWorkingContext context, @Nullable String key, JsonNode value) throws TransformerException {
+            try {
+                TransformationWorkingContext ofTheJedi = isWidgetUsingBuilder(key, value)
+                        ? createWidgetUsingBuilder(context, key, value)
+                        : createWidgetUsingClassInstantiation(context, key, value);
+                transformNodeToProperties(ofTheJedi, value);
+                return ofTheJedi;
+            } catch (TransformerException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new TransformerException("Widget creation failed", e);
+            }
+        }
+
+        private void transformNodeToProperties(TransformationWorkingContext context, JsonNode jsonNode) throws TransformerException {
+            Iterator<Map.Entry<String, JsonNode>> fields = jsonNode.getFields();
+            while (fields.hasNext()) {
+                Map.Entry<String, JsonNode> field = fields.next();
+                if (field.getKey().equals(KEY_SPECIAL_CHILDREN))
+                    transformChildren(context, field.getValue());
+                else
+                    transformSingleJsonNode(context, field);
+            }
+        }
+
+        protected int fixStyleIfNoModalDialogs(TransformationWorkingContext context, int style) {
+            if (context.isDoNotCreateModalDialogs()) {
+                style = style & (~SWT.APPLICATION_MODAL);
+                style = style & (~SWT.SYSTEM_MODAL);
+                style = style & (~SWT.PRIMARY_MODAL);
+            }
+            return style;
+        }
+
+        protected Class<?> deduceClassFromNode(JsonNode valueNode) throws TransformerException {
+            Preconditions.checkArgument(valueNode.has(KEY_SPECIAL_TYPE), "Definition does not have type definition");
+            String classIdentifier = valueNode.get(KEY_SPECIAL_TYPE).asText();
+            return deduceClassFromNode(classIdentifier);
+        }
+
+        protected Class<?> deduceClassFromNode(String classIdentifier) throws TransformerException {
+            Class<?> aClass = registeredShortcuts.get(classIdentifier);
+            if (aClass != null)
+                return aClass;
+            else
+                try {
+                    return Class.forName(classIdentifier);
+                } catch (ClassNotFoundException e) {
+                    throw new TransformerException("Class was not found: " + classIdentifier, e);
+                }
+        }
+    }
+
+    public class OldSchoolObjectCreator extends ObjectCreator {
+
+        protected boolean isWidgetUsingBuilder(String key, JsonNode value) {
+            return value.has(KEY_SPECIAL_TYPE) && builderValue.matcher(value.get(KEY_SPECIAL_TYPE).asText()).matches();
+        }
+
+        protected TransformationWorkingContext createWidgetUsingBuilder(TransformationWorkingContext context, String key, JsonNode value) throws TransformerException {
+            final TransformationWorkingContext ofTheJedi = new TransformationWorkingContext(context);
+            final Matcher matcher = builderValue.matcher(value.get(KEY_SPECIAL_TYPE).asText());
+            final boolean processingResult = matcher.matches();
+            checkState(processingResult);
+            final BuilderContext<?> builderContext = constructObjectUsingBuilderNotation(context, matcher.group(1), matcher.group(2));
+            if (builderContext.getName() != null)
+                ofTheJedi.mapObject(builderContext.getName(), builderContext.getBuiltElement());
+            ofTheJedi.setWorkItem(builderContext.getBuiltElement());
+            if (value.has(KEY_SPECIAL_NAME)) {
+                String objectName = value.get(KEY_SPECIAL_NAME).asText();
+                context.mapObject(objectName, builderContext.getBuiltElement());
+            }
+            return ofTheJedi;
+        }
+
+        protected TransformationWorkingContext createWidgetUsingClassInstantiation(TransformationWorkingContext context, String key, JsonNode objectDefinition)
+                throws TransformerException, IllegalAccessException, InstantiationException, InvocationTargetException {
+            final Class<?> widgetClass = deduceClassFromNode(objectDefinition);
+            int style = widgetClass == Shell.class ? DEFAULT_STYLE_SHELL : DEFAULT_STYLE_REST;
+            if (objectDefinition.has(KEY_SPECIAL_STYLE)) {
+                JsonNode styleNode = objectDefinition.get(KEY_SPECIAL_STYLE);
+                TypedConverter<Integer> exactTypeConverter = (TypedConverter<Integer>)
+                        converterFactory.getExactTypeConverter(int.class).get();
+                style = exactTypeConverter.getValueFromJson(styleNode, context.getMappedObjects());
+            }
+
+            style = fixStyleIfNoModalDialogs(context, style);
+            final Object instanceOfSWTWidget = createInstanceOfSWTWidget(context.getWorkItem(), widgetClass, style);
+            final TransformationWorkingContext ofTheJedi = new TransformationWorkingContext(context);
+            ofTheJedi.setWorkItem(instanceOfSWTWidget);
+            if (objectDefinition.has(KEY_SPECIAL_NAME)) {
+                String objectName = objectDefinition.get(KEY_SPECIAL_NAME).asText();
+                context.mapObject(objectName, instanceOfSWTWidget);
+            }
+            return ofTheJedi;
+        }
+    }
+
+    private class ShortHandObjectCreator extends ObjectCreator {
+
+        protected boolean isWidgetUsingBuilder(String key, JsonNode value) {
+            return builderValueShortHandSyntax.matcher(key).matches();
+        }
+
+        protected TransformationWorkingContext createWidgetUsingBuilder(TransformationWorkingContext context, String key, JsonNode value) throws TransformerException {
+            final Matcher matcher = builderValueShortHandSyntax.matcher(key);
+            Preconditions.checkArgument(matcher.matches(), "Invalid short hand syntax detected: " + key);
+            String builderName = matcher.group(1);
+            String builderParams = matcher.group(2);
+            String name = matcher.group(3);
+            String styleDefinition = matcher.group(4);
+
+            if (!Strings.isNullOrEmpty(styleDefinition))
+                throw new IllegalStateException("When using short-hand syntax + builder notation for object creation, you can't set styles " +
+                        "as parameter for short-hand constructor - styling must be set in builder");
+
+            final TransformationWorkingContext ofTheJedi = new TransformationWorkingContext(context);
+            final BuilderContext<?> builderContext = constructObjectUsingBuilderNotation(context, builderName, builderParams);
+            if (builderContext.getName() != null)
+                ofTheJedi.mapObject(builderContext.getName(), builderContext.getBuiltElement());
+            ofTheJedi.setWorkItem(builderContext.getBuiltElement());
+            context.mapObject(name, builderContext.getBuiltElement());
+            return ofTheJedi;
+        }
+
+        protected TransformationWorkingContext createWidgetUsingClassInstantiation(TransformationWorkingContext context, String key, JsonNode value)
+                throws TransformerException, InvocationTargetException, IllegalAccessException, InstantiationException {
+            final Matcher matcher = shortHandSyntaxKey.matcher(key);
+            Preconditions.checkArgument(matcher.matches(), "Invalid short hand syntax detected: " + key);
+            String typeDefinition = matcher.group(1);
+            String name = matcher.group(2);
+            String styleDefinition = matcher.group(3);
+
+            final Class<?> widgetClass = deduceClassFromNode(typeDefinition);
+            int style = widgetClass == Shell.class ? DEFAULT_STYLE_SHELL : DEFAULT_STYLE_REST;
+            if (!Strings.isNullOrEmpty(styleDefinition)) {
+                IntegerConverter exactTypeConverter = (IntegerConverter)
+                        converterFactory.getExactTypeConverter(int.class).get();
+                style = exactTypeConverter.getValueFromString(styleDefinition);
+            }
+
+            style = fixStyleIfNoModalDialogs(context, style);
+            final Object instanceOfSWTWidget = createInstanceOfSWTWidget(context.getWorkItem(), widgetClass, style);
+            final TransformationWorkingContext ofTheJedi = new TransformationWorkingContext(context);
+            ofTheJedi.setWorkItem(instanceOfSWTWidget);
+            context.mapObject(name, instanceOfSWTWidget);
+            return ofTheJedi;
+        }
+    }
 
     public ObjectConverter() {
         this.mapper = new ObjectMapper();
@@ -118,6 +278,10 @@ public class ObjectConverter implements Converter<Object> {
                 .putAll(knownShortcuts)
                 .putAll(getStringToClassMappingFromPropertiesFile(GUI_TRANSFORMER_SHORTCUTS_PROPERTIES))
                 .build();
+    }
+
+    public TransformationWorkingContext createHierarchy(TransformationWorkingContext context, JsonNode shellDefinition) throws TransformerException {
+        return new OldSchoolObjectCreator().create(context, null, shellDefinition);
     }
 
     private Map<? extends String, ? extends Class<?>> getStringToClassMappingFromPropertiesFile(String propertiesLocation) {
@@ -173,7 +337,7 @@ public class ObjectConverter implements Converter<Object> {
 
     private Object getValueFromJson(TransformationWorkingContext context, JsonNode node) throws TransformerException {
         if (!node.isTextual()) {
-            final TransformationWorkingContext widgetFromNode = createWidgetFromNode(context, node);
+            final TransformationWorkingContext widgetFromNode = new OldSchoolObjectCreator().create(context, null, node);
             return widgetFromNode.getWorkItem();
         }
 
@@ -207,149 +371,6 @@ public class ObjectConverter implements Converter<Object> {
         if (mappedObject == null)
             mappedObject = objectProvider.provideObjectNamed(magicName);
         return mappedObject;
-    }
-
-    TransformationWorkingContext createWidgetFromNode(TransformationWorkingContext context, JsonNode value) throws TransformerException {
-        try {
-            TransformationWorkingContext ofTheJedi = isWidgetUsingBuilder(value)
-                    ? createWidgetUsingBuilder(context, value)
-                    : createWidgetUsingClassInstantiation(context, value);
-            transformNodeToProperties(ofTheJedi, value);
-            return ofTheJedi;
-        } catch (TransformerException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new TransformerException("Widget creation failed", e);
-        }
-    }
-
-    TransformationWorkingContext createWidgetFromNodeUsingShortHandSyntax(TransformationWorkingContext context, String key, JsonNode value) throws TransformerException {
-        try {
-            TransformationWorkingContext ofTheJedi = isWidgetUsingBuilderShortHandSyntax(key)
-                    ? createWidgetUsingBuilderShortHandSyntax(context, key)
-                    : createWidgetUsingClassInstantiationShortHandSyntax(context, key);
-            transformNodeToProperties(ofTheJedi, value);
-            return ofTheJedi;
-        } catch (TransformerException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new TransformerException("Widget creation failed", e);
-        }
-    }
-
-    private TransformationWorkingContext createWidgetUsingClassInstantiationShortHandSyntax(TransformationWorkingContext context, String key) throws TransformerException, InvocationTargetException, IllegalAccessException, InstantiationException {
-        final Matcher matcher = shortHandSyntaxKey.matcher(key);
-        Preconditions.checkArgument(matcher.matches(), "Invalid short hand syntax detected: "+key);
-        String typeDefinition = matcher.group(1);
-        String name = matcher.group(2);
-        String styleDefinition = matcher.group(3);
-
-        final Class<?> widgetClass = deduceClassFromNode(typeDefinition);
-        int style = widgetClass == Shell.class ? DEFAULT_STYLE_SHELL : DEFAULT_STYLE_REST;
-        if (!Strings.isNullOrEmpty(styleDefinition)) {
-            IntegerConverter exactTypeConverter = (IntegerConverter)
-                    converterFactory.getExactTypeConverter(int.class).get();
-            style = exactTypeConverter.getValueFromString(styleDefinition);
-        }
-
-        if (context.isDoNotCreateModalDialogs()) {
-            style = style & (~SWT.APPLICATION_MODAL);
-            style = style & (~SWT.SYSTEM_MODAL);
-            style = style & (~SWT.PRIMARY_MODAL);
-        }
-        final Object instanceOfSWTWidget = createInstanceOfSWTWidget(context.getWorkItem(), widgetClass, style);
-        final TransformationWorkingContext ofTheJedi = new TransformationWorkingContext(context);
-        ofTheJedi.setWorkItem(instanceOfSWTWidget);
-        context.mapObject(name, instanceOfSWTWidget);
-        return ofTheJedi;
-    }
-
-    private TransformationWorkingContext createWidgetUsingBuilderShortHandSyntax(TransformationWorkingContext context, String key) throws TransformerException {
-        final Matcher matcher = builderValueShortHandSyntax.matcher(key);
-        Preconditions.checkArgument(matcher.matches(), "Invalid short hand syntax detected: "+key);
-        String builderName = matcher.group(1);
-        String builderParams = matcher.group(2);
-        String name = matcher.group(3);
-        String styleDefinition = matcher.group(4);
-
-        if (!Strings.isNullOrEmpty(styleDefinition))
-            throw new IllegalStateException("When using short-hand syntax + builder notation for object creation, you can't set styles as parameter for short-hand constructor - styling must be set in builder");
-
-        final TransformationWorkingContext ofTheJedi = new TransformationWorkingContext(context);
-        final BuilderContext<?> builderContext = constructObjectUsingBuilderNotation(context, builderName, builderParams);
-        if (builderContext.getName() != null)
-            ofTheJedi.mapObject(builderContext.getName(), builderContext.getBuiltElement());
-        ofTheJedi.setWorkItem(builderContext.getBuiltElement());
-        context.mapObject(name, builderContext.getBuiltElement());
-        return ofTheJedi;
-    }
-
-    private TransformationWorkingContext createWidgetUsingBuilder(TransformationWorkingContext context, JsonNode value) throws TransformerException {
-        final TransformationWorkingContext ofTheJedi = new TransformationWorkingContext(context);
-        final Matcher matcher = builderValue.matcher(value.get(KEY_SPECIAL_TYPE).asText());
-        final boolean processingResult = matcher.matches();
-        checkState(processingResult);
-        final BuilderContext<?> builderContext = constructObjectUsingBuilderNotation(context, matcher.group(1), matcher.group(2));
-        if (builderContext.getName() != null)
-            ofTheJedi.mapObject(builderContext.getName(), builderContext.getBuiltElement());
-        ofTheJedi.setWorkItem(builderContext.getBuiltElement());
-        if (value.has(KEY_SPECIAL_NAME)) {
-            String objectName = value.get(KEY_SPECIAL_NAME).asText();
-            context.mapObject(objectName, builderContext.getBuiltElement());
-        }
-        return ofTheJedi;
-    }
-
-    private TransformationWorkingContext createWidgetUsingClassInstantiation(TransformationWorkingContext context, JsonNode objectDefinition)
-            throws TransformerException, IllegalAccessException, InstantiationException, InvocationTargetException {
-        final Class<?> widgetClass = deduceClassFromNode(objectDefinition);
-        int style = widgetClass == Shell.class ? DEFAULT_STYLE_SHELL : DEFAULT_STYLE_REST;
-        if (objectDefinition.has(KEY_SPECIAL_STYLE)) {
-            JsonNode styleNode = objectDefinition.get(KEY_SPECIAL_STYLE);
-            TypedConverter<Integer> exactTypeConverter = (TypedConverter<Integer>)
-                    converterFactory.getExactTypeConverter(int.class).get();
-            style = exactTypeConverter.getValueFromJson(styleNode, context.getMappedObjects());
-        }
-
-        if (context.isDoNotCreateModalDialogs()) {
-            style = style & (~SWT.APPLICATION_MODAL);
-            style = style & (~SWT.SYSTEM_MODAL);
-            style = style & (~SWT.PRIMARY_MODAL);
-        }
-        final Object instanceOfSWTWidget = createInstanceOfSWTWidget(context.getWorkItem(), widgetClass, style);
-        final TransformationWorkingContext ofTheJedi = new TransformationWorkingContext(context);
-        ofTheJedi.setWorkItem(instanceOfSWTWidget);
-        if (objectDefinition.has(KEY_SPECIAL_NAME)) {
-            String objectName = objectDefinition.get(KEY_SPECIAL_NAME).asText();
-            context.mapObject(objectName, instanceOfSWTWidget);
-        }
-        return ofTheJedi;
-    }
-
-    private boolean isWidgetUsingBuilder(JsonNode value) {
-        return value.has(KEY_SPECIAL_TYPE) && builderValue.matcher(value.get(KEY_SPECIAL_TYPE).asText()).matches();
-    }
-
-    private boolean isWidgetUsingBuilderShortHandSyntax(String key) {
-        return builderValueShortHandSyntax.matcher(key).matches();
-    }
-
-    private Class<?> deduceClassFromNode(JsonNode valueNode) throws TransformerException {
-        Preconditions.checkArgument(valueNode.has(KEY_SPECIAL_TYPE), "Definition does not have type definition");
-        String classIdentifier = valueNode.get(KEY_SPECIAL_TYPE).asText();
-        return deduceClassFromNode(classIdentifier);
-    }
-
-    private Class<?> deduceClassFromNode(String classIdentifier) throws TransformerException {
-        Class<?> aClass = registeredShortcuts.get(classIdentifier);
-        if (aClass != null)
-            return aClass;
-        else
-            try {
-                return Class.forName(classIdentifier);
-            } catch (ClassNotFoundException e) {
-                throw new TransformerException("Class was not found: " + classIdentifier, e);
-            }
     }
 
     private Object createInstanceOfSWTWidget(Object parent, Class<?> widgetClass, int style) throws TransformerException, InstantiationException, IllegalAccessException, InvocationTargetException {
@@ -413,24 +434,13 @@ public class ObjectConverter implements Converter<Object> {
         final Iterator<String> fieldNames = childrenNodes.getFieldNames();
         while (fieldNames.hasNext()) {
             final String field = fieldNames.next();
-            createWidgetFromNodeUsingShortHandSyntax(context, field, childrenNodes.get(field));
+            new ShortHandObjectCreator().create(context, field, childrenNodes.get(field));
         }
     }
 
     private void transformChildrenAsArray(TransformationWorkingContext context, JsonNode childrenNodes) throws TransformerException, IOException {
         for (JsonNode node : mapper.readValue(childrenNodes, JsonNode[].class)) {
             getValueFromJson(context, node);
-        }
-    }
-
-    private void transformNodeToProperties(TransformationWorkingContext context, JsonNode jsonNode) throws TransformerException {
-        Iterator<Map.Entry<String, JsonNode>> fields = jsonNode.getFields();
-        while (fields.hasNext()) {
-            Map.Entry<String, JsonNode> field = fields.next();
-            if (field.getKey().equals(KEY_SPECIAL_CHILDREN))
-                transformChildren(context, field.getValue());
-            else
-                transformSingleJsonNode(context, field);
         }
     }
 
