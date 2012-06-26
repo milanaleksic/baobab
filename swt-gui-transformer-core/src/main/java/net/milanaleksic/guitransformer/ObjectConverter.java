@@ -30,16 +30,12 @@ import static com.google.common.base.Preconditions.checkState;
  */
 public class ObjectConverter implements Converter<Object> {
 
-    private static final Pattern shortHandSyntaxKey = Pattern.compile("([^\\)]+)\\(([^\\),]*),?([^\\)]*)\\)"); //NON-NLS
-
     private static final Pattern builderValue = Pattern.compile("\\[([^\\]]+)\\]\\(([^\\)]*)\\)"); //NON-NLS
-    private static final Pattern builderValueShortHandSyntax = Pattern.compile("\\[([^\\]]+)\\]\\(([^\\)]*)\\)\\(([^\\),]*),?([^\\)]*)\\)"); //NON-NLS
 
     private static final Pattern injectedObjectValue = Pattern.compile("\\((.*)\\)");
 
     public static final int DEFAULT_STYLE_SHELL = SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL;
     public static final int DEFAULT_STYLE_REST = SWT.NONE;
-
 
     public static final String GUI_TRANSFORMER_SHORTCUTS_PROPERTIES = "/META-INF/guitransformer.shortcuts.properties"; //NON-NLS
 
@@ -202,9 +198,9 @@ public class ObjectConverter implements Converter<Object> {
             int style = widgetClass == Shell.class ? DEFAULT_STYLE_SHELL : DEFAULT_STYLE_REST;
             if (objectDefinition.has(KEY_SPECIAL_STYLE)) {
                 JsonNode styleNode = objectDefinition.get(KEY_SPECIAL_STYLE);
-                TypedConverter<Integer> exactTypeConverter = (TypedConverter<Integer>)
+                IntegerConverter exactTypeConverter = (IntegerConverter)
                         converterFactory.getExactTypeConverter(int.class).get();
-                style = exactTypeConverter.getValueFromJson(styleNode, context.getMappedObjects());
+                style = exactTypeConverter.getValueFromString(styleNode.asText());
             }
 
             style = fixStyleIfNoModalDialogs(context, style);
@@ -220,6 +216,11 @@ public class ObjectConverter implements Converter<Object> {
     }
 
     private class ShortHandObjectCreator extends ObjectCreator {
+
+        private final Pattern builderValueShortHandSyntax = Pattern.compile("\\[([^\\]]+)\\]\\(([^\\)]*)\\)\\(([^\\),]*),?([^\\)]*)\\)"); //NON-NLS
+
+        private final Pattern shortHandSyntaxKey = Pattern.compile("([^\\)]+)\\(([^\\),]*),?([^\\)]*)\\)"); //NON-NLS
+
 
         protected boolean isWidgetUsingBuilder(String key, JsonNode value) {
             return builderValueShortHandSyntax.matcher(key).matches();
