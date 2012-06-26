@@ -8,48 +8,28 @@
     },
     "text" : "[mainForm.title]",
     "size" : "705,500",
-    "_children" : [
-        {
-            "_type" : "toolBar",
-			"_style" : "{flat}",
-			"_children" : [
-				{
-					"_type" : "toolItem",
-					"_style" : "{push}",
-					"_name" : "btnNew",
+    "_children" : {
+        "toolBar(_,{flat})" : {
+			"_children" : {
+                "toolItem(btnNew,{push})" : {
                     "text" : "[mainForm.toolBar.new]"
 				},
-				{
-					"_type" : "toolItem",
-					"_style" : "{push}",
-					"_name" : "btnOpen",
+				"toolItem(btnOpen,{push})" : {
                     "text" : "[mainForm.toolBar.open]"
 				},
-				{
-					"_type" : "toolItem",
-					"_style" : "{push}",
-					"_name" : "btnSave",
+				"toolItem(btnSave,{push})" : {
 					"text" : "[mainForm.toolBar.save]"
 				},
-				{
-					"_type" : "toolItem",
-					"_style" : "{push}",
-					"_name" : "btnSaveAs",
+				"toolItem(btnSaveAs,{push})" : {
 					"text" : "[mainForm.toolBar.saveAs]"
 				},
-				{
-					"_type" : "toolItem",
-					"_style" : "{push}",
-					"_name" : "btnExit",
+				"toolItem(btnExit,{push})" : {
 					"text" : "[mainForm.toolBar.exit]"
 				}
-			]
+            }
         },
 
-        {
-            "_type" : "styledText",
-            "_style" : "{multi}|{wrap}|{border}|{v_scroll}",
-            "_name" : "editor",
+        "styledText(editor,{multi}|{wrap}|{border}|{v_scroll})" : {
             "layoutData" : {
                 "_type" : "[gridData](fill,fill,true,true)"
             },
@@ -57,27 +37,17 @@
                 "name" : "Courier New",
                 "height" : 9
             },
-            "_children" : [
-                {
-                    "_type" : "dropTarget",
-                    "_style" : "{dnd.drop_default}|{dnd.drop_copy}|{dnd.drop_link}|{dnd.drop_move}",
-                    "_name" : "editorDropTarget"
-                }
-            ]
+            "_children" : {
+                "dropTarget(editorDropTarget,{dnd.drop_default}|{dnd.drop_copy}|{dnd.drop_link}|{dnd.drop_move})" : {}
+            }
         },
-        {
-            "_type" : "cursor",
-            "_style" : "{cursor_hand}",
-            "_name" : "handCursor"
-        },
-        {
-            "_type" : "label",
-            "_name" : "infoLabel",
+        "cursor(handCursor,{cursor_hand})" : {},
+        "label(infoLabel)" : {
             "foreground" : "#ff0000",
             "layoutData" : {
                 "_type" : "[gridData](fill,end,true,false)"
             },
             "cursor" : "(handCursor)"
         }
-    ]
+    }
 }
