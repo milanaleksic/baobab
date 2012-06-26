@@ -171,10 +171,6 @@ public class ObjectConverter implements Converter<Object> {
     private Object getValueFromJson(TransformationWorkingContext context, JsonNode node) throws TransformerException {
         if (!node.isTextual()) {
             final TransformationWorkingContext widgetFromNode = createWidgetFromNode(context, node);
-            if (node.has(KEY_SPECIAL_NAME)) {
-                String objectName = node.get(KEY_SPECIAL_NAME).asText();
-                context.mapObject(objectName, widgetFromNode.getWorkItem());
-            }
             return widgetFromNode.getWorkItem();
         }
 
@@ -215,6 +211,10 @@ public class ObjectConverter implements Converter<Object> {
             TransformationWorkingContext ofTheJedi = isWidgetUsingBuilder(value)
                     ? createWidgetUsingBuilder(context, value)
                     : createWidgetUsingClassInstantiation(context, value);
+            if (value.has(KEY_SPECIAL_NAME)) {
+                String objectName = value.get(KEY_SPECIAL_NAME).asText();
+                context.mapObject(objectName, ofTheJedi.getWorkItem());
+            }
             transformNodeToProperties(ofTheJedi, value);
             return ofTheJedi;
         } catch (TransformerException e) {
@@ -255,10 +255,6 @@ public class ObjectConverter implements Converter<Object> {
         final Object instanceOfSWTWidget = createInstanceOfSWTWidget(context.getWorkItem(), widgetClass, style);
         final TransformationWorkingContext ofTheJedi = new TransformationWorkingContext(context);
         ofTheJedi.setWorkItem(instanceOfSWTWidget);
-        if (objectDefinition.has(KEY_SPECIAL_NAME)) {
-            String objectName = objectDefinition.get(KEY_SPECIAL_NAME).asText();
-            context.mapObject(objectName, instanceOfSWTWidget);
-        }
         return ofTheJedi;
     }
 
@@ -339,12 +335,11 @@ public class ObjectConverter implements Converter<Object> {
         }
     }
 
-    private void transformChildrenAsShortHandSyntax(TransformationWorkingContext context, JsonNode childrenNodes) {
+    private void transformChildrenAsShortHandSyntax(TransformationWorkingContext context, JsonNode childrenNodes) throws TransformerException {
         final Iterator<String> fieldNames = childrenNodes.getFieldNames();
         while (fieldNames.hasNext()) {
             final String field = fieldNames.next();
-            System.out.println("Found field " + field);
-            System.out.println("Field value is " + childrenNodes.get(field));
+            createWidgetFromNode(context, childrenNodes.get(field));
         }
     }
 
