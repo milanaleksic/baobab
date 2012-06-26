@@ -1,4 +1,4 @@
-﻿*.class
+*.class
 
 # Package Files #
 *.jar
@@ -7,11 +7,3 @@
 
 *.iml
 .idea
-out
-swt-gui-transformer-core/target/
-swt-gui-transformer-editor/target/
-target/
-
-# maven release plugin #
-*.releaseBackup
-release.properties
