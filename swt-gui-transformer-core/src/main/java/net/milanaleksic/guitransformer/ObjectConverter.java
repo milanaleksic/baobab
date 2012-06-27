@@ -37,7 +37,8 @@ public class ObjectConverter implements Converter<Object> {
     public static final int DEFAULT_STYLE_SHELL = SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL;
     public static final int DEFAULT_STYLE_REST = SWT.NONE;
 
-    public static final String GUI_TRANSFORMER_SHORTCUTS_PROPERTIES = "/META-INF/guitransformer.shortcuts.properties"; //NON-NLS
+    public static final String GUI_TRANSFORMER_SHORTCUTS_PROPERTIES = "/META-INF/guitransformer.shortcuts-default.properties"; //NON-NLS
+    public static final String GUI_TRANSFORMER_SHORTCUTS_EXTENSION_PROPERTIES = "/META-INF/guitransformer.shortcuts.properties"; //NON-NLS
 
     static final String KEY_SPECIAL_TYPE = "_type"; //NON-NLS
     static final String KEY_SPECIAL_CHILDREN = "_children"; //NON-NLS
@@ -70,43 +71,6 @@ public class ObjectConverter implements Converter<Object> {
     public void setRegisteredBuilders(Map<String, Builder<?>> registeredBuilders) {
         this.registeredBuilders = registeredBuilders;
     }
-
-    @SuppressWarnings({"HardCodedStringLiteral"})
-    private static ImmutableMap<String, Class<?>> knownShortcuts = ImmutableMap
-            .<String, Class<?>>builder()
-
-            .put("gridData", org.eclipse.swt.layout.GridData.class)
-            .put("gridLayout", org.eclipse.swt.layout.GridLayout.class)
-
-            .put("shell", org.eclipse.swt.widgets.Shell.class)
-            .put("button", org.eclipse.swt.widgets.Button.class)
-            .put("canvas", org.eclipse.swt.widgets.Canvas.class)
-            .put("composite", org.eclipse.swt.widgets.Composite.class)
-            .put("group", org.eclipse.swt.widgets.Group.class)
-            .put("label", org.eclipse.swt.widgets.Label.class)
-            .put("tabFolder", org.eclipse.swt.widgets.TabFolder.class)
-            .put("tabItem", org.eclipse.swt.widgets.TabItem.class)
-            .put("table", org.eclipse.swt.widgets.Table.class)
-            .put("tableColumn", org.eclipse.swt.widgets.TableColumn.class)
-            .put("link", org.eclipse.swt.widgets.Link.class)
-            .put("list", org.eclipse.swt.widgets.List.class)
-            .put("text", org.eclipse.swt.widgets.Text.class)
-            .put("combo", org.eclipse.swt.widgets.Combo.class)
-            .put("toolBar", org.eclipse.swt.widgets.ToolBar.class)
-            .put("toolItem", org.eclipse.swt.widgets.ToolItem.class)
-            .put("menu", org.eclipse.swt.widgets.Menu.class)
-            .put("menuItem", org.eclipse.swt.widgets.MenuItem.class)
-
-            .put("cursor", org.eclipse.swt.graphics.Cursor.class)
-
-            .put("scrolledComposite", org.eclipse.swt.custom.ScrolledComposite.class)
-            .put("styledText", org.eclipse.swt.custom.StyledText.class)
-            .put("sashForm", org.eclipse.swt.custom.SashForm.class)
-
-            .put("dropTarget", org.eclipse.swt.dnd.DropTarget.class)
-            .put("dragSource", org.eclipse.swt.dnd.DragSource.class)
-
-            .build();
 
     private abstract class ObjectCreator {
 
@@ -277,8 +241,8 @@ public class ObjectConverter implements Converter<Object> {
         this.mapper = new ObjectMapper();
         this.mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
         registeredShortcuts = ImmutableMap.<String, Class<?>>builder()
-                .putAll(knownShortcuts)
                 .putAll(getStringToClassMappingFromPropertiesFile(GUI_TRANSFORMER_SHORTCUTS_PROPERTIES))
+                .putAll(getStringToClassMappingFromPropertiesFile(GUI_TRANSFORMER_SHORTCUTS_EXTENSION_PROPERTIES))
                 .build();
     }
 
