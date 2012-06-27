@@ -47,7 +47,7 @@
             "_name" : "handCursor"
         },
         {
-            "_type" : "[label]({wrap}|{center},infoLabel)",
+            "_type" : "[label]({wrap}|{center}, infoLabel)",
             "foreground" : "#ff0000",
             "layoutData" : {
                 "_type" : "[gridData](fill,end,true,false)"
