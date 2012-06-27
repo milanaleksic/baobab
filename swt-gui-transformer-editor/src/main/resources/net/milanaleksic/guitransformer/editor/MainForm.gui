@@ -56,22 +56,74 @@
                 "composite(_)" : {
                     "layout" : {
                         "_type" : "gridLayout",
-                        "numColumns" : 1
+                        "numColumns" : 1,
+                        "marginWidth" : 0,
+                        "marginHeight" : 0
                     },
                     "layoutData" : {
                         "_type" : "[gridData](fill,fill,false,true)",
                         "widthHint" : "150"
                     },
                     "_children" : {
-                        "label(_1)" : {
-                            "text": "Widgets in context:"
+                        "label(_)" : {
+                            "text": "[mainForm.widgetsInContext]"
                         },
                         "list(contextWidgets,{v_scroll}|{multi}|{border}|{read_only})" : {
                             "layoutData" : "[gridData](fill,fill,true,true)"
                         },
-                        "label(caretPositionLabel)" : {
-                            "text": "1x1",
-                            "layoutData" : "[gridData](fill,begin,true,false)"
+                        "composite(_)" : {
+                            "layout" : {
+                                "_type" : "gridLayout",
+                                "numColumns" : 1,
+                                "marginHeight" : 0
+                            },
+                            "layoutData" : "[gridData](fill,fill,true,false)",
+                            "_children" : {
+                                "composite(_1)" : {
+                                    "layout" : {
+                                        "_type" : "gridLayout",
+                                        "numColumns" : 4,
+                                        "marginWidth" : 0,
+                                        "marginHeight" : 0
+                                    },
+                                    "layoutData" : "[gridData](fill,fill,true,false)",
+                                    "_children" : {
+                                        "label(_1)" : {
+                                            "text":"[mainForm.setSize] X="
+                                        },
+                                        "text(textWidth,{border})" : {
+                                            "layoutData" : "[gridData](fill,fill,true,false)",
+                                            "text" : "0"
+                                        },
+                                        "label(_2)" : {
+                                            "text":"Y="
+                                        },
+                                        "text(textHeight,{border})" : {
+                                            "layoutData" : "[gridData](fill,fill,true,false)",
+                                            "text" : "0"
+                                        }
+                                    }
+                                },
+                                "composite(_2)" : {
+                                    "layout" : {
+                                        "_type" : "gridLayout",
+                                        "numColumns" : 2,
+                                        "marginWidth" : 0,
+                                        "marginHeight" : 0
+                                    },
+                                    "layoutData" : "[gridData](fill,fill,true,false)",
+                                    "_children" : {
+                                        "label(_)" : {
+                                            "text": "[mainForm.carret]",
+                                            "layoutData" : "[gridData](begin,end,false,false)"
+                                        },
+                                        "label(caretPositionLabel)" : {
+                                            "text": "1x1",
+                                            "layoutData" : "[gridData](fill,end,true,false)"
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }

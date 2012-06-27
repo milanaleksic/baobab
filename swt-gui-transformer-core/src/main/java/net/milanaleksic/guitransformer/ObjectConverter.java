@@ -30,7 +30,7 @@ import static com.google.common.base.Preconditions.checkState;
  */
 public class ObjectConverter implements Converter<Object> {
 
-    private static final Pattern builderValue = Pattern.compile("\\[([^\\]]+)\\]\\(([^\\)]*)\\)"); //NON-NLS
+    private static final Pattern builderValue = Pattern.compile("\\[([^\\]]+)\\]\\s*\\(([^\\)]*)\\)"); //NON-NLS
 
     private static final Pattern injectedObjectValue = Pattern.compile("\\((.*)\\)");
 
@@ -182,9 +182,9 @@ public class ObjectConverter implements Converter<Object> {
 
     private class ShortHandObjectCreator extends ObjectCreator {
 
-        private final Pattern builderValueShortHandSyntax = Pattern.compile("\\[([^\\]]+)\\]\\(([^\\)]*)\\)\\(([^\\),]*),?([^\\)]*)\\)"); //NON-NLS
+        private final Pattern builderValueShortHandSyntax = Pattern.compile("\\[([^\\]]+)\\]\\(([^\\)]*)\\)\\(([^\\),]*)\\s*,?\\s*([^\\)]*)\\)"); //NON-NLS
 
-        private final Pattern shortHandSyntaxKey = Pattern.compile("([^\\)]+)\\(([^\\),]*),?([^\\)]*)\\)"); //NON-NLS
+        private final Pattern shortHandSyntaxKey = Pattern.compile("([^\\)]+)\\(([^\\),]*)\\s*,?\\s*([^\\)]*)\\)"); //NON-NLS
 
 
         protected boolean isWidgetUsingBuilder(String key, JsonNode value) {
