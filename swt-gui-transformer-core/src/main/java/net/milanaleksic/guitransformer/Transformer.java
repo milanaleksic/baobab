@@ -36,8 +36,8 @@ public class Transformer {
         this.mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
     }
 
-    public TransformationContext createNonManagedForm(String definition) throws TransformerException {
-        return transformFromContent(definition);
+    public TransformationContext createNonManagedForm(@Nullable Shell parent, String definition) throws TransformerException {
+        return transformFromContent(parent, definition);
     }
 
     public TransformationContext fillManagedForm(Object formObject) throws TransformerException {
@@ -198,11 +198,12 @@ public class Transformer {
         }
     }
 
-    private TransformationContext transformFromContent(String content) throws TransformerException {
+    private TransformationContext transformFromContent(@Nullable Shell parent, String content) throws TransformerException {
         TransformationWorkingContext context = new TransformationWorkingContext();
         try {
             context.mapObject("bundle", resourceBundleProvider.getResourceBundle()); //NON-NLS
             context.setDoNotCreateModalDialogs(doNotCreateModalDialogs);
+            context.setWorkItem(parent);
 
             final JsonNode shellDefinition = mapper.readValue(content, JsonNode.class);
             context = objectConverter.createHierarchy(context, shellDefinition);
