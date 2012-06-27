@@ -94,7 +94,7 @@ public class MainForm {
             if (Strings.isNullOrEmpty(text))
                 return;
             try {
-                TransformationContext nonManagedForm = editorTransformer.createNonManagedForm(editor.getText());
+                TransformationContext nonManagedForm = editorTransformer.createNonManagedForm(shell, editor.getText());
                 Shell newShell = nonManagedForm.getShell();
                 newShell.setLocation(20, 20);
 
