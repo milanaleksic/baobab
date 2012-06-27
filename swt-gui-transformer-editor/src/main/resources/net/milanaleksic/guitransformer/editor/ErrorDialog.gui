@@ -8,11 +8,8 @@
     },
     "text" : "[mainForm.title]",
     "size" : "750,350",
-    "_children" : [
-        {
-            "_type" : "text",
-            "_style" : "{multi}|{wrap}|{border}|{v_scroll}",
-            "_name" : "text",
+    "_children" : {
+        "text(text,{multi}|{wrap}|{border}|{v_scroll})" : {
             "background" : "color_widget_background",
             "layoutData" : {
                 "_type" : "[gridData](fill,fill,true,true)"
@@ -22,5 +19,5 @@
                 "height" : 8
             }
         }
-    ]
+    }
 }

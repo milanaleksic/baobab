@@ -22,7 +22,7 @@ public class StringConverter extends TypedConverter<String> {
     private ResourceBundleProvider resourceBundleProvider;
 
     @Override
-    public String getValueFromJson(JsonNode node, Map<String, Object> mappedObjects) throws TransformerException {
+    public String getValueFromJson(JsonNode node) throws TransformerException {
         String fieldValue = node.asText();
         if (Strings.isNullOrEmpty(fieldValue))
             return fieldValue;

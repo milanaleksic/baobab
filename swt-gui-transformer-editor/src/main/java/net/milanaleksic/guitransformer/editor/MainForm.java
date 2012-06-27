@@ -11,8 +11,7 @@ import org.eclipse.swt.widgets.*;
 import javax.annotation.Nullable;
 import javax.inject.*;
 import java.io.*;
-import java.util.ResourceBundle;
-import java.util.concurrent.*;
+import java.util.*;
 
 /**
  * User: Milan Aleksic
@@ -32,6 +31,9 @@ public class MainForm {
     private ErrorDialog errorDialog;
 
     @Inject
+    private FindDialog findDialog;
+
+    @Inject
     private ResourceBundleProvider resourceBundleProvider;
 
     @EmbeddedComponent
@@ -40,49 +42,50 @@ public class MainForm {
     @EmbeddedComponent
     private Label infoLabel;
 
+    @EmbeddedComponent
+    private Text textWidth;
+
+    @EmbeddedComponent
+    private Text textHeight;
+
+    @EmbeddedComponent
+    private org.eclipse.swt.widgets.List contextWidgets;
+
+    @EmbeddedComponent
+    private Label caretPositionLabel;
+
     /* editing context */
     private Shell currentShell = null;
     private File currentFile = null;
     private boolean modified = false;
-    private TransformerException lastException = null;
+    private Exception lastException = null;
+    private String lastSearchString = null;
 
     /* editor's own context */
     private Shell shell;
     private ResourceBundle resourceBundle;
 
     @EmbeddedEventListener(component = "editorDropTarget", event = DND.Drop)
-    private final Listener editorDropTargetDropListener = new Listener() {
-        @Override
-        public void handleEvent(Event event) {
-            if (event.data instanceof String[]) {
-                String[] typedData = (String[]) event.data;
-                if (typedData != null && typedData.length > 0) {
-                    openFile(new File(typedData[0]));
-                }
+    private void editorDropTargetDropListener(Event event) {
+        if (event.data instanceof String[]) {
+            String[] typedData = (String[]) event.data;
+            if (typedData != null && typedData.length > 0) {
+                openFile(new File(typedData[0]));
             }
         }
-    };
+    }
 
     @EmbeddedEventListener(component = "infoLabel", event = SWT.MouseDown)
-    private final Listener infoLabelMouseDownListener = new Listener() {
-        @Override
-        public void handleEvent(Event event) {
-            if (lastException == null)
-                return;
-            errorDialog.showMessage(getStackTrace(lastException));
-        }
+    private void infoLabelMouseDownListener() {
+        if (lastException == null)
+            return;
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        lastException.printStackTrace(pw);
+        errorDialog.showMessage(sw.toString());
+    }
 
-        public String getStackTrace(Throwable t) {
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            t.printStackTrace(pw);
-            return sw.toString();
-        }
-    };
-
-    private class RunnableListener implements Listener, Runnable {
-
-        private ExecutorService executor = Executors.newSingleThreadExecutor();
+    private class EditorModifyRunnableListener implements Listener {
 
         @Override
         public void handleEvent(Event event) {
@@ -90,12 +93,27 @@ public class MainForm {
             String text = editor.getText();
             if (Strings.isNullOrEmpty(text))
                 return;
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    shell.getDisplay().syncExec(RunnableListener.this);
-                }
-            });
+            try {
+                TransformationContext nonManagedForm = editorTransformer.createNonManagedForm(editor.getText());
+                Shell newShell = nonManagedForm.getShell();
+                newShell.setLocation(20, 20);
+
+                removePreviousShell();
+
+                setSizeOverride(newShell);
+                currentShell = newShell;
+                currentShell.open();
+
+                ((Control)event.widget).setFocus();
+
+                updateAvailableWidgets(nonManagedForm);
+
+                modified = true;
+            } catch (TransformerException e) {
+                showInformation(String.format(resourceBundle.getString("mainForm.transformationError"), e.getMessage()), e);
+            } catch (Exception e) {
+                showInformation(resourceBundle.getString("mainForm.error"), e);
+            }
         }
 
         private void removePreviousShell() {
@@ -107,110 +125,118 @@ public class MainForm {
             currentShell = null;
         }
 
-        @Override
-        public void run() {
+        private void setSizeOverride(Shell shell) {
+            final String width = textWidth.getText();
+            final String height = textHeight.getText();
+            if (Strings.isNullOrEmpty(width) || Strings.isNullOrEmpty(height))
+                return;
             try {
-                TransformationContext nonManagedForm = editorTransformer.createNonManagedForm(editor.getText());
-                Shell newShell = nonManagedForm.getShell();
-                newShell.setLocation(20, 20);
-
-                removePreviousShell();
-
-                currentShell = newShell;
-                currentShell.open();
-
-                editor.setFocus();
-
-                modified = true;
-            } catch (TransformerException e) {
-                showInformation(String.format(resourceBundle.getString("mainForm.transformationError"), e.getMessage()), e);
+                int widthAsInt = Integer.parseInt(width, 10);
+                int heightAsInt = Integer.parseInt(height, 10);
+                if (widthAsInt <= 0 || heightAsInt <= 0)
+                    return;
+                shell.setSize(widthAsInt, heightAsInt);
+            } catch (Exception e) {
+                showError("Invalid size parameters: " + e);
             }
         }
 
-        public void shutdown() {
-            executor.shutdownNow();
+        private void updateAvailableWidgets(TransformationContext nonManagedForm) {
+            contextWidgets.setItems(new String[]{});
+            for (Map.Entry<String, Object> entry : nonManagedForm.getMappedObjects().entrySet()) {
+                contextWidgets.add(String.format("[%s] - %s", entry.getKey(), entry.getValue().getClass().getName()));
+            }
         }
     }
 
-    @EmbeddedEventListener(component = "editor", event = SWT.Modify)
-    private final RunnableListener editorModifyListener = new RunnableListener();
+    @EmbeddedEventListeners({
+            @EmbeddedEventListener(component = "editor", event = SWT.Modify),
+            @EmbeddedEventListener(component = "textWidth", event = SWT.Modify),
+            @EmbeddedEventListener(component = "textHeight", event = SWT.Modify)
+    })
+    private final EditorModifyRunnableListener editorModifyListener = new EditorModifyRunnableListener();
+
+    @EmbeddedEventListener(component = "editor", event = SWT.KeyDown)
+    private void editorKeyDown(Event event) {
+        if (Character.toLowerCase(event.keyCode) == 'a' && (event.stateMask & SWT.CTRL) == SWT.CTRL) {
+            editor.selectAll();
+        }
+        else if (Character.toLowerCase(event.keyCode) == 'f' && (event.stateMask & SWT.CTRL) == SWT.CTRL) {
+            findText();
+        }
+        else if (event.keyCode == SWT.F3) {
+            findNext();
+        }
+    }
+
+    @EmbeddedEventListener(component = "editor", event = 3011 /*StyledText.CaretMoved*/)
+    private void editorMouseDown() {
+        refreshCaretPositionInformation();
+    }
 
     @EmbeddedEventListener(component = "btnNew", event = SWT.Selection)
-    private final Listener btnNewSelectionListener = new Listener() {
-        @Override
-        public void handleEvent(Event event) {
-            setCurrentFile(null);
-            editor.setText("");
-        }
-    };
+    private void btnNewSelectionListener() {
+        setCurrentFile(null);
+        editor.setText("");
+    }
 
     @EmbeddedEventListener(component = "btnOpen", event = SWT.Selection)
-    private final Listener btnOpenSelectionListener = new Listener() {
-        @Override
-        public void handleEvent(Event event) {
-            FileDialog dlg = new FileDialog(shell, SWT.OPEN);
-            dlg.setFilterNames(new String[]{resourceBundle.getString("mainForm.openFilters")});
-            dlg.setFilterExtensions(new String[]{"*.gui"}); //NON-NLS
-            final String selectedFile = dlg.open();
-            if (selectedFile == null)
-                return;
-            openFile(new File(selectedFile));
-        }
-    };
+    private void btnOpenSelectionListener() {
+        FileDialog dlg = new FileDialog(shell, SWT.OPEN);
+        dlg.setFilterNames(new String[]{resourceBundle.getString("mainForm.openFilters")});
+        dlg.setFilterExtensions(new String[]{"*.gui"}); //NON-NLS
+        final String selectedFile = dlg.open();
+        if (selectedFile == null)
+            return;
+        openFile(new File(selectedFile));
+    }
 
     @EmbeddedEventListener(component = "btnSave", event = SWT.Selection)
-    private final Listener btnSaveSelectionListener = new Listener() {
-        @Override
-        public void handleEvent(Event event) {
-            saveCurrentDocument();
-        }
-    };
+    private void btnSaveSelectionListener() {
+        saveCurrentDocument();
+    }
+
+    @EmbeddedEventListener(component = "btnFindText", event = SWT.Selection)
+    private void btnFindTextSelectionListener() {
+        findText();
+    }
+
+    @EmbeddedEventListener(component = "btnFindNext", event = SWT.Selection)
+    private void btnFindNextSelectionListener() {
+        findNext();
+    }
 
     @EmbeddedEventListener(component = "btnSaveAs", event = SWT.Selection)
-    private final Listener btnSaveAsSelectionListener = new Listener() {
-        @Override
-        public void handleEvent(Event event) {
-            saveDocumentAs();
-        }
-    };
+    private void btnSaveAsSelectionListener() {
+        saveDocumentAs();
+    }
 
     @EmbeddedEventListener(component = "btnExit", event = SWT.Selection)
-    private final Listener btnExitSelectionListener = new Listener() {
-        @Override
-        public void handleEvent(Event event) {
-            shell.close();
-        }
-    };
+    private void btnExitSelectionListener() {
+        shell.close();
+    }
 
     @EmbeddedEventListener(component = "shell", event = SWT.Close)
-    private final Listener shellCloseListener = new Listener() {
-        @Override
-        public void handleEvent(Event event) {
-            try {
-                if (!modified)
-                    return;
-                int style = SWT.APPLICATION_MODAL | SWT.YES | SWT.NO | SWT.CANCEL;
-                MessageBox messageBox = new MessageBox(shell, style);
-                messageBox.setText(resourceBundle.getString("mainForm.information"));
-                messageBox.setMessage(resourceBundle.getString("mainForm.saveBeforeClosing"));
-                switch (messageBox.open()) {
-                    case SWT.CANCEL:
-                        event.doit = false;
-                        break;
-                    case SWT.YES:
-                        saveCurrentDocument();
-                        event.doit = true;
-                        break;
-                    case SWT.NO:
-                        event.doit = true;
-                        break;
-                }
-            } finally {
-                if (event.doit)
-                    editorModifyListener.shutdown();
-            }
+    private void shellCloseListener(Event event) {
+        if (!modified)
+            return;
+        int style = SWT.APPLICATION_MODAL | SWT.YES | SWT.NO | SWT.CANCEL | SWT.ICON_QUESTION;
+        MessageBox messageBox = new MessageBox(shell, style);
+        messageBox.setText(resourceBundle.getString("mainForm.information"));
+        messageBox.setMessage(resourceBundle.getString("mainForm.saveBeforeClosing"));
+        switch (messageBox.open()) {
+            case SWT.CANCEL:
+                event.doit = false;
+                break;
+            case SWT.YES:
+                saveCurrentDocument();
+                event.doit = true;
+                break;
+            case SWT.NO:
+                event.doit = true;
+                break;
         }
-    };
+    }
 
     private void openFile(File targetFile) {
         if (!targetFile.exists()) {
@@ -254,7 +280,9 @@ public class MainForm {
         saveCurrentDocument();
     }
 
-    private void showInformation(String infoText, @Nullable TransformerException exception) {
+    private void showInformation(String infoText, @Nullable Exception exception) {
+        infoText = infoText.replaceAll("\r", "");
+        infoText = infoText.replaceAll("\n", "");
         infoLabel.setText(infoText);
         lastException = exception;
     }
@@ -304,5 +332,46 @@ public class MainForm {
 
     Shell getShell() {
         return shell;
+    }
+
+    private void refreshCaretPositionInformation() {
+        final int caretOffset = editor.getCaretOffset();
+        final int line = editor.getLineAtOffset(caretOffset);
+        caretPositionLabel.setText(String.format("%dx%d",
+                line + 1,
+                caretOffset - editor.getContent().getOffsetAtLine(line) + 1));
+    }
+
+    private void findText() {
+        lastSearchString = findDialog.getSearchString();
+        executeSearch();
+    }
+
+    private void findNext() {
+        if (lastSearchString == null)
+            lastSearchString = findDialog.getSearchString();
+        executeSearch();
+    }
+
+    private void executeSearch() {
+        if (lastSearchString == null)
+            return;
+        try {
+            showInformation("", null);
+            int carretOffset = editor.getCaretOffset();
+            int loc = editor.getText().indexOf(lastSearchString, carretOffset);
+            if (loc == -1) {
+                showInformation(resourceBundle.getString("mainForm.find.noMore"), null);
+                loc = editor.getText().indexOf(lastSearchString, 0);
+            }
+            if (loc == -1) {
+                showInformation(resourceBundle.getString("mainForm.find.noMoreForSure"), null);
+                return;
+            }
+            editor.setSelection(loc, loc + lastSearchString.length());
+        } catch (Throwable t) {
+            t.printStackTrace();
+            showError(t.getMessage());
+        }
     }
 }

@@ -16,7 +16,7 @@ public abstract class TypedConverter<T> implements Converter<T> {
     @Override
     public final void invoke(Method method, Object targetObject, JsonNode value, Map<String, Object> mappedObjects, Class<T> argType) throws TransformerException {
         try {
-            method.invoke(targetObject, getValueFromJson(value, mappedObjects));
+            method.invoke(targetObject, getValueFromJson(value));
         } catch (TransformerException e) {
             throw e;
         } catch (Exception e) {
@@ -25,15 +25,15 @@ public abstract class TypedConverter<T> implements Converter<T> {
     }
 
     @Override
-    public final void setField(Field field, Object targetObject, JsonNode value, Map<String, Object> mappedObjects, Class<T> argType) throws TransformerException {
+    public final void setField(Field field, Object targetObject, JsonNode value, Map<String, Object> mappedObjects) throws TransformerException {
         try {
-            field.set(targetObject, getValueFromJson(value, mappedObjects));
+            field.set(targetObject, getValueFromJson(value));
         } catch (IllegalAccessException e) {
             throw new TransformerException("Wrapped setField failed: ", e);
         }
     }
 
-    public abstract T getValueFromJson(JsonNode node, Map<String, Object> mappedObjects) throws TransformerException;
+    protected abstract T getValueFromJson(JsonNode node) throws TransformerException;
 
     @Override
     public void cleanUp() {}

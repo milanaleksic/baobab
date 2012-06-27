@@ -7,8 +7,12 @@
 
 *.iml
 .idea
-*.versionsBackup
+out
+swt-gui-transformer-core/target/
+swt-gui-transformer-editor/target/
+target/
 
-target
-swt-gui-transformer-core/target
-swt-gui-transformer-editor/target
+# maven release plugin #
+*.releaseBackup
+release.properties
+*.versionsBackup

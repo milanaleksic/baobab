@@ -1,13 +1,10 @@
 package net.milanaleksic.guitransformer;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.*;
+import com.google.common.collect.Lists;
 import net.milanaleksic.guitransformer.providers.ResourceBundleProvider;
-import net.milanaleksic.guitransformer.typed.*;
 import org.codehaus.jackson.*;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.widgets.*;
 
 import javax.annotation.Nullable;
@@ -30,28 +27,7 @@ public class Transformer {
     @Inject
     private ObjectConverter objectConverter;
 
-    public static final int DEFAULT_STYLE_SHELL = SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL;
-    public static final int DEFAULT_STYLE_REST = SWT.NONE;
-
-    static final String KEY_SPECIAL_TYPE = "_type"; //NON-NLS
-    static final String KEY_SPECIAL_CHILDREN = "_children"; //NON-NLS
-    static final String KEY_SPECIAL_NAME = "_name"; //NON-NLS
-    static final String KEY_SPECIAL_STYLE = "_style"; //NON-NLS
-    static final String KEY_SPECIAL_COMMENT = "__comment"; //NON-NLS
-
-    private static final Set<String> SPECIAL_KEYS = ImmutableSet
-            .<String>builder()
-            .add(KEY_SPECIAL_TYPE)
-            .add(KEY_SPECIAL_CHILDREN)
-            .add(KEY_SPECIAL_NAME)
-            .add(KEY_SPECIAL_STYLE)
-            .add(KEY_SPECIAL_COMMENT)
-            .build();
-
-    private ObjectMapper mapper;
-
-    @Inject
-    private ConverterFactory converterFactory;
+    private final ObjectMapper mapper;
 
     private boolean doNotCreateModalDialogs = false;
 
@@ -74,7 +50,8 @@ public class Transformer {
 
         TransformationContext transformationContext = transformFromResourceName(parent, formName);
         embedComponents(formObject, transformationContext);
-        embedEvents(formObject, transformationContext);
+        embedEventListenersAsFields(formObject, transformationContext);
+        embedEventListenersAsMethods(formObject, transformationContext);
         return transformationContext;
     }
 
@@ -104,7 +81,7 @@ public class Transformer {
         }
     }
 
-    private void embedEvents(Object targetObject, TransformationContext transformationContext) throws TransformerException {
+    private void embedEventListenersAsFields(Object targetObject, TransformationContext transformationContext) throws TransformerException {
         Field[] fields = targetObject.getClass().getDeclaredFields();
         for (Field field : fields) {
             List<EmbeddedEventListener> allListeners = Lists.newArrayList();
@@ -123,12 +100,12 @@ public class Transformer {
                         : transformationContext.getMappedObject(componentName);
                 if (!mappedObject.isPresent())
                     throw new IllegalStateException("Event source could not be found in the GUI definition: " + targetObject.getClass().getName() + "." + field.getName());
-                handleSingleEventDelegation(targetObject, field, listenerAnnotation.event(), (Widget) mappedObject.get());
+                handleSingleEventToFieldListenerDelegation(targetObject, field, listenerAnnotation.event(), (Widget) mappedObject.get());
             }
         }
     }
 
-    private void handleSingleEventDelegation(Object targetObject, Field field, int event, Widget mappedObject) throws TransformerException {
+    private void handleSingleEventToFieldListenerDelegation(Object targetObject, Field field, int event, Widget mappedObject) throws TransformerException {
         boolean wasPublic = Modifier.isPublic(field.getModifiers());
         if (!wasPublic)
             field.setAccessible(true);
@@ -142,19 +119,75 @@ public class Transformer {
         }
     }
 
+    private void embedEventListenersAsMethods(Object targetObject, TransformationContext transformationContext) throws TransformerException {
+        Method[] methods = targetObject.getClass().getDeclaredMethods();
+        for (Method method : methods) {
+            List<EmbeddedEventListener> allListeners = Lists.newArrayList();
+            EmbeddedEventListeners annotations = method.getAnnotation(EmbeddedEventListeners.class);
+            if (annotations != null)
+                allListeners.addAll(Arrays.asList(annotations.value()));
+            else {
+                EmbeddedEventListener annotation = method.getAnnotation(EmbeddedEventListener.class);
+                if (annotation != null)
+                    allListeners.add(annotation);
+            }
+            for (EmbeddedEventListener listenerAnnotation : allListeners) {
+                String componentName = listenerAnnotation.component();
+                Optional<Object> mappedObject = componentName.isEmpty()
+                        ? Optional.<Object>of(transformationContext.getShell())
+                        : transformationContext.getMappedObject(componentName);
+                if (!mappedObject.isPresent())
+                    throw new IllegalStateException("Event source could not be found in the GUI definition: " + targetObject.getClass().getName() + "." + method.getName());
+                if (!void.class.equals(method.getReturnType()))
+                    throw new IllegalStateException("Method event listeners must be with void return type " + targetObject.getClass().getName() + "." + method.getName());
+                final Class<?>[] parameterTypes = method.getParameterTypes();
+                if (parameterTypes.length > 0) {
+                    if (parameterTypes.length != 1 || !Event.class.isAssignableFrom(parameterTypes[0]))
+                        throw new IllegalStateException("Method event listeners must have exactly one parameter, of type org.eclipse.swt.widgets.Event: " + targetObject.getClass().getName() + "." + method.getName());
+                }
+                handleSingleEventToMethodListenerDelegation(targetObject, method, listenerAnnotation.event(), (Widget) mappedObject.get());
+            }
+        }
+    }
+
+    private void handleSingleEventToMethodListenerDelegation(final Object targetObject, final Method method, int event, Widget mappedObject) {
+        mappedObject.addListener(event, new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                final boolean wasPublic = Modifier.isPublic(method.getModifiers());
+                try {
+                    if (!wasPublic)
+                        method.setAccessible(true);
+                    if (method.getParameterTypes().length>0)
+                        method.invoke(targetObject, event);
+                    else
+                        method.invoke(targetObject);
+                } catch (Exception e) {
+                    throw new RuntimeException("Transformer event delegation failed because of following exception: " + e.getMessage(), e);
+                } finally {
+                    if (!wasPublic)
+                        method.setAccessible(false);
+                }
+            }
+        });
+    }
+
     TransformationContext createFormFromResource(String fullName) throws TransformerException {
         return transformFromResourceName(null, fullName);
     }
 
     private TransformationContext transformFromResourceName(@Nullable Shell parent, String fullName) throws TransformerException {
-        Map<String, Object> mappedObjects = Maps.newHashMap();
-        mappedObjects.put("bundle", resourceBundleProvider.getResourceBundle()); //NON-NLS
+        TransformationWorkingContext context = new TransformationWorkingContext();
         InputStream resourceAsStream = null;
         try {
+            context.mapObject("bundle", resourceBundleProvider.getResourceBundle()); //NON-NLS
+            context.setDoNotCreateModalDialogs(doNotCreateModalDialogs);
+            context.setWorkItem(parent);
+
             resourceAsStream = Transformer.class.getResourceAsStream(fullName);
             final JsonNode shellDefinition = mapper.readValue(resourceAsStream, JsonNode.class);
-            Object shellObject = createObject(parent, shellDefinition, mappedObjects);
-            return new TransformationContext((Shell) shellObject, mappedObjects);
+            context = objectConverter.createHierarchy(context, shellDefinition);
+            return context.createTransformationContext();
         } catch (IOException e) {
             throw new TransformerException("IO Error while trying to find and parse required form: " + fullName, e);
         } finally {
@@ -166,181 +199,17 @@ public class Transformer {
     }
 
     private TransformationContext transformFromContent(String content) throws TransformerException {
-        Map<String, Object> mappedObjects = Maps.newHashMap();
-        mappedObjects.put("bundle", resourceBundleProvider.getResourceBundle()); //NON-NLS
-        final JsonNode shellDefinition;
+        TransformationWorkingContext context = new TransformationWorkingContext();
         try {
-            shellDefinition = mapper.readValue(content, JsonNode.class);
-            Object shellObject = createObject(null, shellDefinition, mappedObjects);
-            return new TransformationContext((Shell) shellObject, mappedObjects);
+            context.mapObject("bundle", resourceBundleProvider.getResourceBundle()); //NON-NLS
+            context.setDoNotCreateModalDialogs(doNotCreateModalDialogs);
+
+            final JsonNode shellDefinition = mapper.readValue(content, JsonNode.class);
+            context = objectConverter.createHierarchy(context, shellDefinition);
+            return context.createTransformationContext();
         } catch (IOException e) {
             throw new TransformerException("IO Error while trying to parse content: " + content, e);
         }
-    }
-
-    private void deSerializeObjectFromNode(JsonNode jsonNode, Object object, Map<String, Object> mappedObjects) throws TransformerException {
-        if (jsonNode.has(KEY_SPECIAL_NAME)) {
-            String objectName = jsonNode.get(KEY_SPECIAL_NAME).asText();
-            mappedObjects.put(objectName, object);
-        }
-        transformNodeToProperties(jsonNode, object, mappedObjects);
-    }
-
-    private void transformChildren(JsonNode childrenNodes, Object parentWidget, Map<String, Object> mappedObjects) throws TransformerException {
-        if (!(parentWidget instanceof Composite) && !(parentWidget instanceof Menu))
-            throw new IllegalStateException("Can not create children for parent which is not Composite nor Menu (" + parentWidget.getClass().getName() + " in this case)");
-        try {
-            for (JsonNode node : mapper.readValue(childrenNodes, JsonNode[].class)) {
-                // TODO: parent hierarchy stack!
-                createObject(parentWidget, node, mappedObjects);
-            }
-        } catch (IOException e) {
-            throw new TransformerException("IO exception while trying to parse child nodes", e);
-        }
-    }
-
-    void transformNodeToProperties(JsonNode jsonNode, Object object, Map<String, Object> mappedObjects) throws TransformerException {
-        Iterator<Map.Entry<String, JsonNode>> fields = jsonNode.getFields();
-        while (fields.hasNext()) {
-            Map.Entry<String, JsonNode> field = fields.next();
-            if (field.getKey().equals(KEY_SPECIAL_CHILDREN))
-                transformChildren(field.getValue(), object, mappedObjects);
-            else
-                transformSingleJsonNode(object, field, mappedObjects);
-        }
-    }
-
-    private void transformSingleJsonNode(Object object, Map.Entry<String, JsonNode> field, Map<String, Object> mappedObjects) throws TransformerException {
-        try {
-            if (SPECIAL_KEYS.contains(field.getKey()))
-                return;
-            Optional<Method> method = getSetterByName(object, getSetterForField(field.getKey()));
-            if (method.isPresent()) {
-                Class<?> argType = method.get().getParameterTypes()[0];
-                Converter converter = converterFactory.getConverter(argType);
-                safeCallInvoke(object, field, mappedObjects, method, argType, converter);
-            } else {
-                Optional<Field> fieldByName = getFieldByName(object, field.getKey());
-                if (fieldByName.isPresent()) {
-                    Class<?> argType = fieldByName.get().getType();
-                    Converter converter = converterFactory.getConverter(argType);
-                    safeCallSetField(object, field, mappedObjects, fieldByName, argType, converter);
-                } else
-                    throw new TransformerException("No setter nor field " + field.getKey() + " could be found in class " + object.getClass().getName() + "; context: " + field.getValue());
-            }
-        } catch (TransformerException e) {
-            throw e;
-        } catch (Throwable t) {
-            throw new TransformerException("Transformation was not successful", t);
-        }
-    }
-
-    @SuppressWarnings({"unchecked"})
-    private void safeCallSetField(Object object, Map.Entry<String, JsonNode> field, Map<String, Object> mappedObjects, Optional<Field> fieldByName, Class<?> argType, Converter converter) throws TransformerException {
-        try {
-            converter.setField(fieldByName.get(), object, field.getValue(), mappedObjects, argType);
-        } catch (IncapableToExecuteTypedConversionException e) {
-            converter.setField(fieldByName.get(), object, field.getValue(), mappedObjects, Object.class);
-        }
-    }
-
-    @SuppressWarnings({"unchecked"})
-    private void safeCallInvoke(Object object, Map.Entry<String, JsonNode> field, Map<String, Object> mappedObjects, Optional<Method> method, Class<?> argType, Converter converter) throws TransformerException {
-        try {
-            converter.invoke(method.get(), object, field.getValue(), mappedObjects, argType);
-        } catch (IncapableToExecuteTypedConversionException e) {
-            converter.invoke(method.get(), object, field.getValue(), mappedObjects, Object.class);
-        }
-    }
-
-    private Optional<Field> getFieldByName(Object object, String fieldName) {
-        for (Field field : object.getClass().getFields()) {
-            if (field.getName().equals(fieldName)) {
-                return Optional.of(field);
-            }
-        }
-        return Optional.absent();
-    }
-
-    private Optional<Method> getSetterByName(Object object, String setterName) {
-        for (Method method : object.getClass().getMethods()) {
-            if (method.getName().equals(setterName) && method.getParameterTypes().length == 1) {
-                return Optional.of(method);
-            }
-        }
-        return Optional.absent();
-    }
-
-    private String getSetterForField(String fieldName) {
-        return "set" + fieldName.substring(0, 1).toUpperCase(Locale.getDefault()) + fieldName.substring(1); //NON-NLS
-    }
-
-    private Object createObject(@Nullable Object parent, JsonNode objectDefinition, Map<String, Object> mappedObjects) throws TransformerException {
-        try {
-            if (!objectDefinition.has(KEY_SPECIAL_TYPE))
-                throw new IllegalArgumentException("Could not deduce the child type without explicit definition: " + objectDefinition);
-            Class<?> widgetClass = objectConverter.deduceClassFromNode(objectDefinition);
-
-            int style = widgetClass == Shell.class ? DEFAULT_STYLE_SHELL : DEFAULT_STYLE_REST;
-            if (objectDefinition.has(KEY_SPECIAL_STYLE)) {
-                JsonNode styleNode = objectDefinition.get(KEY_SPECIAL_STYLE);
-                TypedConverter<Integer> exactTypeConverter = (TypedConverter<Integer>)
-                        converterFactory.getExactTypeConverter(int.class).get();
-                style = exactTypeConverter.getValueFromJson(styleNode, mappedObjects);
-            }
-
-            if (doNotCreateModalDialogs) {
-                style = style & (~SWT.APPLICATION_MODAL);
-                style = style & (~SWT.SYSTEM_MODAL);
-                style = style & (~SWT.PRIMARY_MODAL);
-            }
-
-            final Object objectInstance = createInstanceOfTheObject(parent, widgetClass, style);
-            deSerializeObjectFromNode(objectDefinition, objectInstance, mappedObjects);
-
-            return objectInstance;
-        } catch (TransformerException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new TransformerException("Widget creation of class failed", e);
-        }
-    }
-
-    private Object createInstanceOfTheObject(Object parent, Class<?> widgetClass, int style) throws TransformerException, InstantiationException, IllegalAccessException, InvocationTargetException {
-        Constructor<?> chosenConstructor = findAppropriateSWTStyledConstructor(widgetClass);
-        if (Device.class.isAssignableFrom(chosenConstructor.getParameterTypes()[0])) {
-            final Widget parentAsWidget = (Widget) parent;
-            if (parentAsWidget == null)
-                throw new TransformerException("Null parent widget detected! parent="+parent+", widgetClass="+widgetClass);
-            return chosenConstructor.newInstance(parentAsWidget.getDisplay(), style);
-        }
-        else return chosenConstructor.newInstance(parent, style);
-    }
-
-    private Constructor<?> findAppropriateSWTStyledConstructor(Class<?> widgetClass) throws TransformerException {
-        Constructor<?>[] constructors = widgetClass.getConstructors();
-        for (Constructor<?> constructor : constructors) {
-            Class<?>[] parameterTypes = constructor.getParameterTypes();
-            if (parameterTypes.length == 2) {
-                if ((Composite.class.isAssignableFrom(parameterTypes[0]) ||   // most cases
-                        Menu.class.isAssignableFrom(parameterTypes[0]) ||        // in case MenuItems
-                        Control.class.isAssignableFrom(parameterTypes[0])  ) &&   // in case of DropTarget
-                        parameterTypes[1].equals(int.class)) {
-                    return constructor;
-                }
-            }
-        }
-        for (Constructor<?> constructor : constructors) {
-            Class<?>[] parameterTypes = constructor.getParameterTypes();
-            if (parameterTypes.length == 2) {
-                if (Device.class.isAssignableFrom(parameterTypes[0])   // in case of Cursor
-                        && parameterTypes[1].equals(int.class)) {
-                    return constructor;
-                }
-            }
-        }
-        throw new TransformerException("Could not find adequate constructor(? extends {Device,Composite,Menu,Control}, int) in class "
-                + widgetClass.getName());
     }
 
     public void setDoNotCreateModalDialogs(boolean doNotCreateModalDialogs) {

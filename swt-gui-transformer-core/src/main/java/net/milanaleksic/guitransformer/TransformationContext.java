@@ -35,7 +35,7 @@ public class TransformationContext {
             return Optional.of((T) object);
     }
 
-    public void dispose() {
-
+    public Map<String, Object> getMappedObjects() {
+        return ImmutableMap.copyOf(mappedObjects);
     }
 }
