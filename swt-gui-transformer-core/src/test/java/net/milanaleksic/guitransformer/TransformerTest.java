@@ -30,7 +30,10 @@ public class TransformerTest {
     private Button buttonFieldBinding;
 
     @EmbeddedComponent
-    private Button buttonMethodBinding;
+    private Button buttonMethodBindingWithParam;
+
+    @EmbeddedComponent
+    private Button buttonMethodBindingWithoutParam;
 
     private boolean flagSet;
 
@@ -42,8 +45,13 @@ public class TransformerTest {
         }
     };
 
-    @EmbeddedEventListener(component = "buttonMethodBinding", event = SWT.Selection)
-    private void buttonMethodBindingSelectionListener(Event event) {
+    @EmbeddedEventListener(component = "buttonMethodBindingWithParam", event = SWT.Selection)
+    private void buttonMethodBindingWithParamSelectionListener(Event event) {
+        flagSet = true;
+    }
+
+    @EmbeddedEventListener(component = "buttonMethodBindingWithoutParam", event = SWT.Selection)
+    private void buttonMethodBindingWithoutParamSelectionListener() {
         flagSet = true;
     }
 
@@ -61,12 +69,22 @@ public class TransformerTest {
         });
         assertThat(flagSet, equalTo(true));
 
-        assertThat(buttonMethodBinding, not(nullValue()));
+        assertThat(buttonMethodBindingWithParam, not(nullValue()));
         flagSet = false;
         Display.getDefault().syncExec(new Runnable() {
             @Override
             public void run() {
-                buttonMethodBinding.notifyListeners(SWT.Selection, new Event());
+                buttonMethodBindingWithParam.notifyListeners(SWT.Selection, new Event());
+            }
+        });
+        assertThat(flagSet, equalTo(true));
+
+        assertThat(buttonMethodBindingWithoutParam, not(nullValue()));
+        flagSet = false;
+        Display.getDefault().syncExec(new Runnable() {
+            @Override
+            public void run() {
+                buttonMethodBindingWithoutParam.notifyListeners(SWT.Selection, new Event());
             }
         });
         assertThat(flagSet, equalTo(true));

@@ -100,15 +100,12 @@ public class Transformer {
                         : transformationContext.getMappedObject(componentName);
                 if (!mappedObject.isPresent())
                     throw new IllegalStateException("Event source could not be found in the GUI definition: " + targetObject.getClass().getName() + "." + field.getName());
-                handleSingleEventDelegation(targetObject, field, listenerAnnotation.event(), (Widget) mappedObject.get());
+                handleSingleEventToFieldListenerDelegation(targetObject, field, listenerAnnotation.event(), (Widget) mappedObject.get());
             }
         }
     }
 
-    private void embedEventListenersAsMethods(Object formObject, TransformationContext transformationContext) {
-    }
-
-    private void handleSingleEventDelegation(Object targetObject, Field field, int event, Widget mappedObject) throws TransformerException {
+    private void handleSingleEventToFieldListenerDelegation(Object targetObject, Field field, int event, Widget mappedObject) throws TransformerException {
         boolean wasPublic = Modifier.isPublic(field.getModifiers());
         if (!wasPublic)
             field.setAccessible(true);
@@ -120,6 +117,57 @@ public class Transformer {
             if (!wasPublic)
                 field.setAccessible(false);
         }
+    }
+
+    private void embedEventListenersAsMethods(Object targetObject, TransformationContext transformationContext) throws TransformerException {
+        Method[] methods = targetObject.getClass().getDeclaredMethods();
+        for (Method method : methods) {
+            List<EmbeddedEventListener> allListeners = Lists.newArrayList();
+            EmbeddedEventListeners annotations = method.getAnnotation(EmbeddedEventListeners.class);
+            if (annotations != null)
+                allListeners.addAll(Arrays.asList(annotations.value()));
+            else {
+                EmbeddedEventListener annotation = method.getAnnotation(EmbeddedEventListener.class);
+                if (annotation != null)
+                    allListeners.add(annotation);
+            }
+            for (EmbeddedEventListener listenerAnnotation : allListeners) {
+                String componentName = listenerAnnotation.component();
+                Optional<Object> mappedObject = componentName.isEmpty()
+                        ? Optional.<Object>of(transformationContext.getShell())
+                        : transformationContext.getMappedObject(componentName);
+                if (!mappedObject.isPresent())
+                    throw new IllegalStateException("Event source could not be found in the GUI definition: " + targetObject.getClass().getName() + "." + method.getName());
+                final Class<?>[] parameterTypes = method.getParameterTypes();
+                if (parameterTypes.length > 0) {
+                    if (parameterTypes.length != 1 || !Event.class.isAssignableFrom(parameterTypes[0]))
+                        throw new IllegalStateException("Method event listeners must have exactly one parameter, of type org.eclipse.swt.widgets.Event: " + targetObject.getClass().getName() + "." + method.getName());
+                }
+                handleSingleEventToMethodListenerDelegation(targetObject, method, listenerAnnotation.event(), (Widget) mappedObject.get());
+            }
+        }
+    }
+
+    private void handleSingleEventToMethodListenerDelegation(final Object targetObject, final Method method, int event, Widget mappedObject) throws TransformerException {
+        mappedObject.addListener(event, new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                final boolean wasPublic = Modifier.isPublic(method.getModifiers());
+                try {
+                    if (!wasPublic)
+                        method.setAccessible(true);
+                    if (method.getParameterTypes().length>0)
+                        method.invoke(targetObject, event);
+                    else
+                        method.invoke(targetObject);
+                } catch (Exception e) {
+                    throw new RuntimeException("Transformer event delegation failed because of following exception: " + e.getMessage(), e);
+                } finally {
+                    if (!wasPublic)
+                        method.setAccessible(false);
+                }
+            }
+        });
     }
 
     TransformationContext createFormFromResource(String fullName) throws TransformerException {
