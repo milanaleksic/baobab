@@ -1,7 +1,7 @@
 package net.milanaleksic.guitransformer;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.*;
+import com.google.common.collect.Lists;
 import net.milanaleksic.guitransformer.providers.ResourceBundleProvider;
 import org.codehaus.jackson.*;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -27,7 +27,7 @@ public class Transformer {
     @Inject
     private ObjectConverter objectConverter;
 
-    private ObjectMapper mapper;
+    private final ObjectMapper mapper;
 
     private boolean doNotCreateModalDialogs = false;
 
@@ -150,7 +150,7 @@ public class Transformer {
         }
     }
 
-    private void handleSingleEventToMethodListenerDelegation(final Object targetObject, final Method method, int event, Widget mappedObject) throws TransformerException {
+    private void handleSingleEventToMethodListenerDelegation(final Object targetObject, final Method method, int event, Widget mappedObject) {
         mappedObject.addListener(event, new Listener() {
             @Override
             public void handleEvent(Event event) {

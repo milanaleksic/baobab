@@ -64,7 +64,7 @@ public class ColorConverter extends TypedConverter<Color> {
             .build();
 
     @Override
-    public Color getValueFromJson(JsonNode node, Map<String, Object> mappedObjects) throws TransformerException {
+    public Color getValueFromJson(JsonNode node) throws TransformerException {
         String input = node.asText();
         checkNotNull(input);
         if (systemColors.containsKey(input))

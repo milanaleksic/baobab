@@ -5,7 +5,6 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
-import java.util.Map;
 
 /**
  * User: Milan Aleksic
@@ -15,10 +14,10 @@ import java.util.Map;
 @SuppressWarnings({"HardCodedStringLiteral"})
 public class IntegerArrayConverter extends TypedConverter<int[]> {
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
-    public int[] getValueFromJson(JsonNode node, Map<String, Object> mappedObjects) throws TransformerException {
+    public int[] getValueFromJson(JsonNode node) throws TransformerException {
         try {
             final JsonNode[] jsonNodes = mapper.readValue(node, JsonNode[].class);
             int[] ofTheJedi = new int[jsonNodes.length];

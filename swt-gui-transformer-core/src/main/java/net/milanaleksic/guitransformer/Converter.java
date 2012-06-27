@@ -14,7 +14,7 @@ public interface Converter<T> {
 
     void invoke(Method method, Object targetObject, JsonNode value, Map<String, Object> mappedObjects, Class<T> argType) throws TransformerException;
 
-    void setField(Field field, Object targetObject, JsonNode value, Map<String, Object> mappedObjects, Class<T> argType) throws TransformerException;
+    void setField(Field field, Object targetObject, JsonNode value, Map<String, Object> mappedObjects) throws TransformerException;
 
     void cleanUp() ;
 

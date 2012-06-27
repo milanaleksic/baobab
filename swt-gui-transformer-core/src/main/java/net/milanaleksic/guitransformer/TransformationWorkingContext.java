@@ -5,7 +5,7 @@ import com.google.common.collect.*;
 import org.eclipse.swt.widgets.Shell;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Map;
 
 /**
  * User: Milan Aleksic
@@ -18,13 +18,13 @@ import java.util.*;
  */
 class TransformationWorkingContext {
 
-    private Map<String, Object> mappedObjects;
+    private final Map<String, Object> mappedObjects;
 
     private boolean doNotCreateModalDialogs;
 
     private Object workItem;
 
-    private TransformationWorkingContext parentContext;
+    private final TransformationWorkingContext parentContext;
 
     public TransformationWorkingContext() {
         this(null);
@@ -89,7 +89,7 @@ class TransformationWorkingContext {
         this.workItem = workItem;
     }
 
-    public TransformationWorkingContext getParentContext() {
+    TransformationWorkingContext getParentContext() {
         return parentContext;
     }
 }

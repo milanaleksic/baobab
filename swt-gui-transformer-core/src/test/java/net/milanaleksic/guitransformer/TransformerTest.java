@@ -137,7 +137,7 @@ public class TransformerTest {
 
         assertThat(children[2], Matchers.<Object>instanceOf(Label.class));
         assertThat(((Label)children[2]).getText(), equalTo(""));
-        assertThat((Control)context.getMappedObject("labFilmNaziv").get(), equalTo(children[2]));
+        assertThat(context.getMappedObject("labFilmNaziv").get(), equalTo(children[2]));
 
         assertThat(children[3], Matchers.instanceOf(Label.class));
         assertThat(((Label)children[3]).getText(), equalTo(""));

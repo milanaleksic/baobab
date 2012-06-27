@@ -12,7 +12,6 @@ import javax.annotation.Nullable;
 import javax.inject.*;
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.*;
 
 /**
  * User: Milan Aleksic
@@ -161,15 +160,12 @@ public class MainForm {
     private void editorKeyDown(Event event) {
         if (Character.toLowerCase(event.keyCode) == 'a' && (event.stateMask & SWT.CTRL) == SWT.CTRL) {
             editor.selectAll();
-            return;
         }
-        if (Character.toLowerCase(event.keyCode) == 'f' && (event.stateMask & SWT.CTRL) == SWT.CTRL) {
+        else if (Character.toLowerCase(event.keyCode) == 'f' && (event.stateMask & SWT.CTRL) == SWT.CTRL) {
             findText();
-            return;
         }
-        if (event.keyCode == SWT.F3) {
+        else if (event.keyCode == SWT.F3) {
             findNext();
-            return;
         }
     }
 

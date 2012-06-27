@@ -34,19 +34,19 @@ public class ObjectConverter implements Converter<Object> {
 
     private static final Pattern injectedObjectValue = Pattern.compile("\\((.*)\\)");
 
-    public static final int DEFAULT_STYLE_SHELL = SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL;
-    public static final int DEFAULT_STYLE_REST = SWT.NONE;
+    private static final int DEFAULT_STYLE_SHELL = SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL;
+    private static final int DEFAULT_STYLE_REST = SWT.NONE;
 
-    public static final String GUI_TRANSFORMER_SHORTCUTS_PROPERTIES = "/META-INF/guitransformer.shortcuts-default.properties"; //NON-NLS
-    public static final String GUI_TRANSFORMER_SHORTCUTS_EXTENSION_PROPERTIES = "/META-INF/guitransformer.shortcuts.properties"; //NON-NLS
+    private static final String GUI_TRANSFORMER_SHORTCUTS_PROPERTIES = "/META-INF/guitransformer.shortcuts-default.properties"; //NON-NLS
+    private static final String GUI_TRANSFORMER_SHORTCUTS_EXTENSION_PROPERTIES = "/META-INF/guitransformer.shortcuts.properties"; //NON-NLS
 
-    static final String KEY_SPECIAL_TYPE = "_type"; //NON-NLS
-    static final String KEY_SPECIAL_CHILDREN = "_children"; //NON-NLS
-    static final String KEY_SPECIAL_NAME = "_name"; //NON-NLS
-    static final String KEY_SPECIAL_STYLE = "_style"; //NON-NLS
-    static final String KEY_SPECIAL_COMMENT = "__comment"; //NON-NLS
+    private static final String KEY_SPECIAL_TYPE = "_type"; //NON-NLS
+    private static final String KEY_SPECIAL_CHILDREN = "_children"; //NON-NLS
+    private static final String KEY_SPECIAL_NAME = "_name"; //NON-NLS
+    private static final String KEY_SPECIAL_STYLE = "_style"; //NON-NLS
+    private static final String KEY_SPECIAL_COMMENT = "__comment"; //NON-NLS
 
-    private ObjectMapper mapper;
+    private final ObjectMapper mapper;
 
     private static final Set<String> SPECIAL_KEYS = ImmutableSet
             .<String>builder()
@@ -281,7 +281,7 @@ public class ObjectConverter implements Converter<Object> {
     }
 
     @Override
-    public final void setField(Field field, Object targetObject, JsonNode value, Map<String, Object> mappedObjects, Class<Object> argType) throws TransformerException {
+    public final void setField(Field field, Object targetObject, JsonNode value, Map<String, Object> mappedObjects) throws TransformerException {
         try {
             final Object valueFromJson = getValueFromJson(targetObject, value, mappedObjects);
             field.set(targetObject, valueFromJson);
@@ -424,7 +424,7 @@ public class ObjectConverter implements Converter<Object> {
                 if (fieldByName.isPresent()) {
                     Class<?> argType = fieldByName.get().getType();
                     Converter converter = converterFactory.getConverter(argType);
-                    safeCallSetField(context, field, fieldByName, argType, converter);
+                    safeCallSetField(context, field, fieldByName, converter);
                 } else
                     throw new TransformerException("No setter nor field " + field.getKey() + " could be found in class " + context.getWorkItem().getClass().getName() + "; context: " + field.getValue());
             }
@@ -436,11 +436,11 @@ public class ObjectConverter implements Converter<Object> {
     }
 
     @SuppressWarnings({"unchecked"})
-    private void safeCallSetField(TransformationWorkingContext context, Map.Entry<String, JsonNode> field, Optional<Field> fieldByName, Class<?> argType, Converter converter) throws TransformerException {
+    private void safeCallSetField(TransformationWorkingContext context, Map.Entry<String, JsonNode> field, Optional<Field> fieldByName, Converter converter) throws TransformerException {
         try {
-            converter.setField(fieldByName.get(), context.getWorkItem(), field.getValue(), context.getMappedObjects(), argType);
+            converter.setField(fieldByName.get(), context.getWorkItem(), field.getValue(), context.getMappedObjects());
         } catch (IncapableToExecuteTypedConversionException e) {
-            converter.setField(fieldByName.get(), context.getWorkItem(), field.getValue(), context.getMappedObjects(), Object.class);
+            converter.setField(fieldByName.get(), context.getWorkItem(), field.getValue(), context.getMappedObjects());
         }
     }
 
