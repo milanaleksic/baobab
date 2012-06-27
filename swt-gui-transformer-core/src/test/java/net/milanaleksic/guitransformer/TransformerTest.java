@@ -24,7 +24,71 @@ import static org.hamcrest.Matchers.*;
 public class TransformerTest {
 
     @Inject
-    Transformer transformer;
+    private Transformer transformer;
+
+    @EmbeddedComponent
+    private Button buttonFieldBinding;
+
+    @EmbeddedComponent
+    private Button buttonMethodBindingWithParam;
+
+    @EmbeddedComponent
+    private Button buttonMethodBindingWithoutParam;
+
+    private boolean flagSet;
+
+    @EmbeddedEventListener(component = "buttonFieldBinding", event = SWT.Selection)
+    private final Listener buttonFieldBindingSelectionListener = new Listener() {
+        @Override
+        public void handleEvent(Event event) {
+            flagSet = true;
+        }
+    };
+
+    @EmbeddedEventListener(component = "buttonMethodBindingWithParam", event = SWT.Selection)
+    private void buttonMethodBindingWithParamSelectionListener(Event event) {
+        flagSet = true;
+    }
+
+    @EmbeddedEventListener(component = "buttonMethodBindingWithoutParam", event = SWT.Selection)
+    private void buttonMethodBindingWithoutParamSelectionListener() {
+        flagSet = true;
+    }
+
+    @Test
+    public void transform_managed_form() throws TransformerException {
+        transformer.fillManagedForm(this);
+
+        assertThat(buttonFieldBinding, not(nullValue()));
+        flagSet = false;
+        Display.getDefault().syncExec(new Runnable() {
+            @Override
+            public void run() {
+                buttonFieldBinding.notifyListeners(SWT.Selection, new Event());
+            }
+        });
+        assertThat(flagSet, equalTo(true));
+
+        assertThat(buttonMethodBindingWithParam, not(nullValue()));
+        flagSet = false;
+        Display.getDefault().syncExec(new Runnable() {
+            @Override
+            public void run() {
+                buttonMethodBindingWithParam.notifyListeners(SWT.Selection, new Event());
+            }
+        });
+        assertThat(flagSet, equalTo(true));
+
+        assertThat(buttonMethodBindingWithoutParam, not(nullValue()));
+        flagSet = false;
+        Display.getDefault().syncExec(new Runnable() {
+            @Override
+            public void run() {
+                buttonMethodBindingWithoutParam.notifyListeners(SWT.Selection, new Event());
+            }
+        });
+        assertThat(flagSet, equalTo(true));
+    }
 
     @Test
     public void exclude_widgets_with_leading_line_in_name() throws TransformerException {
