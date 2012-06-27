@@ -44,6 +44,12 @@ public class MainForm {
     private Label infoLabel;
 
     @EmbeddedComponent
+    private Text textWidth;
+
+    @EmbeddedComponent
+    private Text textHeight;
+
+    @EmbeddedComponent
     private org.eclipse.swt.widgets.List contextWidgets;
 
     @EmbeddedComponent
@@ -116,18 +122,33 @@ public class MainForm {
 
                 removePreviousShell();
 
+                setSizeOverride(newShell);
                 currentShell = newShell;
                 currentShell.open();
 
                 updateAvailableWidgets(nonManagedForm);
-
-                editor.setFocus();
 
                 modified = true;
             } catch (TransformerException e) {
                 showInformation(String.format(resourceBundle.getString("mainForm.transformationError"), e.getMessage()), e);
             } catch (Exception e) {
                 showInformation(resourceBundle.getString("mainForm.error"), e);
+            }
+        }
+
+        private void setSizeOverride(Shell shell) {
+            final String width = textWidth.getText();
+            final String height = textHeight.getText();
+            if (Strings.isNullOrEmpty(width) || Strings.isNullOrEmpty(height))
+                return;
+            try {
+                int widthAsInt = Integer.parseInt(width, 10);
+                int heightAsInt = Integer.parseInt(height, 10);
+                if (widthAsInt <= 0 || heightAsInt <= 0)
+                    return;
+                shell.setSize(widthAsInt, heightAsInt);
+            } catch (Exception e) {
+                showError("Invalid size parameters: " + e);
             }
         }
 
@@ -143,7 +164,11 @@ public class MainForm {
         }
     }
 
-    @EmbeddedEventListener(component = "editor", event = SWT.Modify)
+    @EmbeddedEventListeners({
+            @EmbeddedEventListener(component = "editor", event = SWT.Modify),
+            @EmbeddedEventListener(component = "textWidth", event = SWT.Modify),
+            @EmbeddedEventListener(component = "textHeight", event = SWT.Modify)
+    })
     private final EditorModifyRunnableListener editorModifyListener = new EditorModifyRunnableListener();
 
     @EmbeddedEventListener(component = "editor", event = SWT.KeyDown)
@@ -168,7 +193,7 @@ public class MainForm {
     }
 
     @EmbeddedEventListener(component = "btnNew", event = SWT.Selection)
-    private void btnNewSelectionListener () {
+    private void btnNewSelectionListener() {
         setCurrentFile(null);
         editor.setText("");
     }
