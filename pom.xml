@@ -29,12 +29,6 @@
         </repository>
     </distributionManagement>
 
-    <scm>
-        <connection>scm:git:file://${basedir}</connection>
-        <developerConnection>scm:git:file://${basedir}</developerConnection>
-      <tag>HEAD</tag>
-  </scm>
-
     <properties>
         <sourceEncoding>UTF-8</sourceEncoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -62,11 +56,6 @@
                     <compilerArgument>-proc:none</compilerArgument>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.3</version>
-            </plugin>
         </plugins>
         <extensions>
             <extension>
@@ -85,17 +74,5 @@
             <layout>default</layout>
         </repository>
     </repositories>
-
-    <profiles>
-        <profile>
-            <id>release</id>
-            <activation>
-                <property>
-                    <name>performRelease</name>
-                    <value>true</value>
-                </property>
-            </activation>
-        </profile>
-    </profiles>
 
 </project>
