@@ -25,13 +25,10 @@ public class ErrorDialog {
     private Shell shell;
 
     @EmbeddedEventListener(component = "shell", event = SWT.Close)
-    private final Listener shellCloseListener = new Listener() {
-        @Override
-        public void handleEvent(Event event) {
-            shell.dispose();
-            shell = null;
-        }
-    };
+    private void shellCloseListener() {
+        shell.dispose();
+        shell = null;
+    }
 
     public void showMessage(String stackTrace) {
         try {

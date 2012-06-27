@@ -61,34 +61,24 @@ public class MainForm {
     private ResourceBundle resourceBundle;
 
     @EmbeddedEventListener(component = "editorDropTarget", event = DND.Drop)
-    private final Listener editorDropTargetDropListener = new Listener() {
-        @Override
-        public void handleEvent(Event event) {
-            if (event.data instanceof String[]) {
-                String[] typedData = (String[]) event.data;
-                if (typedData != null && typedData.length > 0) {
-                    openFile(new File(typedData[0]));
-                }
+    private void editorDropTargetDropListener(Event event) {
+        if (event.data instanceof String[]) {
+            String[] typedData = (String[]) event.data;
+            if (typedData != null && typedData.length > 0) {
+                openFile(new File(typedData[0]));
             }
         }
-    };
+    }
 
     @EmbeddedEventListener(component = "infoLabel", event = SWT.MouseDown)
-    private final Listener infoLabelMouseDownListener = new Listener() {
-        @Override
-        public void handleEvent(Event event) {
-            if (lastException == null)
-                return;
-            errorDialog.showMessage(getStackTrace(lastException));
-        }
-
-        public String getStackTrace(Throwable t) {
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            t.printStackTrace(pw);
-            return sw.toString();
-        }
-    };
+    private void infoLabelMouseDownListener() {
+        if (lastException == null)
+            return;
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        lastException.printStackTrace(pw);
+        errorDialog.showMessage(sw.toString());
+    }
 
     private class RunnableListener implements Listener, Runnable {
 
@@ -157,125 +147,94 @@ public class MainForm {
     private final RunnableListener editorModifyListener = new RunnableListener();
 
     @EmbeddedEventListener(component = "editor", event = SWT.KeyDown)
-    private final Listener editorKeyDown = new Listener() {
-        @Override
-        public void handleEvent(Event event) {
-            if (Character.toLowerCase(event.keyCode) == 'a' && (event.stateMask & SWT.CTRL) == SWT.CTRL) {
-                editor.selectAll();
-                return;
-            }
-            if (Character.toLowerCase(event.keyCode) == 'f' && (event.stateMask & SWT.CTRL) == SWT.CTRL) {
-                findText();
-                return;
-            }
-            if (event.keyCode == SWT.F3) {
-                findNext();
-                return;
-            }
+    private void editorKeyDown(Event event) {
+        if (Character.toLowerCase(event.keyCode) == 'a' && (event.stateMask & SWT.CTRL) == SWT.CTRL) {
+            editor.selectAll();
+            return;
         }
-    };
+        if (Character.toLowerCase(event.keyCode) == 'f' && (event.stateMask & SWT.CTRL) == SWT.CTRL) {
+            findText();
+            return;
+        }
+        if (event.keyCode == SWT.F3) {
+            findNext();
+            return;
+        }
+    }
 
     @EmbeddedEventListener(component = "editor", event = 3011 /*StyledText.CaretMoved*/)
-    private final Listener editorMouseDown = new Listener() {
-        @Override
-        public void handleEvent(Event event) {
-            refreshCaretPositionInformation();
-        }
-
-    };
+    private void editorMouseDown() {
+        refreshCaretPositionInformation();
+    }
 
     @EmbeddedEventListener(component = "btnNew", event = SWT.Selection)
-    private final Listener btnNewSelectionListener = new Listener() {
-        @Override
-        public void handleEvent(Event event) {
-            setCurrentFile(null);
-            editor.setText("");
-        }
-    };
+    private void btnNewSelectionListener () {
+        setCurrentFile(null);
+        editor.setText("");
+    }
 
     @EmbeddedEventListener(component = "btnOpen", event = SWT.Selection)
-    private final Listener btnOpenSelectionListener = new Listener() {
-        @Override
-        public void handleEvent(Event event) {
-            FileDialog dlg = new FileDialog(shell, SWT.OPEN);
-            dlg.setFilterNames(new String[]{resourceBundle.getString("mainForm.openFilters")});
-            dlg.setFilterExtensions(new String[]{"*.gui"}); //NON-NLS
-            final String selectedFile = dlg.open();
-            if (selectedFile == null)
-                return;
-            openFile(new File(selectedFile));
-        }
-    };
+    private void btnOpenSelectionListener() {
+        FileDialog dlg = new FileDialog(shell, SWT.OPEN);
+        dlg.setFilterNames(new String[]{resourceBundle.getString("mainForm.openFilters")});
+        dlg.setFilterExtensions(new String[]{"*.gui"}); //NON-NLS
+        final String selectedFile = dlg.open();
+        if (selectedFile == null)
+            return;
+        openFile(new File(selectedFile));
+    }
 
     @EmbeddedEventListener(component = "btnSave", event = SWT.Selection)
-    private final Listener btnSaveSelectionListener = new Listener() {
-        @Override
-        public void handleEvent(Event event) {
-            saveCurrentDocument();
-        }
-    };
+    private void btnSaveSelectionListener() {
+        saveCurrentDocument();
+    }
 
     @EmbeddedEventListener(component = "btnFindText", event = SWT.Selection)
-    private final Listener btnFindTextSelectionListener = new Listener() {
-        @Override
-        public void handleEvent(Event event) {
-            findText();
-        }
-    };
+    private void btnFindTextSelectionListener() {
+        findText();
+    }
 
     @EmbeddedEventListener(component = "btnFindNext", event = SWT.Selection)
-    private final Listener btnFindNextSelectionListener = new Listener() {
-        @Override
-        public void handleEvent(Event event) {
-            findNext();
-        }
-    };
+    private void btnFindNextSelectionListener() {
+        findNext();
+    }
 
     @EmbeddedEventListener(component = "btnSaveAs", event = SWT.Selection)
-    private final Listener btnSaveAsSelectionListener = new Listener() {
-        @Override
-        public void handleEvent(Event event) {
-            saveDocumentAs();
-        }
-    };
+    private void btnSaveAsSelectionListener() {
+        saveDocumentAs();
+    }
 
     @EmbeddedEventListener(component = "btnExit", event = SWT.Selection)
-    private final Listener btnExitSelectionListener = new Listener() {
-        @Override
-        public void handleEvent(Event event) {
-            shell.close();
-        }
-    };
+    private void btnExitSelectionListener() {
+        shell.close();
+    }
 
     @EmbeddedEventListener(component = "shell", event = SWT.Close)
-    private final Listener shellCloseListener = new Listener() {
-        @Override
-        public void handleEvent(Event event) {
-            try {
-                if (!modified)
-                    return;
-                int style = SWT.APPLICATION_MODAL | SWT.YES | SWT.NO | SWT.CANCEL | SWT.ICON_QUESTION;
-                MessageBox messageBox = new MessageBox(shell, style);
-                messageBox.setText(resourceBundle.getString("mainForm.information"));
-                messageBox.setMessage(resourceBundle.getString("mainForm.saveBeforeClosing"));
-                switch (messageBox.open()) {
-                    case SWT.CANCEL:
-                        event.doit = false;
-                        break;
-                    case SWT.YES:
-                        saveCurrentDocument();
-                        event.doit = true;
-                        break;
-                    case SWT.NO:
-                        event.doit = true;
-                        break;
-                }
-            } finally {
-                if (event.doit)
-                    editorModifyListener.shutdown();
+    private void shellCloseListener(Event event) {
+        try {
+            if (!modified)
+                return;
+            int style = SWT.APPLICATION_MODAL | SWT.YES | SWT.NO | SWT.CANCEL | SWT.ICON_QUESTION;
+            MessageBox messageBox = new MessageBox(shell, style);
+            messageBox.setText(resourceBundle.getString("mainForm.information"));
+            messageBox.setMessage(resourceBundle.getString("mainForm.saveBeforeClosing"));
+            switch (messageBox.open()) {
+                case SWT.CANCEL:
+                    event.doit = false;
+                    break;
+                case SWT.YES:
+                    saveCurrentDocument();
+                    event.doit = true;
+                    break;
+                case SWT.NO:
+                    event.doit = true;
+                    break;
             }
+        } finally {
+            if (event.doit)
+                editorModifyListener.shutdown();
         }
-    };
+    }
 
     private void openFile(File targetFile) {
         if (!targetFile.exists()) {

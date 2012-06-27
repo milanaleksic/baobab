@@ -27,29 +27,20 @@ public class FindDialog {
     private String text;
 
     @EmbeddedEventListener(component = "shell", event = SWT.Close)
-    private final Listener shellCloseListener = new Listener() {
-        @Override
-        public void handleEvent(Event event) {
-            shell.dispose();
-        }
-    };
+    private void shellCloseListener() {
+        shell.dispose();
+    }
 
     @EmbeddedEventListener(component = "btnAccept", event = SWT.Selection)
-    private final Listener btnAcceptSelectionListener = new Listener() {
-        @Override
-        public void handleEvent(Event event) {
-            text = searchText.getText();
-            shell.dispose();
-        }
-    };
+    private void btnAcceptSelectionListener() {
+        text = searchText.getText();
+        shell.dispose();
+    }
 
     @EmbeddedEventListener(component = "btnCancel", event = SWT.Selection)
-    private final Listener btnCancelSelectionListener = new Listener() {
-        @Override
-        public void handleEvent(Event event) {
-            shell.close();
-        }
-    };
+    private void btnCancelSelectionListener() {
+        shell.close();
+    }
 
     public String getSearchString() {
         try {
