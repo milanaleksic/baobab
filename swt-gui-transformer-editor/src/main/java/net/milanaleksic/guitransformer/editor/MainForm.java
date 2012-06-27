@@ -86,9 +86,7 @@ public class MainForm {
         errorDialog.showMessage(sw.toString());
     }
 
-    private class EditorModifyRunnableListener implements Listener, Runnable {
-
-        private ExecutorService executor = Executors.newSingleThreadExecutor();
+    private class EditorModifyRunnableListener implements Listener {
 
         @Override
         public void handleEvent(Event event) {
@@ -96,25 +94,6 @@ public class MainForm {
             String text = editor.getText();
             if (Strings.isNullOrEmpty(text))
                 return;
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    shell.getDisplay().syncExec(EditorModifyRunnableListener.this);
-                }
-            });
-        }
-
-        private void removePreviousShell() {
-            if (currentShell == null)
-                return;
-            Shell shell = currentShell;
-            if (!shell.isDisposed())
-                shell.dispose();
-            currentShell = null;
-        }
-
-        @Override
-        public void run() {
             try {
                 TransformationContext nonManagedForm = editorTransformer.createNonManagedForm(editor.getText());
                 Shell newShell = nonManagedForm.getShell();
@@ -126,6 +105,8 @@ public class MainForm {
                 currentShell = newShell;
                 currentShell.open();
 
+                ((Control)event.widget).setFocus();
+
                 updateAvailableWidgets(nonManagedForm);
 
                 modified = true;
@@ -134,6 +115,15 @@ public class MainForm {
             } catch (Exception e) {
                 showInformation(resourceBundle.getString("mainForm.error"), e);
             }
+        }
+
+        private void removePreviousShell() {
+            if (currentShell == null)
+                return;
+            Shell shell = currentShell;
+            if (!shell.isDisposed())
+                shell.dispose();
+            currentShell = null;
         }
 
         private void setSizeOverride(Shell shell) {
@@ -157,10 +147,6 @@ public class MainForm {
             for (Map.Entry<String, Object> entry : nonManagedForm.getMappedObjects().entrySet()) {
                 contextWidgets.add(String.format("[%s] - %s", entry.getKey(), entry.getValue().getClass().getName()));
             }
-        }
-
-        public void shutdown() {
-            executor.shutdownNow();
         }
     }
 
@@ -236,28 +222,23 @@ public class MainForm {
 
     @EmbeddedEventListener(component = "shell", event = SWT.Close)
     private void shellCloseListener(Event event) {
-        try {
-            if (!modified)
-                return;
-            int style = SWT.APPLICATION_MODAL | SWT.YES | SWT.NO | SWT.CANCEL | SWT.ICON_QUESTION;
-            MessageBox messageBox = new MessageBox(shell, style);
-            messageBox.setText(resourceBundle.getString("mainForm.information"));
-            messageBox.setMessage(resourceBundle.getString("mainForm.saveBeforeClosing"));
-            switch (messageBox.open()) {
-                case SWT.CANCEL:
-                    event.doit = false;
-                    break;
-                case SWT.YES:
-                    saveCurrentDocument();
-                    event.doit = true;
-                    break;
-                case SWT.NO:
-                    event.doit = true;
-                    break;
-            }
-        } finally {
-            if (event.doit)
-                editorModifyListener.shutdown();
+        if (!modified)
+            return;
+        int style = SWT.APPLICATION_MODAL | SWT.YES | SWT.NO | SWT.CANCEL | SWT.ICON_QUESTION;
+        MessageBox messageBox = new MessageBox(shell, style);
+        messageBox.setText(resourceBundle.getString("mainForm.information"));
+        messageBox.setMessage(resourceBundle.getString("mainForm.saveBeforeClosing"));
+        switch (messageBox.open()) {
+            case SWT.CANCEL:
+                event.doit = false;
+                break;
+            case SWT.YES:
+                saveCurrentDocument();
+                event.doit = true;
+                break;
+            case SWT.NO:
+                event.doit = true;
+                break;
         }
     }
 
