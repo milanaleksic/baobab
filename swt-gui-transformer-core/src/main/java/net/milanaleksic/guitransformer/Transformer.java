@@ -138,6 +138,8 @@ public class Transformer {
                         : transformationContext.getMappedObject(componentName);
                 if (!mappedObject.isPresent())
                     throw new IllegalStateException("Event source could not be found in the GUI definition: " + targetObject.getClass().getName() + "." + method.getName());
+                if (!void.class.equals(method.getReturnType()))
+                    throw new IllegalStateException("Method event listeners must be with void return type " + targetObject.getClass().getName() + "." + method.getName());
                 final Class<?>[] parameterTypes = method.getParameterTypes();
                 if (parameterTypes.length > 0) {
                     if (parameterTypes.length != 1 || !Event.class.isAssignableFrom(parameterTypes[0]))
