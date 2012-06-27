@@ -80,7 +80,7 @@ public class MainForm {
         errorDialog.showMessage(sw.toString());
     }
 
-    private class RunnableListener implements Listener, Runnable {
+    private class EditorModifyRunnableListener implements Listener, Runnable {
 
         private ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -93,7 +93,7 @@ public class MainForm {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    shell.getDisplay().syncExec(RunnableListener.this);
+                    shell.getDisplay().syncExec(EditorModifyRunnableListener.this);
                 }
             });
         }
@@ -144,7 +144,7 @@ public class MainForm {
     }
 
     @EmbeddedEventListener(component = "editor", event = SWT.Modify)
-    private final RunnableListener editorModifyListener = new RunnableListener();
+    private final EditorModifyRunnableListener editorModifyListener = new EditorModifyRunnableListener();
 
     @EmbeddedEventListener(component = "editor", event = SWT.KeyDown)
     private void editorKeyDown(Event event) {
