@@ -1,0 +1,7 @@
+{
+    "_type" : "shell",
+    "_children" : {
+        "button(buttonFieldBinding)" : {},
+        "button(buttonMethodBinding)" : {}
+    }
+}

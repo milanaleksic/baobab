@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  * Time: 8:33 AM
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
+@Target({ElementType.FIELD, ElementType.METHOD})
 public @interface EmbeddedEventListener {
 
     String component() default "";

@@ -50,7 +50,8 @@ public class Transformer {
 
         TransformationContext transformationContext = transformFromResourceName(parent, formName);
         embedComponents(formObject, transformationContext);
-        embedEvents(formObject, transformationContext);
+        embedEventListenersAsFields(formObject, transformationContext);
+        embedEventListenersAsMethods(formObject, transformationContext);
         return transformationContext;
     }
 
@@ -80,7 +81,7 @@ public class Transformer {
         }
     }
 
-    private void embedEvents(Object targetObject, TransformationContext transformationContext) throws TransformerException {
+    private void embedEventListenersAsFields(Object targetObject, TransformationContext transformationContext) throws TransformerException {
         Field[] fields = targetObject.getClass().getDeclaredFields();
         for (Field field : fields) {
             List<EmbeddedEventListener> allListeners = Lists.newArrayList();
@@ -102,6 +103,9 @@ public class Transformer {
                 handleSingleEventDelegation(targetObject, field, listenerAnnotation.event(), (Widget) mappedObject.get());
             }
         }
+    }
+
+    private void embedEventListenersAsMethods(Object formObject, TransformationContext transformationContext) {
     }
 
     private void handleSingleEventDelegation(Object targetObject, Field field, int event, Widget mappedObject) throws TransformerException {

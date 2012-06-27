@@ -24,7 +24,53 @@ import static org.hamcrest.Matchers.*;
 public class TransformerTest {
 
     @Inject
-    Transformer transformer;
+    private Transformer transformer;
+
+    @EmbeddedComponent
+    private Button buttonFieldBinding;
+
+    @EmbeddedComponent
+    private Button buttonMethodBinding;
+
+    private boolean flagSet;
+
+    @EmbeddedEventListener(component = "buttonFieldBinding", event = SWT.Selection)
+    private final Listener buttonFieldBindingSelectionListener = new Listener() {
+        @Override
+        public void handleEvent(Event event) {
+            flagSet = true;
+        }
+    };
+
+    @EmbeddedEventListener(component = "buttonMethodBinding", event = SWT.Selection)
+    private void buttonMethodBindingSelectionListener(Event event) {
+        flagSet = true;
+    }
+
+    @Test
+    public void transform_managed_form() throws TransformerException {
+        transformer.fillManagedForm(this);
+
+        assertThat(buttonFieldBinding, not(nullValue()));
+        flagSet = false;
+        Display.getDefault().syncExec(new Runnable() {
+            @Override
+            public void run() {
+                buttonFieldBinding.notifyListeners(SWT.Selection, new Event());
+            }
+        });
+        assertThat(flagSet, equalTo(true));
+
+        assertThat(buttonMethodBinding, not(nullValue()));
+        flagSet = false;
+        Display.getDefault().syncExec(new Runnable() {
+            @Override
+            public void run() {
+                buttonMethodBinding.notifyListeners(SWT.Selection, new Event());
+            }
+        });
+        assertThat(flagSet, equalTo(true));
+    }
 
     @Test
     public void exclude_widgets_with_leading_line_in_name() throws TransformerException {
