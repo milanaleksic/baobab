@@ -117,7 +117,7 @@ public class ObjectConverter implements Converter<Object> {
         }
 
         protected Class<?> deduceClassFromNode(JsonNode valueNode) throws TransformerException {
-            Preconditions.checkArgument(valueNode.has(KEY_SPECIAL_TYPE), "Definition does not have type definition");
+            Preconditions.checkArgument(valueNode.has(KEY_SPECIAL_TYPE), "Item definition does not define type");
             String classIdentifier = valueNode.get(KEY_SPECIAL_TYPE).asText();
             return deduceClassFromNode(classIdentifier);
         }
