@@ -6,8 +6,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.widgets.Display;
 
-import java.util.Map;
-
 /**
  * User: Milan Aleksic
  * Date: 4/20/12
@@ -15,18 +13,18 @@ import java.util.Map;
  */
 public class FontConverter extends TypedConverter<Font> {
 
-    public static final String FIELD_NAME = "name"; //NON-NLS
-    public static final String FIELD_HEIGHT = "height"; //NON-NLS
-    public static final String FIELD_STYLE = "style"; //NON-NLS
-    public static final String FIELD_STYLE_BOLD = "bold"; //NON-NLS
-    public static final String FIELD_STYLE_ITALIC = "italic"; //NON-NLS
+    private static final String FIELD_NAME = "name"; //NON-NLS
+    private static final String FIELD_HEIGHT = "height"; //NON-NLS
+    private static final String FIELD_STYLE = "style"; //NON-NLS
+    private static final String FIELD_STYLE_BOLD = "bold"; //NON-NLS
+    private static final String FIELD_STYLE_ITALIC = "italic"; //NON-NLS
 
     private FontData getSystemFontData() {
         return Display.getDefault().getSystemFont().getFontData()[0];
     }
 
     @Override
-    public Font getValueFromJson(JsonNode node, Map<String, Object> mappedObjects) throws TransformerException {
+    public Font getValueFromJson(JsonNode node) throws TransformerException {
         FontData systemFontData = getSystemFontData();
         int style = parseStyle(systemFontData, node);
         int height = parseHeight(systemFontData, node);

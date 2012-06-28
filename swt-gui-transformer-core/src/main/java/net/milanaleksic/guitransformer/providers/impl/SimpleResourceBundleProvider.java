@@ -11,7 +11,7 @@ import java.util.*;
  */
 public class SimpleResourceBundleProvider implements ResourceBundleProvider{
 
-    private ResourceBundle resourceBundle;
+    private final ResourceBundle resourceBundle;
 
     public SimpleResourceBundleProvider() {
         resourceBundle = ResourceBundle.getBundle("messages", new Locale("en"));//NON-NLS

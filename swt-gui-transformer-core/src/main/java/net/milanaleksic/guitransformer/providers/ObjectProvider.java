@@ -1,7 +1,5 @@
 package net.milanaleksic.guitransformer.providers;
 
-import net.milanaleksic.guitransformer.TransformerException;
-
 /**
  * User: Milan Aleksic
  * Date: 5/14/12
@@ -9,6 +7,6 @@ import net.milanaleksic.guitransformer.TransformerException;
  */
 public interface ObjectProvider {
 
-    Object provideObjectNamed(String name) throws TransformerException;
+    Object provideObjectNamed(String name);
 
 }

@@ -32,7 +32,7 @@ public class ConverterFactory {
         this.registeredConverters = registeredConverters;
     }
 
-    public Converter getConverter(final Class<?> argType) throws TransformerException {
+    public Converter getConverter(final Class<?> argType) {
         Converter converter = registeredConverters.get(argType);
         if (converter == null)
             return registeredConverters.get(Object.class);
@@ -40,7 +40,7 @@ public class ConverterFactory {
     }
 
     @SuppressWarnings({"unchecked"})
-    public <T> Optional<Converter<T>> getExactTypeConverter(final Class<T> type) throws TransformerException {
+    public <T> Optional<Converter<T>> getExactTypeConverter(final Class<T> type) {
         Converter<T> converter = (Converter<T>) registeredConverters.get(type);
         if (converter == null)
             return Optional.absent();

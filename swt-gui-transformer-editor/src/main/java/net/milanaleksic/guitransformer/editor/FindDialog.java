@@ -11,7 +11,7 @@ import javax.inject.Inject;
  * Date: 5/14/12
  * Time: 7:37 PM
  */
-public class ErrorDialog {
+public class FindDialog {
 
     @Inject
     private Transformer transformer;
@@ -20,27 +20,49 @@ public class ErrorDialog {
     private MainForm mainForm;
 
     @EmbeddedComponent
-    private Text text;
+    private Text searchText;
 
     private Shell shell;
+
+    private String text;
 
     @EmbeddedEventListener(component = "shell", event = SWT.Close)
     private void shellCloseListener() {
         shell.dispose();
-        shell = null;
     }
 
-    public void showMessage(String stackTrace) {
+    @EmbeddedEventListener(component = "btnAccept", event = SWT.Selection)
+    private void btnAcceptSelectionListener() {
+        text = searchText.getText();
+        shell.dispose();
+    }
+
+    @EmbeddedEventListener(component = "btnCancel", event = SWT.Selection)
+    private void btnCancelSelectionListener() {
+        shell.close();
+    }
+
+    public String getSearchString() {
         try {
             final TransformationContext transformationContext = transformer.fillManagedForm(mainForm.getShell(), this);
             this.shell = transformationContext.getShell();
 
-            text.setText(stackTrace);
+            text = null;
 
             shell.open();
+
+            Display display = shell.getDisplay();
+            while (!shell.isDisposed()) {
+                if (!display.readAndDispatch()) {
+                    display.sleep();
+                }
+            }
+
+            return text;
         } catch (TransformerException e) {
             e.printStackTrace();
             System.exit(1);
+            return null;
         }
     }
 

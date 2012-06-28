@@ -6,7 +6,6 @@ import org.codehaus.jackson.JsonNode;
 import org.eclipse.swt.graphics.Image;
 
 import javax.inject.Inject;
-import java.util.Map;
 
 /**
  * User: Milan Aleksic
@@ -19,7 +18,7 @@ public class ImageConverter extends TypedConverter<Image> {
     private ImageProvider imageProvider;
 
     @Override
-    public Image getValueFromJson(JsonNode node, Map<String, Object> mappedObjects) throws TransformerException {
+    public Image getValueFromJson(JsonNode node) throws TransformerException {
         return imageProvider.provideImageForName(node.asText());
     }
 

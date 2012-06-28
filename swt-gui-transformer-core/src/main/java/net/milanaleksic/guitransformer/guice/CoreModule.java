@@ -3,7 +3,7 @@ package net.milanaleksic.guitransformer.guice;
 import com.google.inject.*;
 import com.google.inject.multibindings.MapBinder;
 import net.milanaleksic.guitransformer.*;
-import net.milanaleksic.guitransformer.builders.GridDataBuilder;
+import net.milanaleksic.guitransformer.builders.*;
 import net.milanaleksic.guitransformer.providers.*;
 import net.milanaleksic.guitransformer.providers.impl.*;
 import net.milanaleksic.guitransformer.typed.*;
@@ -32,7 +32,8 @@ public class CoreModule extends AbstractModule {
         MapBinder<String, Builder<?>> mapBinder = MapBinder.newMapBinder(binder(),
                 new TypeLiteral<String>() {},
                 new TypeLiteral<Builder<?>>() {});
-        mapBinder.addBinding("gridData").to(GridDataBuilder.class); //NON-NLS
+        mapBinder.addBinding(GridDataBuilder.BUILDER_NAME).to(GridDataBuilder.class); //NON-NLS
+        mapBinder.addBinding(LabelBuilder.BUILDER_NAME).to(LabelBuilder.class); //NON-NLS
     }
 
     protected void prepareRegisteredConvertersForConverterFactory() {
@@ -44,6 +45,7 @@ public class CoreModule extends AbstractModule {
         mapBinder.addBinding(boolean.class).to(BooleanConverter.class);
         mapBinder.addBinding(int.class).to(IntegerConverter.class);
         mapBinder.addBinding(org.eclipse.swt.graphics.Point.class).to(PointConverter.class);
+        mapBinder.addBinding(int[].class).to(IntegerArrayConverter.class);
         mapBinder.addBinding(org.eclipse.swt.graphics.Color.class).to(ColorConverter.class);
         mapBinder.addBinding(org.eclipse.swt.graphics.Font.class).to(FontConverter.class);
         mapBinder.addBinding(org.eclipse.swt.graphics.Image.class).to(ImageConverter.class);

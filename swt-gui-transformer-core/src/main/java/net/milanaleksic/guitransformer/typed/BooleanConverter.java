@@ -2,8 +2,6 @@ package net.milanaleksic.guitransformer.typed;
 
 import org.codehaus.jackson.JsonNode;
 
-import java.util.Map;
-
 /**
  * User: Milan Aleksic
  * Date: 4/19/12
@@ -12,7 +10,7 @@ import java.util.Map;
 public class BooleanConverter extends TypedConverter<Boolean> {
 
     @Override
-    public Boolean getValueFromJson(JsonNode node, Map<String, Object> mappedObjects) {
+    public Boolean getValueFromJson(JsonNode node) {
         return node.asBoolean();
     }
 

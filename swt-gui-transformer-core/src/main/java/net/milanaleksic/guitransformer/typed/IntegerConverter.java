@@ -21,7 +21,7 @@ public class IntegerConverter extends TypedConverter<Integer> {
 
     private static final Pattern magicConstantsValue = Pattern.compile("\\{(.*)\\}");
 
-    private static Map<String, Integer> magicConstants;
+    private static final Map<String, Integer> magicConstants;
 
     // do not use ImmutableMap.builder() because it crashes JDK compiler
     static {
@@ -430,8 +430,12 @@ public class IntegerConverter extends TypedConverter<Integer> {
     }
 
     @Override
-    public Integer getValueFromJson(JsonNode node, Map<String, Object> mappedObjects) throws TransformerException {
+    public Integer getValueFromJson(JsonNode node) throws TransformerException {
         String input = node.asText();
+        return getValueFromString(input);
+    }
+
+    public Integer getValueFromString(String input) throws TransformerException {
         checkNotNull(input);
         String[] values = input.split("\\|");
         int ofTheJedi = 0;
