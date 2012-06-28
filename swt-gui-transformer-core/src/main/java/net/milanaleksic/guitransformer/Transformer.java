@@ -31,9 +31,15 @@ public class Transformer {
 
     private boolean doNotCreateModalDialogs = false;
 
+    private MethodEventListenerExceptionHandler methodEventListenerExceptionHandler;
+
     public Transformer() {
         this.mapper = new ObjectMapper();
         this.mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+    }
+
+    public void setMethodEventListenerExceptionHandler(MethodEventListenerExceptionHandler methodEventListenerExceptionHandler) {
+        this.methodEventListenerExceptionHandler = methodEventListenerExceptionHandler;
     }
 
     public TransformationContext createNonManagedForm(@Nullable Shell parent, String definition) throws TransformerException {
@@ -145,12 +151,12 @@ public class Transformer {
                     if (parameterTypes.length != 1 || !Event.class.isAssignableFrom(parameterTypes[0]))
                         throw new IllegalStateException("Method event listeners must have exactly one parameter, of type org.eclipse.swt.widgets.Event: " + targetObject.getClass().getName() + "." + method.getName());
                 }
-                handleSingleEventToMethodListenerDelegation(targetObject, method, listenerAnnotation.event(), (Widget) mappedObject.get());
+                handleSingleEventToMethodListenerDelegation(transformationContext, targetObject, method, listenerAnnotation.event(), (Widget) mappedObject.get());
             }
         }
     }
 
-    private void handleSingleEventToMethodListenerDelegation(final Object targetObject, final Method method, int event, Widget mappedObject) {
+    private void handleSingleEventToMethodListenerDelegation(final TransformationContext transformationContext, final Object targetObject, final Method method, int event, Widget mappedObject) {
         mappedObject.addListener(event, new Listener() {
             @Override
             public void handleEvent(Event event) {
@@ -163,7 +169,10 @@ public class Transformer {
                     else
                         method.invoke(targetObject);
                 } catch (Exception e) {
-                    throw new RuntimeException("Transformer event delegation failed because of following exception: " + e.getMessage(), e);
+                    if (methodEventListenerExceptionHandler != null)
+                        methodEventListenerExceptionHandler.handleException(transformationContext.getShell(), e);
+                    else
+                        throw new RuntimeException("Transformer event delegation got an exception: " + e.getMessage(), e);
                 } finally {
                     if (!wasPublic)
                         method.setAccessible(false);
