@@ -48,7 +48,7 @@
         <li><a href="#shortcut-notation">shortcut notation</a> or</li>
         <li><a href="#builder-notation">builder notation</a>.</li>
     </ol>
-    <p>and then to configure them using property setters, you should just make sure the property
+    <p>and then to configure them you use property setters. As usual, make sure the property
         you are setting value to is exposed in the means of setter method or public field.</p>
 
     <p>SGT uses type information to find out which <a href="#converters">converter</a> to use to map the JSON node
@@ -335,9 +335,8 @@
         If you wish to create a new widget, you have to explicitly say what is the parent
         and what is the style (or style mix) you wish to enforce.</p>
 
-    <p>So, this tag was introduced to allow creation of "children" components by remembering what is the parent
-        when creating the nodes in the _children array. For example, if you wish to make shell with two labels
-        you do it like this:
+    <p>So, this tag was introduced to allow creation of "children" components by injecting the parent component
+        while constructing the child. For example, if you wish to make shell with two labels you do it like this:
     </p>
 
     <pre>    {
@@ -357,6 +356,45 @@
             }
         ]
     }</pre>
+
+    <p>But, it does not end there. To ease the pain of too much text, there is a <strong>shorter syntax</strong> which replaces array
+    with JSON object notation. This shorter notation improves readability and lower the GUI definition file
+    by 15-25%. Basically, it collects information from _style, _name and _type special tags and sets them all
+    at once in the JSON key name. For example, the following two examples are identical:</p>
+
+    <pre>
+    {                                                               {
+        "_type" : "shell",                                              "_type" : "shell",
+        "layout" : {                                                    "layout" : {
+            "_type" : "gridLayout",                                         "_type" : "gridLayout",
+            "numColumns" : 1                                                "numColumns" : 1
+        },                                                              },
+        "_children" : [                                                 "_children" : {
+            {                                                               <u>"text(textName, {border}|{v_scroll})"</u> : {
+                "_type" : "text",                                               "layoutData" : {
+                "_style" : "{border}|{v_scroll}",                                   "_type" : "[gridData](fill,fill,true,true)"
+                "_name" : "textName",                                           }
+                "layoutData" : {                                            },
+                    "_type" : "[gridData](fill,fill,true,true)"             <u>"org.eclipse.swt.widgets.Label(labelName)"</u> : {
+                }                                                               "text" : "hello world!"
+            },                                                              }
+            {                                                           }
+                "_type" : "org.eclipse.swt.widgets.Label",          }
+                "_name" : "labelName",
+                "text" : "hello world!"
+            }
+        ]
+    }</pre>
+
+    <p>As you can see, the syntax is <strong>type_syntax(object_name[,style_syntax])</strong>, which means that
+    style parameter is not mandatory but name is.</p>
+
+    <p>One bad thing with this approach is that you have to always give names to the components, otherwise, because
+    of the nature of JSON, it will (in case there is more than one node with the identical key value) overwrite
+    all previous nodes with the last one (and thus create only one item). The good news is that you can use _* syntax
+    which tells the SGT not to push the widget name to transformation context (and thus not polute it). If
+    you wish to use this approach you need to have unique names only in once children collection (they don't have
+    to be unique throughout entire definition file).</p>
 
     <h3>_style tag</h3>
     <p>Since style is set during the creation of the SWT widgets, normal setter does not exist. That was the
