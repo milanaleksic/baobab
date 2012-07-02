@@ -92,19 +92,19 @@ public class TransformerTest {
 
     @Test
     public void exclude_widgets_with_leading_line_in_name() throws TransformerException {
-        final TransformationContext formFromResource = transformer.createFormFromResource("/net/milanaleksic/guitransformer/ExcludeWidgetsWithLeadingLineInName.gui");
+        final TransformationContext formFromResource = transformer.createFormFromResource("/net/milanaleksic/guitransformer/TransformerTest_ExcludeWidgetsWithLeadingLineInName.gui");
         assertThat(formFromResource.getMappedObject("test").isPresent(), equalTo(true));
         assertThat(formFromResource.getMappedObject("_test").isPresent(), equalTo(false));
     }
 
     @Test
     public void form_creation() throws TransformerException {
-        test_form_creation(transformer.createFormFromResource("/net/milanaleksic/guitransformer/TestForm.gui"));
+        test_form_creation(transformer.createFormFromResource("/net/milanaleksic/guitransformer/TransformerTest_FormCreation.gui"));
     }
 
     @Test
     public void form_creation_short_notation() throws TransformerException {
-        test_form_creation(transformer.createFormFromResource("/net/milanaleksic/guitransformer/TestForm_ShortChildrenNotation.gui"));
+        test_form_creation(transformer.createFormFromResource("/net/milanaleksic/guitransformer/TransformerTest_ShortChildrenNotation.gui"));
     }
 
     private void test_form_creation(TransformationContext context) {
