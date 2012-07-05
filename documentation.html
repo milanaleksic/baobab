@@ -48,7 +48,7 @@
         <li><a href="#shortcut-notation">shortcut notation</a> or</li>
         <li><a href="#builder-notation">builder notation</a>.</li>
     </ol>
-    <p>and then to configure them using property setters, you should just make sure the property
+    <p>and then to configure them you use property setters. As usual, make sure the property
         you are setting value to is exposed in the means of setter method or public field.</p>
 
     <p>SGT uses type information to find out which <a href="#converters">converter</a> to use to map the JSON node
@@ -88,8 +88,8 @@
 
     <p>If you wish to see entire list of supported shortcuts out-of-the-box in SGT, take a look at the
         current version's <code>knownShortcuts</code> field in
-        <a href="https://github.com/milanaleksic/swt-gui-transformer/blob/master/swt-gui-transformer-core/src/main/java/net/milanaleksic/guitransformer/ObjectConverter.java">ObjectConverter
-            class</a>.</p>
+        <a href="https://github.com/milanaleksic/swt-gui-transformer/blob/master/swt-gui-transformer-core/src/main/resources/META-INF/guitransformer.shortcuts-default.properties">properties
+            file</a>.</p>
 
     <h4>Wish to extend?</h4>
 
@@ -190,6 +190,7 @@
         <li><a href="#boolean-converter"><code>BooleanConverter</code></a></li>
         <li><a href="#color-converter"><code>ColorConverter</code></a></li>
         <li><a href="#integer-converter"><code>IntegerConverter</code></a></li>
+        <li><a href="#integerarray-converter"><code>IntegerArrayConverter</code></a></li>
         <li><a href="#font-converter"><code>FontConverter</code></a></li>
         <li><a href="#image-converter"><code>ImageConverter</code></a></li>
         <li><a href="#point-converter"><code>PointConverter</code></a></li>
@@ -230,6 +231,32 @@
         "_type" : "text",
         "_style" : "{multi}|{wrap}|{v_scroll}|{border}" // SWT.MULTI | SWT.WRAP | SWT.V_SCROLL | SWT.BORDER
     }</pre>
+
+    <h4 id="integerarray-converter">IntegerArrayConverter</h4>
+
+    <p>The reason why this converter was made was the SashForm's weight property which asked for numerical
+        integer values of.
+    </p>
+
+    <pre>    {
+        "__comment" : "to set sashForm's weights you need to wait until components have been added",
+        "_type" : "sashForm",
+        "_style" : "{smooth}",
+        "_children" : [
+            {
+                "type" : "composite"
+                // ...
+            },
+            {
+                "type" : "composite"
+                // ...
+            }
+        ],
+        "weights" : [ 2, 1 ]
+    }</pre>
+
+    <p>Since it uses (under the covers) the IntegerConverter, you can send magic constants, not only
+        explicit numerical values.</p>
 
     <h4 id="font-converter">FontConverter</h4>
     <p>This converter expects an object notation on the right side of the property with one of following
@@ -319,8 +346,9 @@
 
     <p>If the injected object notation is <strong>not</strong> used, ObjectConverter tries to render the value of the
         property setter as JSON object and finds in it the special tag <code>_type</code> to see which type of
-        object it needs to instantiate before proceeding with property setting. If you jumped over the first topic
-        of the documentation - creation notations, now is a good time to <a href="#creation-notations">read it</a>.</p>
+        object it needs to instantiate before proceeding with property setting (unless short children notation is used).
+        If you jumped over the first topic of the documentation - creation notations, now is a good time to
+        <a href="#creation-notations">read it</a>.</p>
 
     <h2 id="special-tags">Special tags</h2>
     <p>Special tags are used for situations when JSON limitations become apparent. In practice, special
@@ -335,9 +363,8 @@
         If you wish to create a new widget, you have to explicitly say what is the parent
         and what is the style (or style mix) you wish to enforce.</p>
 
-    <p>So, this tag was introduced to allow creation of "children" components by remembering what is the parent
-        when creating the nodes in the _children array. For example, if you wish to make shell with two labels
-        you do it like this:
+    <p>So, this tag was introduced to allow creation of "children" components by injecting the parent component
+        while constructing the child. For example, if you wish to make shell with two labels you do it like this:
     </p>
 
     <pre>    {
@@ -358,6 +385,54 @@
         ]
     }</pre>
 
+    <h5 id="short-children-syntax">Short children notation</h5>
+
+    <p>To ease the pain of too much text, there is a <strong>short children syntax</strong>
+        which replaces array with JSON object notation. This shorter notation improves readability and lowers the GUI
+        definition file size by 15-25% in number of lines. As a side effect definition file is by far more fluent to
+        "follow the GUI tree". In practice, short children syntax collects information from <code>_style</code>,
+        <code>_name</code> and <code>_type</code> special tags and sets them all at once in the JSON key name.
+        Following two examples are identical in what they are producing:</p>
+
+    <pre>
+    {                                                               {
+        "_type" : "shell",                                              "_type" : "shell",
+        "layout" : {                                                    "layout" : {
+            "_type" : "gridLayout",                                         "_type" : "gridLayout",
+            "numColumns" : 1                                                "numColumns" : 1
+        },                                                              },
+        "_children" : [                                                 "_children" : {
+            {                                                               <u>"text(textName, {border}|{v_scroll})"</u> : {
+                "_type" : "text",                                               "layoutData" : {
+                "_style" : "{border}|{v_scroll}",                                   "_type" : "[gridData](fill,fill,true,true)"
+                "_name" : "textName",                                           }
+                "layoutData" : {                                            },
+                    "_type" : "[gridData](fill,fill,true,true)"             <u>"org.eclipse.swt.widgets.Label(labelName)"</u> : {
+                }                                                               "text" : "hello world!"
+            },                                                              }
+            {                                                           }
+                "_type" : "org.eclipse.swt.widgets.Label",          }
+                "_name" : "labelName",
+                "text" : "hello world!"
+            }
+        ]
+    }</pre>
+
+    <p>As you can see, the syntax is <strong>type_syntax(object_name[,style_syntax])</strong>, which means that
+    style parameter is not mandatory but name is. At the same time, any (valid) type node value is allowed to be
+    placed in the type_syntax part (explicit class mention, shortcut notation and builder notation).</p>
+
+    <p>One <strong>bad</strong>thing with this approach is that you have to always give names to the components,
+    otherwise (because of the nature of JSON), it will overwrite all previous nodes with the last one
+    in case there is more than one node with the identical json key value (same combination
+    type_syntax+object_name+style syntax) and thus create only one item. The <strong>good</strong> news is that
+    you can use _* syntax which tells the SGT not to push the widget name to transformation context (and thus not
+    pollute it). If you wish to use this approach you need to have unique names only in once children collection
+    (they don't have to be unique throughout entire definition file).</p>
+
+    <p>From this point on examples will use short children syntax so you can get used to it (I believe it is
+    more human-friendly than the standard _type syntax).</p>
+
     <h3>_style tag</h3>
     <p>Since style is set during the creation of the SWT widgets, normal setter does not exist. That was the
         reason for inclusion of this tag. Since style is of integer type, you are using <a href="#integer-converter">IntegerConverter</a>
@@ -366,6 +441,11 @@
     <h3>_name tag</h3>
     <p>Name tag has a single usage - putting the widget in the TransformationContext. This context object
         is the one you get after calling transformation on the GUI file from the Transformer (SGT entry point).</p>
+
+    <p>All possible names are allowed, as long as they don't take trailing spaces and comma. But, if you decide
+    to name your component with a leading "low line" symbol (e.g. _label1 or _comp etc.) the widget will <strong>not</strong>
+    be put in the output transformation context. This is done on purpose to allow <a href="#short-children-syntax">
+    "short children syntax"</a>.</p>
 
     <p>After you have named some widget, you will be able to reference that object inside:</p>
 
@@ -386,8 +466,7 @@
         field which will be omitted by content parsers. So, just put it in any object definition and put in the
         value field whatever you wish - it will not be taken into consideration by SGT.</p>
 
-    <pre>    {
-        "_type" : "label",
+    <pre>    "label(myLabel)" : {
         "__comment" : "This is a comment in the GUI file!"
     }</pre>
 
@@ -408,8 +487,7 @@
         messages_en.properties (or default messages.properties if first does not exist) as the source for resource
         naming pattern for string properties. For example:</p>
 
-    <pre>    {
-        "_type" : "label",
+    <pre>    "label(myLabel)" : {
         "text" : "[string.from.bundle]"
     }</pre>
 
@@ -422,8 +500,7 @@
         You can though use <code>AlwaysReturnNullObjectProvider</code> to always embed null when named object
         is requested, for example:</p>
 
-    <pre>    {
-        "_type" : "net.milanaleksic.application.MyCustomSWTComponent",
+    <pre>    "net.milanaleksic.application.MyCustomSWTComponent(coolName)" : {
         "someReallyCoolCustomObjectFromSpring" : "(customSpringObject)"
     }</pre>
 
@@ -446,17 +523,15 @@
         important to remember that SGT expects the GUI file to be named exactly like the Java managedFormObject
         from the call, just having <strong>.gui</strong> instead of java/class.</p>
 
-    <h3>EmbeddedComponent</h3>
+    <h3>@EmbeddedComponent</h3>
     <p>This annotation can be used on fields (should be but don't <em>have to be</em> private) in the form file.</p>
     <p>So, if you have a field named "myLabel" in the GUI file:</p>
-    <pre>    {
-        "_type" : "label",
-        "_name" : "myLabel"
-    }</pre>
+    <pre>     "label(myLabel)" : { }</pre>
     <p>in the managed form Java file you just mark the appropriate field with the annotation:</p>
     <pre>    @EmbeddedComponent
     private Label myLabel;</pre>
-    <p>After transformation, you can just dereference the value in it - it will be injected by SGT.</p>
+    <p>After transformation, you can just dereference the value in it - it will be injected by SGT before that
+        time or it will fail early while trying to do so.</p>
 
     <h3>@EmbeddedEventListener and @EmbeddedEventListeners</h3>
     <p>To wire event listeners you also need just to reference the component with the name and
@@ -481,6 +556,50 @@
             // handle event
         }
     }</pre>
+
+    <h4 id="method-level-listeners">Method-level listeners</h4>
+
+    <p>In case you think the creation of event listener objects is cumbersome - you are right. That is why
+    starting from version 0.1.7 method-level listeners are allowed.</p>
+
+    <p>Candidates for method level listeners must fulfill following requirements:</p>
+    <ol>
+        <li>They must be marked with <code>@EmbeddedEventListener</code> or <code>@EmbeddedEventListeners</code>,</li>
+        <li>they must have <code>void</code> return type,</li>
+        <li>they can have either one argument of type <code>org.eclipse.swt.widgets.Event</code>, or none
+            (the latter when you just don't need the event details).</li>
+    </ol>
+
+    <p>Here is the method-level implementation of previous two examples:</p>
+
+    <pre>    @EmbeddedEventListener(component="myLabel", event= SWT.Selection)
+    private void myLabelSelectionListener(Event event) {
+        // handle event
+    }
+
+    @EmbeddedEventListeners({
+            @EmbeddedEventListener(component = "comboMediumType", event = SWT.Selection),
+            @EmbeddedEventListener(component = "comboMediumType", event = SWT.Modify),
+            @EmbeddedEventListener(component = "comboGenre", event = SWT.Selection)
+    })
+    private void complexListener(Event event) {
+        // handle event
+    }</pre>
+
+    <h5>Handling runtime exceptions in method-level listeners</h5>
+
+    <p>If a runtime exception is thrown in code executed by your listeners (SWTException is one of them),
+    your main SWT dispatch loop will either be prepared for it or face the consequences - immediate
+    program shutdown. How to deal with this issue and still avoid using try/catch in <strong>all</strong>
+    of your listener methods? By registering
+    <code>net.milanaleksic.guitransformer.MethodEventListenerExceptionHandler</code> in the Transformer
+    configuration.</p>
+
+    <p>If you do so, the exception will be caught in Transformer and delegated to this exception handler
+    so your app does not face the problem in runtime. You are free to use appropriate mechanisms to
+    handle the exception situation (message box / log / send email...). The fact to remember is:
+    if you do not register a handler for exceptions Transformer will rethrow the exception and
+    probably cause undesirable effects for your application UX.</p>
 
     <h3 id="wiring">Wiring it all up</h3>
     <p>Transformer should already have all of its dependencies wired before calling it using your
