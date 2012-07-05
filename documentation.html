@@ -523,14 +523,15 @@
         important to remember that SGT expects the GUI file to be named exactly like the Java managedFormObject
         from the call, just having <strong>.gui</strong> instead of java/class.</p>
 
-    <h3>EmbeddedComponent</h3>
+    <h3>@EmbeddedComponent</h3>
     <p>This annotation can be used on fields (should be but don't <em>have to be</em> private) in the form file.</p>
     <p>So, if you have a field named "myLabel" in the GUI file:</p>
     <pre>     "label(myLabel)" : { }</pre>
     <p>in the managed form Java file you just mark the appropriate field with the annotation:</p>
     <pre>    @EmbeddedComponent
     private Label myLabel;</pre>
-    <p>After transformation, you can just dereference the value in it - it will be injected by SGT.</p>
+    <p>After transformation, you can just dereference the value in it - it will be injected by SGT before that
+        time or it will fail early while trying to do so.</p>
 
     <h3>@EmbeddedEventListener and @EmbeddedEventListeners</h3>
     <p>To wire event listeners you also need just to reference the component with the name and
@@ -565,8 +566,8 @@
     <ol>
         <li>They must be marked with <code>@EmbeddedEventListener</code> or <code>@EmbeddedEventListeners</code>,</li>
         <li>they must have <code>void</code> return type,</li>
-        <li>they can have either one argument of type <code>org.eclipse.swt.widgets.Event</code>, or none (
-            the latter when you just don't need the event details).</li>
+        <li>they can have either one argument of type <code>org.eclipse.swt.widgets.Event</code>, or none
+            (the latter when you just don't need the event details).</li>
     </ol>
 
     <p>Here is the method-level implementation of previous two examples:</p>
