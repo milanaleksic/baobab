@@ -5,42 +5,39 @@ import net.milanaleksic.guitransformer.*;
 import net.milanaleksic.guitransformer.guice.CoreModule;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.*;
+import javax.inject.Inject;
 
-/**
- * User: Milan Aleksic
- * Date: 7/5/12
- * Time: 3:20 PM
- */
 public class MyForm {
+
+    @Inject private Transformer transformer;
 
     @EmbeddedComponent private Text usernameBox;
 
     @EmbeddedComponent private Text passwordBox;
 
-    private Shell shell; // we can embed it also, just needs to be named in GUI file
+    @EmbeddedComponent private Shell myFormShell;
 
     @EmbeddedEventListener(component = "btnLogin", event = SWT.Selection)
-    private void webSiteVisitor(Event event) {
-        MessageBox box = new MessageBox(shell, SWT.ICON_ERROR);
-        box.setMessage(
-                String.format("You entered: username=%s, password=%s", usernameBox.getText(), passwordBox.getText()));
+    private void webSiteVisitor() {
+        MessageBox box = new MessageBox(myFormShell, SWT.ICON_ERROR);
+        box.setMessage("You entered: username="+usernameBox.getText()+", password="+passwordBox.getText());
         box.setText("Information");
         box.open();
     }
 
     public static void main(String[] args) throws TransformerException {
+        // I use here Guice, but you can use any javax.inject - compatible DI container
         Injector rootInjector = Guice.createInjector(new CoreModule());
-        rootInjector.getInstance(MyForm.class).execute(rootInjector.getInstance(Transformer.class));
+        final MyForm myFormInstance = rootInjector.getInstance(MyForm.class);
+        myFormInstance.execute();
     }
 
-    public void execute(Transformer transformer) throws TransformerException {
-        final TransformationContext transformationContext = transformer.fillManagedForm(this);
-        this.shell = transformationContext.getShell();
-
-        shell.open();
-
+    public void execute() throws TransformerException {
+        transformer.fillManagedForm(this);
+        // all SGT injection is done
+        myFormShell.open();
         Display display = Display.getDefault();
-        while (!this.shell.isDisposed()) {
+        while (!this.myFormShell.isDisposed()) {
             if (!display.readAndDispatch())
                 display.sleep();
         }
