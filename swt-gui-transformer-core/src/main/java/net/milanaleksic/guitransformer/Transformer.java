@@ -189,7 +189,7 @@ public class Transformer {
         TransformationWorkingContext context = new TransformationWorkingContext();
         InputStream resourceAsStream = null;
         try {
-            context.mapObject("bundle", resourceBundleProvider.getResourceBundle()); //NON-NLS
+            mapResourceBundleIfExists(context);
             context.setDoNotCreateModalDialogs(doNotCreateModalDialogs);
             context.setWorkItem(parent);
 
@@ -207,10 +207,16 @@ public class Transformer {
         }
     }
 
+    private void mapResourceBundleIfExists(TransformationWorkingContext context) {
+        final ResourceBundle resourceBundle = resourceBundleProvider.getResourceBundle();
+        if (resourceBundle != null)
+            context.mapObject("bundle", resourceBundle); //NON-NLS
+    }
+
     private TransformationContext transformFromContent(@Nullable Shell parent, String content) throws TransformerException {
         TransformationWorkingContext context = new TransformationWorkingContext();
         try {
-            context.mapObject("bundle", resourceBundleProvider.getResourceBundle()); //NON-NLS
+            mapResourceBundleIfExists(context);
             context.setDoNotCreateModalDialogs(doNotCreateModalDialogs);
             context.setWorkItem(parent);
 

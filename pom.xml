@@ -41,6 +41,7 @@
     <modules>
         <module>swt-gui-transformer-core</module>
         <module>swt-gui-transformer-editor</module>
+        <module>swt-gui-transformer-samples</module>
     </modules>
 
     <build>
