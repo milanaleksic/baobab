@@ -84,21 +84,19 @@
 
         <script src="https://gist.github.com/2708850.js?file=dependency2.xml"></script>
 
-        <p>The repository where this artifact is deployed is:</p>
+        <p>The repository where these artifacts are deployed to is:</p>
 
         <script src="https://gist.github.com/2708850.js?file=repo.xml"></script>
 
         <p>Since Eclipse doesn't really like to use Maven to store SWT artifacts (at least for now)
-            if you are not able to fetch Maven artifacts please install them locally manually.
+            most probably you will have to download and install SWT jar manually into your local repo.
             I know it's not a popular approach but there's nothing I can do :)</p>
 
         <script src="https://gist.github.com/2708850.js?file=installSWT.cmd"></script>
 
         <p>I propose using debug artifacts since it allows you to do so much more in debug mode
-            in you IDE than normal artifacts! Of course in production mode do pack the non-debug version
-            besides the jar of GUI Transformer. This is the approach used in Eclipse's testing Maven
-            repository used in the POM of the project - although it is not up to date with latest
-            stable SWT version - not by a long shot.</p>
+            in your IDE. Of course, in production mode better pack the non-debug version
+            besides the jar of GUI Transformer.</p>
 
         <h2>Little more details</h2>
 
@@ -110,13 +108,11 @@
         <p>You can access all the components in the UI either</p>
 
         <ol>
-            <li><p>by asking for them using their name (something similar to the Servlet attribute/parameter approach
-                for accessing)
+            <li><p>by asking for them using their name (something similar to the Servlet getAttribute/getParameter approach)
                 using <code>net.milanaleksic.guitransformer.TransformationContext.&lt;*widgetClass*&gt;getMappedObject(*widgetName*)</code>
             </p></li>
             <li><p>or using annotation <code>net.milanaleksic.guitransformer.EmbeddedComponent</code> in your form class
-                to have the component
-                injected for you (approach based on dependency injection pattern)</p></li>
+                to have the component injected for you (approach based on dependency injection pattern)</p></li>
         </ol>
         <p>In my opinion, first approach is useful for the cases when you wish to execute a simple and small action,
             like setting a <em>dynamic</em> text in some component (e.g. web service version fetched from far away).
@@ -125,18 +121,17 @@
 
         <h3>Event handling</h3>
 
-        <p>No, you don't need to attach event listeners by yourself, SGT takes care of that (unless you wish to do
-            something really complex which I did not cover, in which case you need to read the part "Accessing
-            widgets").</p>
+        <p>No, you don't need to attach event listeners by yourself, SGT takes care of that.</p>
 
         <p>The way to handle automatic event listeners is based on injection and widget naming. If you give your widget
-            a name
-            then you can include a field of type <code>org.eclipse.swt.widgets.Listener</code> and annotate it with
-            <code>net.milanaleksic.guitransformer.EmbeddedEventListener</code> or, in case you wish to use the same
-            event listeners
-            for multiple events from multiple widgets (or same event type from multiple widgets or different event types
-            from same widget - I think you got the picture), use annotation
-            <code>net.milanaleksic.guitransformer.EmbeddedEventListeners</code>.</p>
+            a name then you can include a field of type <code>org.eclipse.swt.widgets.Listener</code> and annotate it with
+            <code>net.milanaleksic.guitransformer.EmbeddedEventListener</code>. There is even a shorter way, used in the
+            example above called "method level listeners", where you put the annotation not on the field of type
+            Listener but on a method.</p>
+
+        <p>If you wish to reuse a event listener method or field for diferent events, you can use
+            <code>net.milanaleksic.guitransformer.EmbeddedEventListeners</code> to group more than one annotation
+            on a single listener.</p>
 
         <h2>Project dependencies</h2>
 
@@ -157,7 +152,7 @@
         <p>If you don't use these libraries than you might need to fork the code
             and try to hack your way through.</p>
 
-        <p>JRE required is 1.6.0</p>
+        <p>JRE required is <strong>1.6.0</strong>.</p>
 
         <h1>Interactive editor</h1>
 
@@ -165,9 +160,15 @@
             you will be able to see changes immediately, or an error message (the thin red line at the bottom of the
             window) on which you can click to see the stack trace.</p>
 
+        <p>Inside the editor you can see all of the widgets registered using widget naming via <code>_name</code>
+            special tag and current location in the files (very useful when tracking down errors from stack traces)
+            , and has some basic editor functionalities, like open/save/text search/copy&paste.</p>
+
+        <p>The interesting part, though is that the editor has been built also using SGT :)</p>
+
         <p>
-            <a href="images/editor.png" rel="lightbox" title="Interactive editor for SGT">
-                <img src="images/editor_mini.jpg"/>
+            <a href="images/editor-0.1.7.2.png" rel="lightbox" title="Interactive editor for SGT">
+                <img src="images/editor-0.1.7.2_mini.jpg"/>
             </a>
         </p>
 
@@ -189,7 +190,7 @@
         <p>Editor uses Guice 3.0 as the DI container (required dependency).</p>
 
         <p>For specific syntax details of the GUI files please take a look at the
-            <a href="documentation.html">documentation page</a>.</p>
+            <strong><a href="documentation.html">documentation page</a></strong>.</p>
 
         <h1>Feature requests / Ideas / bugs / problems?</h1>
 
