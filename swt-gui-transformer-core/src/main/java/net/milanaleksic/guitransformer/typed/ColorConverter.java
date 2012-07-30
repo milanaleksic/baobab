@@ -2,11 +2,12 @@ package net.milanaleksic.guitransformer.typed;
 
 import com.google.common.collect.*;
 import net.milanaleksic.guitransformer.TransformerException;
+import net.milanaleksic.guitransformer.swt.SwtWrapper;
 import org.codehaus.jackson.JsonNode;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.widgets.Display;
 
+import javax.inject.Inject;
 import java.util.*;
 import java.util.regex.*;
 
@@ -18,6 +19,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Time: 9:59 AM
  */
 public class ColorConverter extends TypedConverter<Color> {
+
+    @Inject
+    private SwtWrapper swtWrapper;
 
     private static final Pattern properValue = Pattern.compile("#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})", Pattern.CASE_INSENSITIVE); //NON-NLS
 
@@ -73,7 +77,7 @@ public class ColorConverter extends TypedConverter<Color> {
         if (!matcher.matches())
             throw new TransformerException("Value is not a proper HTML color (e.g. #ff0011) - " + input);
 
-        Color color = new Color(Display.getDefault(),
+        Color color = new Color(swtWrapper.getDisplay(),
                 Integer.parseInt(matcher.group(1), 16),
                 Integer.parseInt(matcher.group(2), 16),
                 Integer.parseInt(matcher.group(3), 16));
@@ -82,7 +86,7 @@ public class ColorConverter extends TypedConverter<Color> {
     }
 
     private Color convertSystemColorType(Integer keyCode) {
-        return Display.getDefault().getSystemColor(keyCode);
+        return swtWrapper.getDisplay().getSystemColor(keyCode);
     }
 
     @Override
