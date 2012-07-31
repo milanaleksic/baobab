@@ -1,13 +1,10 @@
 package net.milanaleksic.guitransformer.typed;
 
 import net.milanaleksic.guitransformer.TransformerException;
-import net.milanaleksic.guitransformer.swt.SwtWrapper;
 import org.codehaus.jackson.JsonNode;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.widgets.Display;
-
-import javax.inject.Inject;
 
 /**
  * User: Milan Aleksic
@@ -16,9 +13,6 @@ import javax.inject.Inject;
  */
 public class FontConverter extends TypedConverter<Font> {
 
-    @Inject
-    private SwtWrapper swtWrapper;
-
     private static final String FIELD_NAME = "name"; //NON-NLS
     private static final String FIELD_HEIGHT = "height"; //NON-NLS
     private static final String FIELD_STYLE = "style"; //NON-NLS
@@ -26,7 +20,7 @@ public class FontConverter extends TypedConverter<Font> {
     private static final String FIELD_STYLE_ITALIC = "italic"; //NON-NLS
 
     private FontData getSystemFontData() {
-        return swtWrapper.getDisplay().getSystemFont().getFontData()[0];
+        return Display.getDefault().getSystemFont().getFontData()[0];
     }
 
     @Override

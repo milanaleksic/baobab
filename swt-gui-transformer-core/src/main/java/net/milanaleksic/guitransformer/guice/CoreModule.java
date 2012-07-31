@@ -6,7 +6,6 @@ import net.milanaleksic.guitransformer.*;
 import net.milanaleksic.guitransformer.builders.*;
 import net.milanaleksic.guitransformer.providers.*;
 import net.milanaleksic.guitransformer.providers.impl.*;
-import net.milanaleksic.guitransformer.swt.*;
 import net.milanaleksic.guitransformer.typed.*;
 
 /**
@@ -21,7 +20,6 @@ public class CoreModule extends AbstractModule {
         prepareProviders();
         prepareRegisteredBuildersForObjectConverter();
         prepareRegisteredConvertersForConverterFactory();
-        binder().bind(SwtWrapper.class).to(NativeSwtWrapper.class).in(Scopes.SINGLETON);
     }
 
     protected void prepareProviders() {

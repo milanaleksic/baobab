@@ -1,13 +1,9 @@
 package net.milanaleksic.guitransformer;
 
-import net.milanaleksic.guitransformer.test.GuiceRunner;
 import net.milanaleksic.guitransformer.typed.ColorConverter;
 import org.codehaus.jackson.node.TextNode;
 import org.eclipse.swt.graphics.Color;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import javax.inject.Inject;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -19,13 +15,11 @@ import static org.junit.Assert.fail;
  * Time: 10:04 AM
  */
 @SuppressWarnings({"HardCodedStringLiteral"})
-@RunWith(GuiceRunner.class)
 public class ColorConverterTest {
-
-    @Inject ColorConverter colorConverter;
 
     @Test
     public void convert_simple_value() {
+        ColorConverter colorConverter = new ColorConverter();
         try {
             Color color = colorConverter.getValueFromJson(new TextNode("#ff1001"));
             assertThat(color.getRed(), equalTo(255));
