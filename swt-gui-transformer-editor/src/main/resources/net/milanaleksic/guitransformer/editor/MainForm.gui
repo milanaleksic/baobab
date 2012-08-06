@@ -93,14 +93,14 @@
                                         },
                                         "text(textWidth,{border})" : {
                                             "layoutData" : "[gridData](fill,fill,true,false)",
-                                            "text" : "0"
+                                            "text" : "400"
                                         },
                                         "label(_2)" : {
                                             "text":"Y="
                                         },
                                         "text(textHeight,{border})" : {
                                             "layoutData" : "[gridData](fill,fill,true,false)",
-                                            "text" : "0"
+                                            "text" : "200"
                                         }
                                     }
                                 },
