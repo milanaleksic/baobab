@@ -1,0 +1,6 @@
+{
+    "_type" : "shell",
+    "_children" : {
+        "text(text1)" : {}
+    }
+}
