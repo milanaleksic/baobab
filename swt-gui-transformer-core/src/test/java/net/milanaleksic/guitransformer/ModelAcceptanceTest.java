@@ -38,10 +38,10 @@ public class ModelAcceptanceTest {
         final TransformationContext transformationContext = transformer.fillManagedForm(this);
         Optional<Text> text = transformationContext.getMappedObject("text1");
         final Text text1 = text.get();
-        text1.setText("test value");
         assertThat(model, notNullValue());
-        assertThat(model.getText1(), notNullValue());
-        assertThat(model.getText1(), equalTo("test value"));
+        model.setText1("test value");
+        assertThat(text1.getText(), notNullValue());
+        assertThat(text1.getText(), equalTo("test value"));
         transformer.updateFormFromModel(this, model);
     }
 
