@@ -2,6 +2,7 @@ package net.milanaleksic.guitransformer;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+import net.milanaleksic.guitransformer.model.Model;
 import net.milanaleksic.guitransformer.providers.ResourceBundleProvider;
 import org.codehaus.jackson.*;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -230,5 +231,9 @@ public class Transformer {
 
     public void setDoNotCreateModalDialogs(boolean doNotCreateModalDialogs) {
         this.doNotCreateModalDialogs = doNotCreateModalDialogs;
+    }
+
+    public void updateFormFromModel(Object form, Model model) {
+        throw new IllegalStateException("NYI");
     }
 }

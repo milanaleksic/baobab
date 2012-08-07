@@ -42,7 +42,7 @@ public class ModelAcceptanceTest {
         assertThat(model, notNullValue());
         assertThat(model.getText1(), notNullValue());
         assertThat(model.getText1(), equalTo("test value"));
-        model.updateForm();
+        transformer.updateFormFromModel(this, model);
     }
 
 }
