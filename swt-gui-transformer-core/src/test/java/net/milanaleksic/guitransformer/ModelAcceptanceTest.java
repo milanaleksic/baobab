@@ -40,9 +40,9 @@ public class ModelAcceptanceTest {
         final Text text1 = text.get();
         assertThat(model, notNullValue());
         model.setText1("test value");
+        transformer.updateFormFromModel(model);
         assertThat(text1.getText(), notNullValue());
         assertThat(text1.getText(), equalTo("test value"));
-        transformer.updateFormFromModel(this, model);
     }
 
 }

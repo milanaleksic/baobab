@@ -233,7 +233,7 @@ public class Transformer {
         this.doNotCreateModalDialogs = doNotCreateModalDialogs;
     }
 
-    public void updateFormFromModel(Object form, Model model) {
+    public void updateFormFromModel(Model model) {
         throw new IllegalStateException("NYI");
     }
 }
