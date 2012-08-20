@@ -18,15 +18,20 @@ class EmbeddingService {
 
     private enum BindingType {BY_REFERENCE, CONVERSION}
 
+    private class FieldMapping {
+
+        private Object component;
+
+        private Method getterMethod;
+
+        private Method setterMethod;
+
+        private BindingType bindingType;
+    }
+
     private class ModelBindingMetaData {
 
-        private Map<Field, Object> fieldToComponentMapping = Maps.newHashMap();
-
-        private Map<Field, Method> modelFieldToComponentGetterMapping = Maps.newHashMap();
-
-        public Map<Field, Method> modelFieldToComponentSetterMapping = Maps.newHashMap();
-
-        private Map<Field, BindingType> fieldToBindingTypeMapping = Maps.newHashMap();
+        private Map<Field, FieldMapping> fieldMapping = Maps.newHashMap();
 
     }
 
@@ -197,9 +202,9 @@ class EmbeddingService {
 
     private void mapOnChangeListeners(final Object model, final TransformationContext transformationContext) throws ReflectiveOperationException {
         final ModelBindingMetaData modelBindingMetaData = modelToModelBinding.get(model);
-        for (Map.Entry<Field, Object> binding : modelBindingMetaData.fieldToComponentMapping.entrySet()) {
-            final Field field = binding.getKey();
-            final Object component = binding.getValue();
+        for (Map.Entry<Field, FieldMapping> mapping : modelBindingMetaData.fieldMapping.entrySet()) {
+            final Field field = mapping.getKey();
+            final Object component = mapping.getValue().component;
             Method addListener = component.getClass().getMethod("addListener", new Class[]{int.class, Listener.class});
 
             addListener.invoke(component, SWT.Modify, new Listener() {
@@ -216,8 +221,9 @@ class EmbeddingService {
         if (!wasPublic)
             field.setAccessible(true);
         try {
-            final Method getterMethod = modelBindingMetaData.modelFieldToComponentGetterMapping.get(field);
-            if (modelBindingMetaData.fieldToBindingTypeMapping.get(field).equals(BindingType.BY_REFERENCE))
+            FieldMapping fieldMapping = modelBindingMetaData.fieldMapping.get(field);
+            final Method getterMethod = fieldMapping.getterMethod;
+            if (fieldMapping.bindingType.equals(BindingType.BY_REFERENCE))
                 field.set(model, getterMethod.invoke(component));
             else
                 field.set(model, convertFromComponentToModelValue((String) getterMethod.invoke(component), field.getType()));
@@ -243,26 +249,26 @@ class EmbeddingService {
             String propertyNameSentenceCase = getPropertyNameSentenceCaseForModelField(field);
             String name = field.getName();
             try {
+                FieldMapping fieldMapping = new FieldMapping();
                 Optional<Object> mappedObject = transformationContext.getMappedObject(name);
                 if (!mappedObject.isPresent())
                     throw new IllegalStateException("Field could not be found in form: " + model.getClass().getName() + "." + name);
-                bindingData.fieldToComponentMapping.put(field, mappedObject.get());
+                fieldMapping.component = mappedObject.get();
 
                 Method getterMethod = mappedObject.get().getClass().getDeclaredMethod("get" + propertyNameSentenceCase, new Class[0]);
                 if (field.getType().isAssignableFrom(getterMethod.getReturnType()))
-                    bindingData.fieldToBindingTypeMapping.put(field, BindingType.BY_REFERENCE);
+                    fieldMapping.bindingType = BindingType.BY_REFERENCE;
                 else
-                    bindingData.fieldToBindingTypeMapping.put(field, BindingType.CONVERSION);
+                    fieldMapping.bindingType = BindingType.CONVERSION;
 
-                bindingData.modelFieldToComponentGetterMapping.put(field, getterMethod);
+                fieldMapping.getterMethod = getterMethod;
                 try {
-                    Method setterMethod = mappedObject.get().getClass().getDeclaredMethod("set" + propertyNameSentenceCase, new Class[]{field.getType()});
-                    bindingData.modelFieldToComponentSetterMapping.put(field, setterMethod);
+                    fieldMapping.setterMethod = mappedObject.get().getClass().getDeclaredMethod("set" + propertyNameSentenceCase, new Class[]{field.getType()});
                 } catch (NoSuchMethodException e) {
-                    Method setterMethod = mappedObject.get().getClass().getDeclaredMethod("set" + propertyNameSentenceCase, new Class[]{String.class});
-                    bindingData.modelFieldToComponentSetterMapping.put(field, setterMethod);
+                    fieldMapping.setterMethod = mappedObject.get().getClass().getDeclaredMethod("set" + propertyNameSentenceCase, new Class[]{String.class});
                 }
 
+                bindingData.fieldMapping.put(field, fieldMapping);
             } catch (Exception e) {
                 throw new TransformerException("Error while creating binding metadata for component field named " + name, e);
             }
@@ -285,9 +291,9 @@ class EmbeddingService {
 
     private void updateModelFromForm(Object model, TransformationContext transformationContext) throws ReflectiveOperationException, TransformerException {
         ModelBindingMetaData modelBindingMetaData = modelToModelBinding.get(model);
-        for (Map.Entry<Field, Object> binding : modelBindingMetaData.fieldToComponentMapping.entrySet()) {
+        for (Map.Entry<Field, FieldMapping> binding : modelBindingMetaData.fieldMapping.entrySet()) {
             Field field = binding.getKey();
-            Object component = binding.getValue();
+            Object component = binding.getValue().component;
             setModelFieldValue(model, field, component, modelBindingMetaData, transformationContext);
         }
     }
@@ -304,20 +310,20 @@ class EmbeddingService {
 
     public void updateFormFromModel(Object model) throws TransformerException {
         ModelBindingMetaData modelBindingMetaData = modelToModelBinding.get(model);
-        for (Map.Entry<Field, Object> binding : modelBindingMetaData.fieldToComponentMapping.entrySet()) {
+        for (Map.Entry<Field, FieldMapping> binding : modelBindingMetaData.fieldMapping.entrySet()) {
             Field field = binding.getKey();
-            Object component = binding.getValue();
-            Method setterMethod = modelBindingMetaData.modelFieldToComponentSetterMapping.get(field);
+            FieldMapping fieldMapping = binding.getValue();
+            Object component = fieldMapping.component;
             boolean wasPublic = Modifier.isPublic(field.getModifiers());
             if (!wasPublic)
                 field.setAccessible(true);
             try {
                 Object modelValue = field.get(model);
                 Preconditions.checkNotNull(modelValue);
-                if (modelBindingMetaData.fieldToBindingTypeMapping.get(field).equals(BindingType.BY_REFERENCE))
-                    setterMethod.invoke(component, modelValue);
+                if (fieldMapping.bindingType.equals(BindingType.BY_REFERENCE))
+                    fieldMapping.setterMethod.invoke(component, modelValue);
                 else
-                    setterMethod.invoke(component, modelValue.toString());
+                    fieldMapping.setterMethod.invoke(component, modelValue.toString());
             } catch (ReflectiveOperationException e) {
                 throw new TransformerException("Reflective exception occurred when mapping component from model", e);
             } finally {
