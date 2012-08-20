@@ -1,6 +1,8 @@
 {
     "_type" : "shell",
     "_children" : {
-        "text(text1)" : {}
+        "text(text1)" : {
+            "text" : "test value"
+        }
     }
 }

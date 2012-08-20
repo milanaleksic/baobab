@@ -1,6 +1,5 @@
 package net.milanaleksic.guitransformer;
 
-import net.milanaleksic.guitransformer.model.Model;
 import net.milanaleksic.guitransformer.providers.ResourceBundleProvider;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParser;
@@ -106,7 +105,7 @@ public class Transformer {
         this.doNotCreateModalDialogs = doNotCreateModalDialogs;
     }
 
-    public void updateFormFromModel(Model model) {
+    public void updateFormFromModel(Object model) {
         embeddingService.updateFormFromModel(model);
     }
 }
