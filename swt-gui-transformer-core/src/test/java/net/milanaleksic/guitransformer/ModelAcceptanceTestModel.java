@@ -7,6 +7,8 @@ package net.milanaleksic.guitransformer;
  */
 public class ModelAcceptanceTestModel {
 
+    private int numericalValue;
+
     private String text1;
 
     public String getText1() {
@@ -15,5 +17,13 @@ public class ModelAcceptanceTestModel {
 
     public void setText1(String text1) {
         this.text1 = text1;
+    }
+
+    public int getNumericalValue() {
+        return numericalValue;
+    }
+
+    public void setNumericalValue(int numericalValue) {
+        this.numericalValue = numericalValue;
     }
 }

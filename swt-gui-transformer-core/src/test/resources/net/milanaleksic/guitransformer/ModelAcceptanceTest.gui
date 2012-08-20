@@ -3,6 +3,9 @@
     "_children" : {
         "text(text1)" : {
             "text" : "test value"
+        },
+        "text(numericalValue)" : {
+            "text" : "175"
         }
     }
 }

@@ -31,6 +31,8 @@ public class ModelAcceptanceTest {
         assertThat(model, notNullValue());
         assertThat(model.getText1(), notNullValue());
         assertThat(model.getText1(), equalTo("test value"));
+        assertThat(model.getNumericalValue(), notNullValue());
+        assertThat(model.getNumericalValue(), equalTo(175));
     }
 
     @Test
@@ -43,6 +45,10 @@ public class ModelAcceptanceTest {
         transformer.updateFormFromModel(model);
         assertThat(text1.getText(), notNullValue());
         assertThat(text1.getText(), equalTo("test value"));
+        model.setNumericalValue(-293);
+        transformer.updateFormFromModel(model);
+        assertThat(model.getNumericalValue(), notNullValue());
+        assertThat(model.getNumericalValue(), equalTo(-293));
     }
 
 }

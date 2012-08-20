@@ -230,7 +230,11 @@ class EmbeddingService {
             return value;
         else if (Long.class.isAssignableFrom(targetClass))
             return Long.parseLong(value, 10);
+        else if (long.class.isAssignableFrom(targetClass))
+            return Long.parseLong(value, 10);
         else if (Integer.class.isAssignableFrom(targetClass))
+            return Integer.parseInt(value, 10);
+        else if (int.class.isAssignableFrom(targetClass))
             return Integer.parseInt(value, 10);
         throw new IllegalArgumentException("Value transformation to model class " + targetClass + " not supported");
     }
