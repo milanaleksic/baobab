@@ -207,7 +207,7 @@ class EmbeddingService {
         return bindingData;
     }
 
-    private void updateModelFromForm(Object model) throws ReflectiveOperationException {
+    private void updateModelFromForm(Object model) throws ReflectiveOperationException, TransformerException {
         ModelBindingMetaData modelBindingMetaData = modelToModelBinding.get(model);
         for (Map.Entry<Field, Object> binding : modelBindingMetaData.fieldToComponentMapping.entrySet()) {
             Field field = binding.getKey();
@@ -225,18 +225,14 @@ class EmbeddingService {
         }
     }
 
-    private Object fromComponentToModelValue(String value, Class<?> targetClass) throws ReflectiveOperationException {
+    private Object fromComponentToModelValue(String value, Class<?> targetClass) throws ReflectiveOperationException, TransformerException {
         if (String.class.isAssignableFrom(targetClass))
             return value;
-        else if (Long.class.isAssignableFrom(targetClass))
+        else if (Long.class.isAssignableFrom(targetClass) || long.class.isAssignableFrom(targetClass))
             return Long.parseLong(value, 10);
-        else if (long.class.isAssignableFrom(targetClass))
-            return Long.parseLong(value, 10);
-        else if (Integer.class.isAssignableFrom(targetClass))
+        else if (Integer.class.isAssignableFrom(targetClass) || int.class.isAssignableFrom(targetClass))
             return Integer.parseInt(value, 10);
-        else if (int.class.isAssignableFrom(targetClass))
-            return Integer.parseInt(value, 10);
-        throw new IllegalArgumentException("Value transformation to model class " + targetClass + " not supported");
+        throw new TransformerException("Value transformation to model class " + targetClass + " not supported");
     }
 
     public void updateFormFromModel(Object model) throws TransformerException {
