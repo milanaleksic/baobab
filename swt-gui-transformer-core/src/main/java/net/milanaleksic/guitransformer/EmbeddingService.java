@@ -1,6 +1,7 @@
 package net.milanaleksic.guitransformer;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.milanaleksic.guitransformer.model.TransformerModel;
@@ -16,12 +17,11 @@ class EmbeddingService {
 
     private class ModelBindingMetaData {
 
-        private Object formObject;
-
         private Map<Field, Object> fieldToComponentMapping = Maps.newHashMap();
 
-        private Map<Field, Method> fieldToGetterMapping = Maps.newHashMap();
+        private Map<Field, Method> modelFieldToComponentGetterMapping = Maps.newHashMap();
 
+        public Map<Field, Method> modelFieldToComponentSetterMapping = Maps.newHashMap();
     }
 
     private Map<Object, ModelBindingMetaData> modelToModelBinding = Maps.newHashMap();
@@ -35,11 +35,6 @@ class EmbeddingService {
         embedEventListenersAsFields(formObject, transformationContext);
         embedEventListenersAsMethods(formObject, transformationContext);
         embedModels(formObject, transformationContext);
-    }
-
-    public void updateFormFromModel(Object model) {
-        Object form = modelToModelBinding.get(model);
-        updateFormFromModel(form, model);
     }
 
     private void embedComponents(Object targetObject, TransformationContext transformationContext) throws TransformerException {
@@ -173,7 +168,7 @@ class EmbeddingService {
                 field.setAccessible(true);
             try {
                 Object model = field.getType().newInstance();
-                bindModel(model, formObject, transformationContext);
+                bindModel(model, transformationContext);
                 field.set(formObject, model);
             } catch (Exception e) {
                 throw new TransformerException("Error while embedding model into field named " + field.getName(), e);
@@ -184,8 +179,8 @@ class EmbeddingService {
         }
     }
 
-    private void bindModel(Object model, Object formObject, TransformationContext transformationContext) throws TransformerException {
-        modelToModelBinding.put(model, createBindingMetaData(model, formObject, transformationContext));
+    private void bindModel(Object model, TransformationContext transformationContext) throws TransformerException {
+        modelToModelBinding.put(model, createBindingMetaData(model, transformationContext));
         try {
             updateModelFromForm(model);
         } catch (ReflectiveOperationException e) {
@@ -193,10 +188,8 @@ class EmbeddingService {
         }
     }
 
-    private ModelBindingMetaData createBindingMetaData(Object model, Object formObject, TransformationContext transformationContext) throws TransformerException {
+    private ModelBindingMetaData createBindingMetaData(Object model, TransformationContext transformationContext) throws TransformerException {
         ModelBindingMetaData bindingData = new ModelBindingMetaData();
-        bindingData.formObject = formObject;
-
         Field[] fields = model.getClass().getDeclaredFields();
         for (Field field : fields) {
             String name = field.getName();
@@ -205,7 +198,8 @@ class EmbeddingService {
                 if (!mappedObject.isPresent())
                     throw new IllegalStateException("Field could not be found in form: " + model.getClass().getName() + "." + name);
                 bindingData.fieldToComponentMapping.put(field, mappedObject.get());
-                bindingData.fieldToGetterMapping.put(field, mappedObject.get().getClass().getDeclaredMethod("getText", new Class[0]));
+                bindingData.modelFieldToComponentGetterMapping.put(field, mappedObject.get().getClass().getDeclaredMethod("getText", new Class[0]));
+                bindingData.modelFieldToComponentSetterMapping.put(field, mappedObject.get().getClass().getDeclaredMethod("setText", new Class[] { String.class}));
             } catch (Exception e) {
                 throw new TransformerException("Error while creating binding metadata for component field named " + name, e);
             }
@@ -218,7 +212,7 @@ class EmbeddingService {
         for (Map.Entry<Field, Object> binding : modelBindingMetaData.fieldToComponentMapping.entrySet()) {
             Field field = binding.getKey();
             Object component = binding.getValue();
-            Method getterMethod = modelBindingMetaData.fieldToGetterMapping.get(field);
+            Method getterMethod = modelBindingMetaData.modelFieldToComponentGetterMapping.get(field);
             boolean wasPublic = Modifier.isPublic(field.getModifiers());
             if (!wasPublic)
                 field.setAccessible(true);
@@ -241,9 +235,26 @@ class EmbeddingService {
         throw new IllegalArgumentException("Value transformation to model class " + targetClass + " not supported");
     }
 
-    private void updateFormFromModel(Object form, Object model) {
-        throw new IllegalStateException("NYI");
+    public void updateFormFromModel(Object model) throws TransformerException {
+        ModelBindingMetaData modelBindingMetaData = modelToModelBinding.get(model);
+        for (Map.Entry<Field, Object> binding : modelBindingMetaData.fieldToComponentMapping.entrySet()) {
+            Field field = binding.getKey();
+            Object component = binding.getValue();
+            Method setterMethod = modelBindingMetaData.modelFieldToComponentSetterMapping.get(field);
+            boolean wasPublic = Modifier.isPublic(field.getModifiers());
+            if (!wasPublic)
+                field.setAccessible(true);
+            try {
+                Object modelValue = field.get(model);
+                Preconditions.checkNotNull(modelValue);
+                setterMethod.invoke(component, modelValue.toString());
+            } catch (ReflectiveOperationException e) {
+                throw new TransformerException("Reflective exception occurred when mapping component from model", e);
+            } finally {
+                if (!wasPublic)
+                    field.setAccessible(false);
+            }
+        }
     }
-
 
 }
