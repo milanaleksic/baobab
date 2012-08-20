@@ -33,6 +33,8 @@ public class ModelAcceptanceTest {
         assertThat(model.getText1(), equalTo("test value"));
         assertThat(model.getNumericalValue(), notNullValue());
         assertThat(model.getNumericalValue(), equalTo(175));
+        text1.setText("new value");
+        assertThat(model.getText1(), equalTo("new value"));
     }
 
     @Test

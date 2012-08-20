@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.milanaleksic.guitransformer.model.TransformerModel;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.*;
 
 import java.lang.reflect.*;
@@ -182,9 +183,40 @@ class EmbeddingService {
     private void bindModel(Object model, TransformationContext transformationContext) throws TransformerException {
         modelToModelBinding.put(model, createBindingMetaData(model, transformationContext));
         try {
+            mapOnChangeListeners(model, transformationContext);
             updateModelFromForm(model);
         } catch (ReflectiveOperationException e) {
             throw new TransformerException("Reflection problem while binding model", e);
+        }
+    }
+
+    private void mapOnChangeListeners(final Object model, final TransformationContext transformationContext) throws ReflectiveOperationException {
+        ModelBindingMetaData modelBindingMetaData = modelToModelBinding.get(model);
+        for (Map.Entry<Field, Object> binding : modelBindingMetaData.fieldToComponentMapping.entrySet()) {
+            final Field field = binding.getKey();
+            final Object component = binding.getValue();
+            final Method getterMethod = modelBindingMetaData.modelFieldToComponentGetterMapping.get(field);
+            Method addListener = component.getClass().getMethod("addListener", new Class[]{int.class, Listener.class});
+
+            addListener.invoke(component, SWT.Modify, new Listener() {
+                @Override
+                public void handleEvent(Event event) {
+                    boolean wasPublic = Modifier.isPublic(field.getModifiers());
+                    if (!wasPublic)
+                        field.setAccessible(true);
+                    try {
+                        field.set(model, fromComponentToModelValue((String) getterMethod.invoke(component), field.getType()));
+                    } catch (Exception e) {
+                        if (methodEventListenerExceptionHandler != null)
+                            methodEventListenerExceptionHandler.handleException(transformationContext.getShell(), e);
+                        else
+                            throw new RuntimeException("Transformer event delegation got an exception: " + e.getMessage(), e);
+                    } finally {
+                        if (!wasPublic)
+                            field.setAccessible(false);
+                    }
+                }
+            });
         }
     }
 
