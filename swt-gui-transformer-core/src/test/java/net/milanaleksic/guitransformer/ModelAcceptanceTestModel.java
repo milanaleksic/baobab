@@ -1,11 +1,16 @@
 package net.milanaleksic.guitransformer;
 
+import net.milanaleksic.guitransformer.model.TransformerProperty;
+
 /**
  * User: Milan Aleksic
  * Date: 8/7/12
  * Time: 2:14 PM
  */
 public class ModelAcceptanceTestModel {
+
+    @TransformerProperty("items")
+    private String[] aList;
 
     private int numericalValue;
 
@@ -25,5 +30,13 @@ public class ModelAcceptanceTestModel {
 
     public void setNumericalValue(int numericalValue) {
         this.numericalValue = numericalValue;
+    }
+
+    public String[] getaList() {
+        return aList;
+    }
+
+    public void setaList(String[] aList) {
+        this.aList = aList;
     }
 }

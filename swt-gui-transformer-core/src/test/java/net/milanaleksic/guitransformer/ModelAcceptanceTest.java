@@ -1,6 +1,7 @@
 package net.milanaleksic.guitransformer;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import net.milanaleksic.guitransformer.model.TransformerModel;
 import net.milanaleksic.guitransformer.test.GuiceRunner;
 import org.eclipse.swt.widgets.Text;
@@ -9,6 +10,9 @@ import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
 
+import java.util.Arrays;
+
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
@@ -35,6 +39,9 @@ public class ModelAcceptanceTest {
         assertThat(model.getNumericalValue(), equalTo(175));
         text1.setText("new value");
         assertThat(model.getText1(), equalTo("new value"));
+        model.setaList(new String[]{"1", "2", "3"});
+        assertThat(model.getaList(), notNullValue());
+        assertThat(Arrays.asList(model.getaList()), hasItems("1", "2", "3"));
     }
 
     @Test

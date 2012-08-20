@@ -6,6 +6,7 @@
         },
         "text(numericalValue)" : {
             "text" : "175"
-        }
+        },
+        "list(aList)" : {}
     }
 }
