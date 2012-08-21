@@ -288,23 +288,27 @@ class EmbeddingService {
         throw new TransformerException("Value transformation to model class " + targetClass + " not supported");
     }
 
-    public void updateFormFromModel(final Object model) throws TransformerException {
-        ModelBindingMetaData modelBindingMetaData = modelToModelBinding.get(model);
-        for (Map.Entry<Field, FieldMapping> binding : modelBindingMetaData.getFieldMapping().entrySet()) {
-            Field field = binding.getKey();
-            final FieldMapping fieldMapping = binding.getValue();
-            final Object component = fieldMapping.getComponent();
-            allowOperationOnField(field, new OperationOnField() {
-                @Override
-                public void operate(Field field) throws ReflectiveOperationException, TransformerException {
-                    Object modelValue = field.get(model);
-                    Preconditions.checkNotNull(modelValue);
-                    if (fieldMapping.getBindingType().equals(FieldMapping.BindingType.BY_REFERENCE))
-                        fieldMapping.getSetterMethod().invoke(component, modelValue);
-                    else
-                        fieldMapping.getSetterMethod().invoke(component, modelValue.toString());
-                }
-            });
+    public void updateFormFromModel(final Object model) {
+        try {
+            ModelBindingMetaData modelBindingMetaData = modelToModelBinding.get(model);
+            for (Map.Entry<Field, FieldMapping> binding : modelBindingMetaData.getFieldMapping().entrySet()) {
+                Field field = binding.getKey();
+                final FieldMapping fieldMapping = binding.getValue();
+                final Object component = fieldMapping.getComponent();
+                    allowOperationOnField(field, new OperationOnField() {
+                        @Override
+                        public void operate(Field field) throws ReflectiveOperationException, TransformerException {
+                            Object modelValue = field.get(model);
+                            Preconditions.checkNotNull(modelValue);
+                            if (fieldMapping.getBindingType().equals(FieldMapping.BindingType.BY_REFERENCE))
+                                fieldMapping.getSetterMethod().invoke(component, modelValue);
+                            else
+                                fieldMapping.getSetterMethod().invoke(component, modelValue.toString());
+                        }
+                    });
+            }
+        } catch (TransformerException e) {
+            throw new IllegalStateException("Unexpected error occurred when using invalid model", e);
         }
     }
 

@@ -111,7 +111,7 @@ public class Transformer {
         this.doNotCreateModalDialogs = doNotCreateModalDialogs;
     }
 
-    public void updateFormFromModel(Object model) throws TransformerException {
+    public void updateFormFromModel(Object model) {
         embeddingService.updateFormFromModel(model);
     }
 }
