@@ -1,0 +1,8 @@
+{
+    "_type" : "shell",
+    "_children" : {
+        "label()" : {
+            "__comment" : "Should fail since label is not named!"
+        }
+    }
+}

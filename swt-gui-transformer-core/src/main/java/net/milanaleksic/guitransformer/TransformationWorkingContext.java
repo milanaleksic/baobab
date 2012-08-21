@@ -61,7 +61,7 @@ class TransformationWorkingContext {
     }
 
     public void mapObject(String key, Object object) {
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(key));
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(key), "Object is not named");
         if (key.startsWith("_"))
             return;
         getRootMappedObjects().put(key, object);

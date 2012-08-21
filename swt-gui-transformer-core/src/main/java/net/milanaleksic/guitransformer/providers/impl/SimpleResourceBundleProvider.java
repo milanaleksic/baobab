@@ -11,10 +11,14 @@ import java.util.*;
  */
 public class SimpleResourceBundleProvider implements ResourceBundleProvider{
 
-    private final ResourceBundle resourceBundle;
+    private ResourceBundle resourceBundle = null;
 
     public SimpleResourceBundleProvider() {
-        resourceBundle = ResourceBundle.getBundle("messages", new Locale("en"));//NON-NLS
+        try {
+            resourceBundle = ResourceBundle.getBundle("messages", new Locale("en"));//NON-NLS
+        } catch (MissingResourceException exc) {
+            System.err.println("WARNING: Could not find the messages resource bundle");
+        }
     }
 
     @Override

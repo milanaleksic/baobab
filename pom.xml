@@ -4,7 +4,7 @@
     <groupId>net.milanaleksic</groupId>
     <artifactId>swt-gui-transformer</artifactId>
     <name>SWT GUI Transformer</name>
-    <version>0.1.7.2</version>
+    <version>0.2.0</version>
     <packaging>pom</packaging>
 
     <description>SWT GUI Transformer toolkit for building interfaces in SWT interactively</description>
@@ -32,7 +32,7 @@
     <properties>
         <sourceEncoding>UTF-8</sourceEncoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <swt.version>3.7.2</swt.version>
+        <swt.version>4.2</swt.version>
         <guava.version>11.0.2</guava.version>
         <jackson.version>1.9.0</jackson.version>
         <guice.version>3.0</guice.version>
@@ -41,6 +41,7 @@
     <modules>
         <module>swt-gui-transformer-core</module>
         <module>swt-gui-transformer-editor</module>
+        <module>swt-gui-transformer-samples</module>
     </modules>
 
     <build>

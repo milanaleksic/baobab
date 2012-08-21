@@ -2,8 +2,8 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.milanaleksic</groupId>
-    <artifactId>swt-gui-transformer-editor</artifactId>
-    <name>SWT GUI Transformer - Editor</name>
+    <artifactId>swt-gui-transformer-samples</artifactId>
+    <name>SWT GUI Transformer - Samples</name>
     <packaging>jar</packaging>
 
     <parent>
@@ -26,7 +26,6 @@
             <artifactId>guice-multibindings</artifactId>
             <version>${guice.version}</version>
         </dependency>
-
         <dependency>
             <groupId>net.milanaleksic</groupId>
             <artifactId>swt-gui-transformer-core</artifactId>

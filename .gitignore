@@ -11,6 +11,8 @@ out
 swt-gui-transformer-core/target/
 swt-gui-transformer-editor/target/
 target/
+*.ipr
+*.iws
 
 # maven release plugin #
 *.releaseBackup

@@ -1,0 +1,34 @@
+{
+    "_type" : "shell",
+    "_style" : "{dialog_trim}",
+    "_name" : "myFormShell",
+    "text" : "Simple username/password form",
+    "size" : "300,110",
+    "layout" : {
+        "_type" : "gridLayout",
+        "numColumns" : 2
+    },
+    "_children" : {
+        "label(_1)" : {
+            "text" : "User name:",
+            "layoutData" : "[gridData](end,center,true,false)"
+        },
+        "text(usernameBox, {border})" : {
+            "layoutData" : "[gridData](fill,center,true,false)"
+        },
+        "label(_2)" : {
+            "text" : "Password:",
+            "layoutData" : "[gridData](end,center,true,false)"
+        },
+        "text(passwordBox, {border}|{password})" : {
+            "layoutData" : "[gridData](fill,center,true,false)"
+        },
+        "button(btnLogin, {push})" : {
+            "text" : "Try to login",
+            "layoutData" : {
+                "_type" : "[gridData](center,center,true,false,2,1)",
+                "widthHint" : 150
+            }
+        }
+    }
+}
