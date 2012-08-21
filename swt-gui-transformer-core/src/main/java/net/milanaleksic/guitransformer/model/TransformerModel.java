@@ -1,0 +1,11 @@
+package net.milanaleksic.guitransformer.model;
+
+import java.lang.annotation.*;
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
+public @interface TransformerModel {
+
+    String value() default "";
+
+}
