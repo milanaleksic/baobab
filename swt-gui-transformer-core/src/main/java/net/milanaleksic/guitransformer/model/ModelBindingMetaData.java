@@ -7,6 +7,8 @@ import java.util.Map;
 
 public class ModelBindingMetaData {
 
+    private boolean formIsBeingUpdatedFromModelRightNow = false;
+
     private Map<Field, FieldMapping> fieldMapping = Maps.newHashMap();
 
     public ModelBindingMetaData() {
@@ -14,5 +16,21 @@ public class ModelBindingMetaData {
 
     public Map<Field, FieldMapping> getFieldMapping() {
         return fieldMapping;
+    }
+
+    @Override
+    public String toString() {
+        return "ModelBindingMetaData{" +
+                "formIsBeingUpdatedFromModelRightNow=" + formIsBeingUpdatedFromModelRightNow +
+                ", fieldMapping=" + fieldMapping +
+                '}';
+    }
+
+    public boolean isFormIsBeingUpdatedFromModelRightNow() {
+        return formIsBeingUpdatedFromModelRightNow;
+    }
+
+    public void setFormIsBeingUpdatedFromModelRightNow(boolean formIsBeingUpdatedFromModelRightNow) {
+        this.formIsBeingUpdatedFromModelRightNow = formIsBeingUpdatedFromModelRightNow;
     }
 }

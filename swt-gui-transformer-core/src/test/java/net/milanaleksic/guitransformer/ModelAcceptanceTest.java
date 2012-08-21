@@ -1,7 +1,6 @@
 package net.milanaleksic.guitransformer;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
 import net.milanaleksic.guitransformer.model.TransformerModel;
 import net.milanaleksic.guitransformer.test.GuiceRunner;
 import org.eclipse.swt.widgets.Text;
@@ -9,7 +8,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
-
 import java.util.Arrays;
 
 import static org.hamcrest.CoreMatchers.hasItems;
@@ -47,17 +45,19 @@ public class ModelAcceptanceTest {
     @Test
     public void from_model_to_form() throws TransformerException {
         final TransformationContext transformationContext = transformer.fillManagedForm(this);
-        Optional<Text> text = transformationContext.getMappedObject("text1");
-        final Text text1 = text.get();
+        Text text1 = transformationContext.<Text>getMappedObject("text1").get();
+        Text numericalValue = transformationContext.<Text>getMappedObject("numericalValue").get();
+
         assertThat(model, notNullValue());
         model.setText1("test value");
-        transformer.updateFormFromModel(model);
-        assertThat(text1.getText(), notNullValue());
-        assertThat(text1.getText(), equalTo("test value"));
+        model.setData("123");
         model.setNumericalValue(-293);
-        transformer.updateFormFromModel(model);
-        assertThat(model.getNumericalValue(), notNullValue());
-        assertThat(model.getNumericalValue(), equalTo(-293));
+        transformer.updateFormFromModel(model, transformationContext);
+
+        assertThat(text1.getText(), notNullValue());
+        assertThat(numericalValue.getText(), equalTo("-293"));
+        assertThat(text1.getData(), notNullValue());
+        assertThat(text1.getData().toString(), equalTo("123"));
     }
 
 }

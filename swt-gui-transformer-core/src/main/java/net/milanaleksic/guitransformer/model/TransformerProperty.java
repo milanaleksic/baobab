@@ -10,4 +10,6 @@ public @interface TransformerProperty {
 
     String value() default DEFAULT_PROPERTY_NAME;
 
+    String component() default "";
+
 }

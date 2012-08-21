@@ -9,6 +9,9 @@ import net.milanaleksic.guitransformer.model.TransformerProperty;
  */
 public class ModelAcceptanceTestModel {
 
+    @TransformerProperty(component = "text1", value = "data")
+    private Object data;
+
     @TransformerProperty("items")
     private String[] aList;
 
@@ -38,5 +41,13 @@ public class ModelAcceptanceTestModel {
 
     public void setaList(String[] aList) {
         this.aList = aList;
+    }
+
+    public Object getData() {
+        return data;
+    }
+
+    public void setData(Object data) {
+        this.data = data;
     }
 }

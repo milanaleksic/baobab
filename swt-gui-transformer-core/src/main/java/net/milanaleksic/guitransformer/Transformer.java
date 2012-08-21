@@ -32,15 +32,9 @@ public class Transformer {
 
     private boolean doNotCreateModalDialogs = false;
 
-    private MethodEventListenerExceptionHandler methodEventListenerExceptionHandler;
-
     public Transformer() {
         this.mapper = new ObjectMapper();
         this.mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
-    }
-
-    public void setMethodEventListenerExceptionHandler(MethodEventListenerExceptionHandler methodEventListenerExceptionHandler) {
-        this.methodEventListenerExceptionHandler = methodEventListenerExceptionHandler;
     }
 
     public TransformationContext createNonManagedForm(@Nullable Shell parent, String definition) throws TransformerException {
@@ -48,23 +42,14 @@ public class Transformer {
     }
 
     public TransformationContext fillManagedForm(Object formObject) throws TransformerException {
-        return this.fillManagedForm(null, formObject);
+        return createFormFromResource(null, formObject, getFullNameOfResource(formObject));
     }
 
     public TransformationContext fillManagedForm(@Nullable Shell parent, Object formObject) throws TransformerException {
-        String thisClassNameAsResourceLocation = formObject.getClass().getCanonicalName().replaceAll("\\.", "/");
-        String formName = "/" + thisClassNameAsResourceLocation + ".gui"; //NON-NLS
-
-        TransformationContext transformationContext = transformFromResourceName(parent, formName);
-        embeddingService.embed(formObject, transformationContext);
-        return transformationContext;
+        return createFormFromResource(parent, formObject, getFullNameOfResource(formObject));
     }
 
-    TransformationContext createFormFromResource(String fullName) throws TransformerException {
-        return transformFromResourceName(null, fullName);
-    }
-
-    private TransformationContext transformFromResourceName(@Nullable Shell parent, String fullName) throws TransformerException {
+    public TransformationContext createFormFromResource(@Nullable Shell parent, @Nullable Object formObject, String formFileFullName) throws TransformerException {
         TransformationWorkingContext context = new TransformationWorkingContext();
         InputStream resourceAsStream = null;
         try {
@@ -72,18 +57,25 @@ public class Transformer {
             context.setDoNotCreateModalDialogs(doNotCreateModalDialogs);
             context.setWorkItem(parent);
 
-            resourceAsStream = Transformer.class.getResourceAsStream(fullName);
+            resourceAsStream = Transformer.class.getResourceAsStream(formFileFullName);
             final JsonNode shellDefinition = mapper.readValue(resourceAsStream, JsonNode.class);
             context = objectConverter.createHierarchy(context, shellDefinition);
+            if (formObject != null)
+                embeddingService.embed(formObject, context);
             return context.createTransformationContext();
         } catch (IOException e) {
-            throw new TransformerException("IO Error while trying to find and parse required form: " + fullName, e);
+            throw new TransformerException("IO Error while trying to find and parse required form: " + formFileFullName, e);
         } finally {
             try {
                 if (resourceAsStream != null) resourceAsStream.close();
             } catch (Exception ignored) {
             }
         }
+    }
+
+    private String getFullNameOfResource(Object formObject) {
+        String thisClassNameAsResourceLocation = formObject.getClass().getCanonicalName().replaceAll("\\.", "/");
+        return "/" + thisClassNameAsResourceLocation + ".gui"; //NON-NLS
     }
 
     private void mapResourceBundleIfExists(TransformationWorkingContext context) {
@@ -111,7 +103,8 @@ public class Transformer {
         this.doNotCreateModalDialogs = doNotCreateModalDialogs;
     }
 
-    public void updateFormFromModel(Object model) {
-        embeddingService.updateFormFromModel(model);
+    public void updateFormFromModel(Object model, TransformationContext transformationContext) {
+        embeddingService.updateFormFromModel(model, transformationContext);
     }
+
 }

@@ -83,4 +83,14 @@ public class FieldMapping {
             return new FieldMapping(component, getterMethod, setterMethod, bindingType);
         }
     }
+
+    @Override
+    public String toString() {
+        return "FieldMapping{" +
+                "component=" + component +
+                ", getterMethod=" + getterMethod +
+                ", setterMethod=" + setterMethod +
+                ", bindingType=" + bindingType +
+                '}';
+    }
 }
