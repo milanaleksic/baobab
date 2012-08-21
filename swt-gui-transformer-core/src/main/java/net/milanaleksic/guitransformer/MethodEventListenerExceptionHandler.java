@@ -9,6 +9,6 @@ import org.eclipse.swt.widgets.Shell;
  */
 public interface MethodEventListenerExceptionHandler {
 
-    public void handleException(Object shell, Exception e);
+    public void handleException(Shell shell, Exception e);
 
 }

@@ -140,7 +140,7 @@ class EmbeddingService {
                         method.invoke(targetObject);
                 } catch (Exception e) {
                     if (methodEventListenerExceptionHandler != null)
-                        methodEventListenerExceptionHandler.handleException(transformationContext.getWorkItem(), e);
+                        methodEventListenerExceptionHandler.handleException((Shell)transformationContext.getWorkItem(), e);
                     else
                         throw new RuntimeException("Transformer event delegation got an exception: " + e.getMessage(), e);
                 } finally {
