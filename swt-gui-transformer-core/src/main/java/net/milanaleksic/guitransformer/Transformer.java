@@ -32,9 +32,15 @@ public class Transformer {
 
     private boolean doNotCreateModalDialogs = false;
 
+    private MethodEventListenerExceptionHandler methodEventListenerExceptionHandler;
+
     public Transformer() {
         this.mapper = new ObjectMapper();
         this.mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+    }
+
+    public void setMethodEventListenerExceptionHandler(MethodEventListenerExceptionHandler methodEventListenerExceptionHandler) {
+        this.methodEventListenerExceptionHandler = methodEventListenerExceptionHandler;
     }
 
     public TransformationContext createNonManagedForm(@Nullable Shell parent, String definition) throws TransformerException {
@@ -105,7 +111,7 @@ public class Transformer {
         this.doNotCreateModalDialogs = doNotCreateModalDialogs;
     }
 
-    public void updateFormFromModel(Object model) throws TransformerException {
+    public void updateFormFromModel(Object model) {
         embeddingService.updateFormFromModel(model);
     }
 }

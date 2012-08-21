@@ -1,5 +1,7 @@
 package net.milanaleksic.guitransformer;
 
+import org.eclipse.swt.SWT;
+
 import java.lang.annotation.*;
 
 /**
@@ -13,6 +15,6 @@ public @interface EmbeddedEventListener {
 
     String component() default "";
 
-    int event();
+    int event() default SWT.Selection;
 
 }
