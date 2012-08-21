@@ -3,8 +3,7 @@ package net.milanaleksic.guitransformer;
 import com.google.common.base.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import net.milanaleksic.guitransformer.model.TransformerModel;
-import net.milanaleksic.guitransformer.model.TransformerProperty;
+import net.milanaleksic.guitransformer.model.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.*;
 
@@ -15,25 +14,6 @@ import java.util.List;
 class EmbeddingService {
 
     private MethodEventListenerExceptionHandler methodEventListenerExceptionHandler;
-
-    private enum BindingType {BY_REFERENCE, CONVERSION}
-
-    private class FieldMapping {
-
-        private Object component;
-
-        private Method getterMethod;
-
-        private Method setterMethod;
-
-        private BindingType bindingType;
-    }
-
-    private class ModelBindingMetaData {
-
-        private Map<Field, FieldMapping> fieldMapping = Maps.newHashMap();
-
-    }
 
     private Map<Object, ModelBindingMetaData> modelToModelBinding = Maps.newHashMap();
 
@@ -48,7 +28,27 @@ class EmbeddingService {
         embedModels(formObject, transformationContext);
     }
 
-    private void embedComponents(Object targetObject, TransformationContext transformationContext) throws TransformerException {
+    private interface OperationOnField {
+        void operate(Field field) throws ReflectiveOperationException, TransformerException;
+    }
+
+    private void allowOperationOnField(Field field, OperationOnField operation) throws TransformerException {
+        boolean wasPublic = Modifier.isPublic(field.getModifiers());
+        if (!wasPublic)
+            field.setAccessible(true);
+        try {
+            operation.operate(field);
+        } catch (TransformerException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new TransformerException("Error while operating on field named " + field.getName(), e);
+        } finally {
+            if (!wasPublic)
+                field.setAccessible(false);
+        }
+    }
+
+    private void embedComponents(final Object targetObject, TransformationContext transformationContext) throws TransformerException {
         Field[] fields = targetObject.getClass().getDeclaredFields();
         for (Field field : fields) {
             EmbeddedComponent annotation = field.getAnnotation(EmbeddedComponent.class);
@@ -57,24 +57,19 @@ class EmbeddingService {
             String name = annotation.name();
             if (name.isEmpty())
                 name = field.getName();
-            Optional<Object> mappedObject = transformationContext.getMappedObject(name);
+            final Optional<Object> mappedObject = transformationContext.getMappedObject(name);
             if (!mappedObject.isPresent())
                 throw new IllegalStateException("Field marked as embedded could not be found: " + targetObject.getClass().getName() + "." + field.getName());
-            boolean wasPublic = Modifier.isPublic(field.getModifiers());
-            if (!wasPublic)
-                field.setAccessible(true);
-            try {
-                field.set(targetObject, mappedObject.get());
-            } catch (Exception e) {
-                throw new TransformerException("Error while embedding component field named " + field.getName(), e);
-            } finally {
-                if (!wasPublic)
-                    field.setAccessible(false);
-            }
+            allowOperationOnField(field, new OperationOnField() {
+                @Override
+                public void operate(Field field) throws ReflectiveOperationException {
+                    field.set(targetObject, mappedObject.get());
+                }
+            });
         }
     }
 
-    private void embedEventListenersAsFields(Object targetObject, TransformationContext transformationContext) throws TransformerException {
+    private void embedEventListenersAsFields(final Object targetObject, TransformationContext transformationContext) throws TransformerException {
         Field[] fields = targetObject.getClass().getDeclaredFields();
         for (Field field : fields) {
             List<EmbeddedEventListener> allListeners = Lists.newArrayList();
@@ -86,29 +81,20 @@ class EmbeddingService {
                 if (annotation != null)
                     allListeners.add(annotation);
             }
-            for (EmbeddedEventListener listenerAnnotation : allListeners) {
+            for (final EmbeddedEventListener listenerAnnotation : allListeners) {
                 String componentName = listenerAnnotation.component();
-                Optional<Object> mappedObject = componentName.isEmpty()
+                final Optional<Object> mappedObject = componentName.isEmpty()
                         ? Optional.<Object>of(transformationContext.getShell())
                         : transformationContext.getMappedObject(componentName);
                 if (!mappedObject.isPresent())
                     throw new IllegalStateException("Event source could not be found in the GUI definition: " + targetObject.getClass().getName() + "." + field.getName());
-                handleSingleEventToFieldListenerDelegation(targetObject, field, listenerAnnotation.event(), (Widget) mappedObject.get());
+                allowOperationOnField(field, new OperationOnField() {
+                    @Override
+                    public void operate(Field field) throws ReflectiveOperationException {
+                        ((Widget) mappedObject.get()).addListener(listenerAnnotation.event(), (Listener) field.get(targetObject));
+                    }
+                });
             }
-        }
-    }
-
-    private void handleSingleEventToFieldListenerDelegation(Object targetObject, Field field, int event, Widget mappedObject) throws TransformerException {
-        boolean wasPublic = Modifier.isPublic(field.getModifiers());
-        if (!wasPublic)
-            field.setAccessible(true);
-        try {
-            mappedObject.addListener(event, (Listener) field.get(targetObject));
-        } catch (Exception e) {
-            throw new TransformerException("Error while embedding component field named " + field.getName(), e);
-        } finally {
-            if (!wasPublic)
-                field.setAccessible(false);
         }
     }
 
@@ -168,25 +154,20 @@ class EmbeddingService {
         });
     }
 
-    private void embedModels(Object formObject, TransformationContext transformationContext) throws TransformerException {
+    private void embedModels(final Object formObject, final TransformationContext transformationContext) throws TransformerException {
         Field[] fields = formObject.getClass().getDeclaredFields();
         for (Field field : fields) {
             TransformerModel annotation = field.getAnnotation(TransformerModel.class);
             if (annotation == null)
                 continue;
-            boolean wasPublic = Modifier.isPublic(field.getModifiers());
-            if (!wasPublic)
-                field.setAccessible(true);
-            try {
-                Object model = field.getType().newInstance();
-                bindModel(model, transformationContext);
-                field.set(formObject, model);
-            } catch (Exception e) {
-                throw new TransformerException("Error while embedding model into field named " + field.getName(), e);
-            } finally {
-                if (!wasPublic)
-                    field.setAccessible(false);
-            }
+            allowOperationOnField(field, new OperationOnField() {
+                @Override
+                public void operate(Field field) throws ReflectiveOperationException, TransformerException {
+                    Object model = field.getType().newInstance();
+                    bindModel(model, transformationContext);
+                    field.set(formObject, model);
+                }
+            });
         }
     }
 
@@ -202,9 +183,9 @@ class EmbeddingService {
 
     private void mapOnChangeListeners(final Object model, final TransformationContext transformationContext) throws ReflectiveOperationException {
         final ModelBindingMetaData modelBindingMetaData = modelToModelBinding.get(model);
-        for (Map.Entry<Field, FieldMapping> mapping : modelBindingMetaData.fieldMapping.entrySet()) {
+        for (Map.Entry<Field, FieldMapping> mapping : modelBindingMetaData.getFieldMapping().entrySet()) {
             final Field field = mapping.getKey();
-            final Object component = mapping.getValue().component;
+            final Object component = mapping.getValue().getComponent();
             Method addListener = component.getClass().getMethod("addListener", new Class[]{int.class, Listener.class});
 
             addListener.invoke(component, SWT.Modify, new Listener() {
@@ -216,22 +197,21 @@ class EmbeddingService {
         }
     }
 
-    private void setModelFieldValue(Object model, Field field, Object component, ModelBindingMetaData modelBindingMetaData, TransformationContext transformationContext) {
-        boolean wasPublic = Modifier.isPublic(field.getModifiers());
-        if (!wasPublic)
-            field.setAccessible(true);
+    private void setModelFieldValue(final Object model, Field field, final Object component, final ModelBindingMetaData modelBindingMetaData, final TransformationContext transformationContext) {
         try {
-            FieldMapping fieldMapping = modelBindingMetaData.fieldMapping.get(field);
-            final Method getterMethod = fieldMapping.getterMethod;
-            if (fieldMapping.bindingType.equals(BindingType.BY_REFERENCE))
-                field.set(model, getterMethod.invoke(component));
-            else
-                field.set(model, convertFromComponentToModelValue((String) getterMethod.invoke(component), field.getType()));
+            allowOperationOnField(field, new OperationOnField() {
+                @Override
+                public void operate(Field field) throws ReflectiveOperationException, TransformerException {
+                    FieldMapping fieldMapping = modelBindingMetaData.getFieldMapping().get(field);
+                    final Method getterMethod = fieldMapping.getGetterMethod();
+                    if (fieldMapping.getBindingType().equals(FieldMapping.BindingType.BY_REFERENCE))
+                        field.set(model, getterMethod.invoke(component));
+                    else
+                        field.set(model, convertFromComponentToModelValue((String) getterMethod.invoke(component), field.getType()));
+                }
+            });
         } catch (Exception e) {
             handleException(e, transformationContext);
-        } finally {
-            if (!wasPublic)
-                field.setAccessible(false);
         }
     }
 
@@ -249,26 +229,26 @@ class EmbeddingService {
             String propertyNameSentenceCase = getPropertyNameSentenceCaseForModelField(field);
             String name = field.getName();
             try {
-                FieldMapping fieldMapping = new FieldMapping();
+                FieldMapping.FieldMappingBuilder builder = FieldMapping.builder();
                 Optional<Object> mappedObject = transformationContext.getMappedObject(name);
                 if (!mappedObject.isPresent())
                     throw new IllegalStateException("Field could not be found in form: " + model.getClass().getName() + "." + name);
-                fieldMapping.component = mappedObject.get();
+                builder.setComponent(mappedObject.get());
 
                 Method getterMethod = mappedObject.get().getClass().getDeclaredMethod("get" + propertyNameSentenceCase, new Class[0]);
                 if (field.getType().isAssignableFrom(getterMethod.getReturnType()))
-                    fieldMapping.bindingType = BindingType.BY_REFERENCE;
+                    builder.setBindingType(FieldMapping.BindingType.BY_REFERENCE);
                 else
-                    fieldMapping.bindingType = BindingType.CONVERSION;
+                    builder.setBindingType(FieldMapping.BindingType.CONVERSION);
 
-                fieldMapping.getterMethod = getterMethod;
+                builder.setGetterMethod(getterMethod);
                 try {
-                    fieldMapping.setterMethod = mappedObject.get().getClass().getDeclaredMethod("set" + propertyNameSentenceCase, new Class[]{field.getType()});
+                    builder.setSetterMethod(mappedObject.get().getClass().getDeclaredMethod("set" + propertyNameSentenceCase, new Class[]{field.getType()}));
                 } catch (NoSuchMethodException e) {
-                    fieldMapping.setterMethod = mappedObject.get().getClass().getDeclaredMethod("set" + propertyNameSentenceCase, new Class[]{String.class});
+                    builder.setSetterMethod(mappedObject.get().getClass().getDeclaredMethod("set" + propertyNameSentenceCase, new Class[]{String.class}));
                 }
 
-                bindingData.fieldMapping.put(field, fieldMapping);
+                bindingData.getFieldMapping().put(field, builder.build());
             } catch (Exception e) {
                 throw new TransformerException("Error while creating binding metadata for component field named " + name, e);
             }
@@ -291,9 +271,9 @@ class EmbeddingService {
 
     private void updateModelFromForm(Object model, TransformationContext transformationContext) throws ReflectiveOperationException, TransformerException {
         ModelBindingMetaData modelBindingMetaData = modelToModelBinding.get(model);
-        for (Map.Entry<Field, FieldMapping> binding : modelBindingMetaData.fieldMapping.entrySet()) {
+        for (Map.Entry<Field, FieldMapping> binding : modelBindingMetaData.getFieldMapping().entrySet()) {
             Field field = binding.getKey();
-            Object component = binding.getValue().component;
+            Object component = binding.getValue().getComponent();
             setModelFieldValue(model, field, component, modelBindingMetaData, transformationContext);
         }
     }
@@ -308,28 +288,23 @@ class EmbeddingService {
         throw new TransformerException("Value transformation to model class " + targetClass + " not supported");
     }
 
-    public void updateFormFromModel(Object model) throws TransformerException {
+    public void updateFormFromModel(final Object model) throws TransformerException {
         ModelBindingMetaData modelBindingMetaData = modelToModelBinding.get(model);
-        for (Map.Entry<Field, FieldMapping> binding : modelBindingMetaData.fieldMapping.entrySet()) {
+        for (Map.Entry<Field, FieldMapping> binding : modelBindingMetaData.getFieldMapping().entrySet()) {
             Field field = binding.getKey();
-            FieldMapping fieldMapping = binding.getValue();
-            Object component = fieldMapping.component;
-            boolean wasPublic = Modifier.isPublic(field.getModifiers());
-            if (!wasPublic)
-                field.setAccessible(true);
-            try {
-                Object modelValue = field.get(model);
-                Preconditions.checkNotNull(modelValue);
-                if (fieldMapping.bindingType.equals(BindingType.BY_REFERENCE))
-                    fieldMapping.setterMethod.invoke(component, modelValue);
-                else
-                    fieldMapping.setterMethod.invoke(component, modelValue.toString());
-            } catch (ReflectiveOperationException e) {
-                throw new TransformerException("Reflective exception occurred when mapping component from model", e);
-            } finally {
-                if (!wasPublic)
-                    field.setAccessible(false);
-            }
+            final FieldMapping fieldMapping = binding.getValue();
+            final Object component = fieldMapping.getComponent();
+            allowOperationOnField(field, new OperationOnField() {
+                @Override
+                public void operate(Field field) throws ReflectiveOperationException, TransformerException {
+                    Object modelValue = field.get(model);
+                    Preconditions.checkNotNull(modelValue);
+                    if (fieldMapping.getBindingType().equals(FieldMapping.BindingType.BY_REFERENCE))
+                        fieldMapping.getSetterMethod().invoke(component, modelValue);
+                    else
+                        fieldMapping.getSetterMethod().invoke(component, modelValue.toString());
+                }
+            });
         }
     }
 
