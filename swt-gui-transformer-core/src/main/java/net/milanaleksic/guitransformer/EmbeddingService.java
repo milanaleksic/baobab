@@ -20,9 +20,9 @@ class EmbeddingService {
 
     void embed(Object formObject, TransformationWorkingContext transformationContext) throws TransformerException {
         embedComponents(formObject, transformationContext);
+        embedModels(formObject, transformationContext);
         embedEventListenersAsFields(formObject, transformationContext);
         embedEventListenersAsMethods(formObject, transformationContext);
-        embedModels(formObject, transformationContext);
     }
 
     private interface OperationOnField {
