@@ -1,5 +1,6 @@
 package net.milanaleksic.guitransformer;
 
+import net.milanaleksic.guitransformer.model.TransformerIgnoredProperty;
 import net.milanaleksic.guitransformer.model.TransformerProperty;
 
 /**
@@ -15,9 +16,20 @@ public class ModelAcceptanceTestModel {
     @TransformerProperty("items")
     private String[] aList;
 
+    @TransformerIgnoredProperty
+    private String ignoredProperty;
+
     private int numericalValue;
 
     private String text1;
+
+    public String getIgnoredProperty() {
+        return ignoredProperty;
+    }
+
+    public void setIgnoredProperty(String ignoredProperty) {
+        this.ignoredProperty = ignoredProperty;
+    }
 
     public String getText1() {
         return text1;

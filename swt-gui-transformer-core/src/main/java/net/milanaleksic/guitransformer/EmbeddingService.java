@@ -227,9 +227,11 @@ class EmbeddingService {
         ModelBindingMetaData bindingData = new ModelBindingMetaData();
         Field[] fields = model.getClass().getDeclaredFields();
         for (Field field : fields) {
-            TransformerProperty annotation = field.getAnnotation(TransformerProperty.class);
-            String propertyNameSentenceCase = getPropertyNameSentenceCaseForModelField(annotation);
-            String name = annotation == null ? null : annotation.component();
+            if (field.getAnnotation(TransformerIgnoredProperty.class) != null)
+                continue;
+            TransformerProperty propertyAnnotation = field.getAnnotation(TransformerProperty.class);
+            String propertyNameSentenceCase = getPropertyNameSentenceCaseForModelField(propertyAnnotation);
+            String name = propertyAnnotation == null ? null : propertyAnnotation.component();
             if (Strings.isNullOrEmpty(name))
                 name = field.getName();
             try {
