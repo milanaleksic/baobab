@@ -229,42 +229,48 @@ class EmbeddingService {
         for (Field field : fields) {
             if (field.getAnnotation(TransformerIgnoredProperty.class) != null)
                 continue;
-            TransformerProperty propertyAnnotation = field.getAnnotation(TransformerProperty.class);
-            String propertyNameSentenceCase = getPropertyNameSentenceCaseForModelField(propertyAnnotation);
-            String name = propertyAnnotation == null ? null : propertyAnnotation.component();
-            if (Strings.isNullOrEmpty(name))
-                name = field.getName();
             try {
-                createSingleBindingMetaData(model, transformationContext, bindingData, field, propertyNameSentenceCase, name);
+                bindingData.getFieldMapping().put(field, createSingleBindingMetaData(field, model, transformationContext));
             } catch (TransformerException e) {
                 throw e;
             } catch (Exception e) {
-                throw new TransformerException("Error while creating binding metadata for component field named " + name, e);
+                throw new TransformerException("Error while creating binding metadata for component field " + field, e);
             }
         }
         return bindingData;
     }
 
-    private void createSingleBindingMetaData(Object model, TransformationWorkingContext transformationContext, ModelBindingMetaData bindingData, Field field, String propertyNameSentenceCase, String name) throws TransformerException, NoSuchMethodException {
+    private FieldMapping createSingleBindingMetaData(Field field, Object model, TransformationWorkingContext transformationContext) throws TransformerException, NoSuchMethodException {
+        TransformerProperty propertyAnnotation = field.getAnnotation(TransformerProperty.class);
+        String name = propertyAnnotation == null ? null : propertyAnnotation.component();
+        if (Strings.isNullOrEmpty(name))
+            name = field.getName();
+        String propertyNameSentenceCase = getPropertyNameSentenceCaseForModelField(propertyAnnotation);
+
         FieldMapping.FieldMappingBuilder builder = FieldMapping.builder();
+
         Object mappedObject = transformationContext.getMappedObject(name);
         if (mappedObject == null)
             throw new IllegalStateException("Field could not be found in form: " + model.getClass().getName() + "." + name);
         builder.setComponent(mappedObject);
 
         Method getterMethod = mappedObject.getClass().getMethod("get" + propertyNameSentenceCase, new Class[0]);
+        builder.setGetterMethod(getterMethod);
+
         if (field.getType().isAssignableFrom(getterMethod.getReturnType()))
             builder.setBindingType(FieldMapping.BindingType.BY_REFERENCE);
         else
             builder.setBindingType(FieldMapping.BindingType.CONVERSION);
 
-        builder.setGetterMethod(getterMethod);
-        try {
-            builder.setSetterMethod(mappedObject.getClass().getMethod("set" + propertyNameSentenceCase, new Class[]{field.getType()}));
-        } catch (NoSuchMethodException e) {
-            builder.setSetterMethod(mappedObject.getClass().getMethod("set" + propertyNameSentenceCase, new Class[]{String.class}));
+        boolean isReadOnly = propertyAnnotation != null && propertyAnnotation.readOnly();
+        if (!isReadOnly) {
+            try {
+                builder.setSetterMethod(mappedObject.getClass().getMethod("set" + propertyNameSentenceCase, new Class[]{field.getType()}));
+            } catch (NoSuchMethodException e) {
+                builder.setSetterMethod(mappedObject.getClass().getMethod("set" + propertyNameSentenceCase, new Class[]{String.class}));
+            }
         }
-        bindingData.getFieldMapping().put(field, builder.build());
+        return builder.build();
     }
 
     private String getPropertyNameSentenceCaseForModelField(TransformerProperty annotation) {
@@ -309,10 +315,13 @@ class EmbeddingService {
                     @Override
                     public void operate(Field field) throws ReflectiveOperationException, TransformerException {
                         Object modelValue = field.get(model);
+                        Method setterMethod = fieldMapping.getSetterMethod();
+                        if (setterMethod == null)
+                            return;
                         if (fieldMapping.getBindingType().equals(FieldMapping.BindingType.BY_REFERENCE))
-                            fieldMapping.getSetterMethod().invoke(component, modelValue);
+                            setterMethod.invoke(component, modelValue);
                         else
-                            fieldMapping.getSetterMethod().invoke(component, modelValue.toString());
+                            setterMethod.invoke(component, modelValue.toString());
                     }
                 });
             }

@@ -78,7 +78,7 @@ public class FieldMapping {
         public FieldMapping build() {
             Preconditions.checkNotNull(component);
             Preconditions.checkNotNull(getterMethod);
-            Preconditions.checkNotNull(setterMethod);
+            // setter method is allowed to be null
             Preconditions.checkNotNull(bindingType);
             return new FieldMapping(component, getterMethod, setterMethod, bindingType);
         }
