@@ -3,6 +3,7 @@ package net.milanaleksic.guitransformer.model;
 import com.google.common.base.Preconditions;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 public class FieldMapping {
 
@@ -19,11 +20,14 @@ public class FieldMapping {
 
     private final BindingType bindingType;
 
-    public FieldMapping(Object component, Method getterMethod, Method setterMethod, BindingType bindingType) {
+    private final int[] events;
+
+    public FieldMapping(Object component, Method getterMethod, Method setterMethod, BindingType bindingType, int[] events) {
         this.component = component;
         this.getterMethod = getterMethod;
         this.setterMethod = setterMethod;
         this.bindingType = bindingType;
+        this.events = events;
     }
 
     public Object getComponent() {
@@ -42,6 +46,10 @@ public class FieldMapping {
         return bindingType;
     }
 
+    public int[] getEvents() {
+        return events;
+    }
+
     public static FieldMappingBuilder builder() {
         return new FieldMappingBuilder();
     }
@@ -52,6 +60,7 @@ public class FieldMapping {
         private BindingType bindingType;
         private Method setterMethod;
         private Method getterMethod;
+        private int[] events;
 
         private FieldMappingBuilder() {}
 
@@ -76,11 +85,20 @@ public class FieldMapping {
         }
 
         public FieldMapping build() {
+            // setter method is allowed to be null
             Preconditions.checkNotNull(component);
             Preconditions.checkNotNull(getterMethod);
-            // setter method is allowed to be null
             Preconditions.checkNotNull(bindingType);
-            return new FieldMapping(component, getterMethod, setterMethod, bindingType);
+            Preconditions.checkNotNull(events);
+            return new FieldMapping(component, getterMethod, setterMethod, bindingType, events);
+        }
+
+        public void setEvents(int[] events) {
+            this.events = events;
+        }
+
+        public int[] getEvents() {
+            return events;
         }
     }
 
@@ -91,6 +109,7 @@ public class FieldMapping {
                 ", getterMethod=" + getterMethod +
                 ", setterMethod=" + setterMethod +
                 ", bindingType=" + bindingType +
+                ", events=" + Arrays.asList(events) +
                 '}';
     }
 }

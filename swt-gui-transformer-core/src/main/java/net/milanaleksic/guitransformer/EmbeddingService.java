@@ -1,9 +1,9 @@
 package net.milanaleksic.guitransformer;
 
+import com.google.common.base.Objects;
 import com.google.common.base.*;
 import com.google.common.collect.Lists;
 import net.milanaleksic.guitransformer.model.*;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.*;
 
 import java.lang.reflect.*;
@@ -182,17 +182,20 @@ class EmbeddingService {
         final ModelBindingMetaData modelBindingMetaData = transformationContext.getModelBinding(model);
         for (Map.Entry<Field, FieldMapping> mapping : modelBindingMetaData.getFieldMapping().entrySet()) {
             final Field field = mapping.getKey();
-            final Object component = mapping.getValue().getComponent();
+            FieldMapping fieldMapping = mapping.getValue();
+            final Object component = fieldMapping.getComponent();
             Method addListener = component.getClass().getMethod("addListener", new Class[]{int.class, Listener.class});
 
-            addListener.invoke(component, SWT.Modify, new Listener() {
-                @Override
-                public void handleEvent(Event event) {
-                    if (modelBindingMetaData.isFormIsBeingUpdatedFromModelRightNow())
-                        return;
-                    setModelFieldValue(model, field, component, modelBindingMetaData, transformationContext);
-                }
-            });
+            for (int eventType : fieldMapping.getEvents()) {
+                addListener.invoke(component, eventType, new Listener() {
+                    @Override
+                    public void handleEvent(Event event) {
+                        if (modelBindingMetaData.isFormIsBeingUpdatedFromModelRightNow())
+                            return;
+                        setModelFieldValue(model, field, component, modelBindingMetaData, transformationContext);
+                    }
+                });
+            }
         }
     }
 
@@ -256,6 +259,7 @@ class EmbeddingService {
 
         Method getterMethod = mappedObject.getClass().getMethod("get" + propertyNameSentenceCase, new Class[0]);
         builder.setGetterMethod(getterMethod);
+        builder.setEvents(propertyAnnotation == null ? TransformerPropertyConstants.DEFAULT_EVENTS : propertyAnnotation.events());
 
         if (field.getType().isAssignableFrom(getterMethod.getReturnType()))
             builder.setBindingType(FieldMapping.BindingType.BY_REFERENCE);
@@ -281,7 +285,7 @@ class EmbeddingService {
 
     private String getPropertyNameForModelField(TransformerProperty annotation) {
         if (annotation == null)
-            return TransformerProperty.DEFAULT_PROPERTY_NAME;
+            return TransformerPropertyConstants.DEFAULT_PROPERTY_NAME;
         return annotation.value();
     }
 
@@ -318,6 +322,14 @@ class EmbeddingService {
                         Method setterMethod = fieldMapping.getSetterMethod();
                         if (setterMethod == null)
                             return;
+                        Object currentValue = fieldMapping.getGetterMethod().invoke(component);
+                        if (modelValue.getClass().isArray()) {
+                            if (Arrays.hashCode((Object[])modelValue) == Arrays.hashCode((Object[])currentValue))
+                                return;
+                        } else {
+                            if (Objects.hashCode(modelValue) == Objects.hashCode(currentValue))
+                                return;
+                        }
                         if (fieldMapping.getBindingType().equals(FieldMapping.BindingType.BY_REFERENCE))
                             setterMethod.invoke(component, modelValue);
                         else
