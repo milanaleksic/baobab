@@ -302,10 +302,30 @@ class EmbeddingService {
         if (String.class.isAssignableFrom(targetClass))
             return value;
         else if (Long.class.isAssignableFrom(targetClass) || long.class.isAssignableFrom(targetClass))
-            return Long.parseLong(value, 10);
+            return safeLongValue(value);
         else if (Integer.class.isAssignableFrom(targetClass) || int.class.isAssignableFrom(targetClass))
-            return Integer.parseInt(value, 10);
+            return safeIntValue(value);
         throw new TransformerException("Value transformation to model class " + targetClass + " not supported");
+    }
+
+    private long safeLongValue(String value) {
+        if (Strings.isNullOrEmpty(value))
+            return -1L;
+        try {
+            return Long.parseLong(value, 10);
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
+    private int safeIntValue(String value) {
+        if (Strings.isNullOrEmpty(value))
+            return -1;
+        try {
+            return Integer.parseInt(value, 10);
+        } catch (Exception e) {
+            return -1;
+        }
     }
 
     public void updateFormFromModel(final Object model, TransformationContext transformationContext) {
