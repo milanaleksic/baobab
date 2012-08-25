@@ -1,9 +1,9 @@
 package net.milanaleksic.guitransformer;
 
+import com.google.common.base.Objects;
 import com.google.common.base.*;
 import com.google.common.collect.Lists;
 import net.milanaleksic.guitransformer.model.*;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.*;
 
 import java.lang.reflect.*;
@@ -20,9 +20,9 @@ class EmbeddingService {
 
     void embed(Object formObject, TransformationWorkingContext transformationContext) throws TransformerException {
         embedComponents(formObject, transformationContext);
+        embedModels(formObject, transformationContext);
         embedEventListenersAsFields(formObject, transformationContext);
         embedEventListenersAsMethods(formObject, transformationContext);
-        embedModels(formObject, transformationContext);
     }
 
     private interface OperationOnField {
@@ -140,7 +140,7 @@ class EmbeddingService {
                         method.invoke(targetObject);
                 } catch (Exception e) {
                     if (methodEventListenerExceptionHandler != null)
-                        methodEventListenerExceptionHandler.handleException(transformationContext.getWorkItem(), e);
+                        methodEventListenerExceptionHandler.handleException((Shell)transformationContext.getWorkItem(), e);
                     else
                         throw new RuntimeException("Transformer event delegation got an exception: " + e.getMessage(), e);
                 } finally {
@@ -182,17 +182,20 @@ class EmbeddingService {
         final ModelBindingMetaData modelBindingMetaData = transformationContext.getModelBinding(model);
         for (Map.Entry<Field, FieldMapping> mapping : modelBindingMetaData.getFieldMapping().entrySet()) {
             final Field field = mapping.getKey();
-            final Object component = mapping.getValue().getComponent();
+            FieldMapping fieldMapping = mapping.getValue();
+            final Object component = fieldMapping.getComponent();
             Method addListener = component.getClass().getMethod("addListener", new Class[]{int.class, Listener.class});
 
-            addListener.invoke(component, SWT.Modify, new Listener() {
-                @Override
-                public void handleEvent(Event event) {
-                    if (modelBindingMetaData.isFormIsBeingUpdatedFromModelRightNow())
-                        return;
-                    setModelFieldValue(model, field, component, modelBindingMetaData, transformationContext);
-                }
-            });
+            for (int eventType : fieldMapping.getEvents()) {
+                addListener.invoke(component, eventType, new Listener() {
+                    @Override
+                    public void handleEvent(Event event) {
+                        if (modelBindingMetaData.isFormIsBeingUpdatedFromModelRightNow())
+                            return;
+                        setModelFieldValue(model, field, component, modelBindingMetaData, transformationContext);
+                    }
+                });
+            }
         }
     }
 
@@ -227,42 +230,51 @@ class EmbeddingService {
         ModelBindingMetaData bindingData = new ModelBindingMetaData();
         Field[] fields = model.getClass().getDeclaredFields();
         for (Field field : fields) {
-            TransformerProperty annotation = field.getAnnotation(TransformerProperty.class);
-            String propertyNameSentenceCase = getPropertyNameSentenceCaseForModelField(annotation);
-            String name = annotation == null ? null : annotation.component();
-            if (Strings.isNullOrEmpty(name))
-                name = field.getName();
+            if (field.getAnnotation(TransformerIgnoredProperty.class) != null)
+                continue;
             try {
-                createSingleBindingMetaData(model, transformationContext, bindingData, field, propertyNameSentenceCase, name);
+                bindingData.getFieldMapping().put(field, createSingleBindingMetaData(field, model, transformationContext));
             } catch (TransformerException e) {
                 throw e;
             } catch (Exception e) {
-                throw new TransformerException("Error while creating binding metadata for component field named " + name, e);
+                throw new TransformerException("Error while creating binding metadata for component field " + field, e);
             }
         }
         return bindingData;
     }
 
-    private void createSingleBindingMetaData(Object model, TransformationWorkingContext transformationContext, ModelBindingMetaData bindingData, Field field, String propertyNameSentenceCase, String name) throws TransformerException, NoSuchMethodException {
+    private FieldMapping createSingleBindingMetaData(Field field, Object model, TransformationWorkingContext transformationContext) throws TransformerException, NoSuchMethodException {
+        TransformerProperty propertyAnnotation = field.getAnnotation(TransformerProperty.class);
+        String name = propertyAnnotation == null ? null : propertyAnnotation.component();
+        if (Strings.isNullOrEmpty(name))
+            name = field.getName();
+        String propertyNameSentenceCase = getPropertyNameSentenceCaseForModelField(propertyAnnotation);
+
         FieldMapping.FieldMappingBuilder builder = FieldMapping.builder();
+
         Object mappedObject = transformationContext.getMappedObject(name);
         if (mappedObject == null)
             throw new IllegalStateException("Field could not be found in form: " + model.getClass().getName() + "." + name);
         builder.setComponent(mappedObject);
 
         Method getterMethod = mappedObject.getClass().getMethod("get" + propertyNameSentenceCase, new Class[0]);
+        builder.setGetterMethod(getterMethod);
+        builder.setEvents(propertyAnnotation == null ? TransformerPropertyConstants.DEFAULT_EVENTS : propertyAnnotation.events());
+
         if (field.getType().isAssignableFrom(getterMethod.getReturnType()))
             builder.setBindingType(FieldMapping.BindingType.BY_REFERENCE);
         else
             builder.setBindingType(FieldMapping.BindingType.CONVERSION);
 
-        builder.setGetterMethod(getterMethod);
-        try {
-            builder.setSetterMethod(mappedObject.getClass().getMethod("set" + propertyNameSentenceCase, new Class[]{field.getType()}));
-        } catch (NoSuchMethodException e) {
-            builder.setSetterMethod(mappedObject.getClass().getMethod("set" + propertyNameSentenceCase, new Class[]{String.class}));
+        boolean isReadOnly = propertyAnnotation != null && propertyAnnotation.readOnly();
+        if (!isReadOnly) {
+            try {
+                builder.setSetterMethod(mappedObject.getClass().getMethod("set" + propertyNameSentenceCase, new Class[]{field.getType()}));
+            } catch (NoSuchMethodException e) {
+                builder.setSetterMethod(mappedObject.getClass().getMethod("set" + propertyNameSentenceCase, new Class[]{String.class}));
+            }
         }
-        bindingData.getFieldMapping().put(field, builder.build());
+        return builder.build();
     }
 
     private String getPropertyNameSentenceCaseForModelField(TransformerProperty annotation) {
@@ -273,7 +285,7 @@ class EmbeddingService {
 
     private String getPropertyNameForModelField(TransformerProperty annotation) {
         if (annotation == null)
-            return TransformerProperty.DEFAULT_PROPERTY_NAME;
+            return TransformerPropertyConstants.DEFAULT_PROPERTY_NAME;
         return annotation.value();
     }
 
@@ -290,10 +302,30 @@ class EmbeddingService {
         if (String.class.isAssignableFrom(targetClass))
             return value;
         else if (Long.class.isAssignableFrom(targetClass) || long.class.isAssignableFrom(targetClass))
-            return Long.parseLong(value, 10);
+            return safeLongValue(value);
         else if (Integer.class.isAssignableFrom(targetClass) || int.class.isAssignableFrom(targetClass))
-            return Integer.parseInt(value, 10);
+            return safeIntValue(value);
         throw new TransformerException("Value transformation to model class " + targetClass + " not supported");
+    }
+
+    private long safeLongValue(String value) {
+        if (Strings.isNullOrEmpty(value))
+            return -1L;
+        try {
+            return Long.parseLong(value, 10);
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
+    private int safeIntValue(String value) {
+        if (Strings.isNullOrEmpty(value))
+            return -1;
+        try {
+            return Integer.parseInt(value, 10);
+        } catch (Exception e) {
+            return -1;
+        }
     }
 
     public void updateFormFromModel(final Object model, TransformationContext transformationContext) {
@@ -307,10 +339,21 @@ class EmbeddingService {
                     @Override
                     public void operate(Field field) throws ReflectiveOperationException, TransformerException {
                         Object modelValue = field.get(model);
+                        Method setterMethod = fieldMapping.getSetterMethod();
+                        if (setterMethod == null)
+                            return;
+                        Object currentValue = fieldMapping.getGetterMethod().invoke(component);
+                        if (modelValue != null && modelValue.getClass().isArray()) {
+                            if (Arrays.hashCode((Object[])modelValue) == Arrays.hashCode((Object[])currentValue))
+                                return;
+                        } else {
+                            if (Objects.hashCode(modelValue) == Objects.hashCode(currentValue))
+                                return;
+                        }
                         if (fieldMapping.getBindingType().equals(FieldMapping.BindingType.BY_REFERENCE))
-                            fieldMapping.getSetterMethod().invoke(component, modelValue);
+                            setterMethod.invoke(component, modelValue);
                         else
-                            fieldMapping.getSetterMethod().invoke(component, modelValue.toString());
+                            setterMethod.invoke(component, modelValue == null ? null : modelValue.toString());
                     }
                 });
             }

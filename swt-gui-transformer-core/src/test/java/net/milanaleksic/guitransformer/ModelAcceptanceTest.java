@@ -14,6 +14,7 @@ import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 
 @RunWith(GuiceRunner.class)
 public class ModelAcceptanceTest {
@@ -35,11 +36,13 @@ public class ModelAcceptanceTest {
         assertThat(model.getText1(), equalTo("test value"));
         assertThat(model.getNumericalValue(), notNullValue());
         assertThat(model.getNumericalValue(), equalTo(175));
+        assertThat(model.getIgnoredProperty(), nullValue());
         text1.setText("new value");
         assertThat(model.getText1(), equalTo("new value"));
         model.setaList(new String[]{"1", "2", "3"});
         assertThat(model.getaList(), notNullValue());
         assertThat(Arrays.asList(model.getaList()), hasItems("1", "2", "3"));
+        assertThat(model.getIgnoredProperty(), nullValue());
     }
 
     @Test
@@ -52,12 +55,14 @@ public class ModelAcceptanceTest {
         model.setText1("test value");
         model.setData("123");
         model.setNumericalValue(-293);
+        model.setIgnoredProperty("test value");
         transformer.updateFormFromModel(model, transformationContext);
 
         assertThat(text1.getText(), notNullValue());
         assertThat(numericalValue.getText(), equalTo("-293"));
         assertThat(text1.getData(), notNullValue());
         assertThat(text1.getData().toString(), equalTo("123"));
+        assertThat(model.getIgnoredProperty(), equalTo("test value"));
     }
 
 }
