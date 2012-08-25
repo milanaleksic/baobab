@@ -2,6 +2,7 @@ package net.milanaleksic.guitransformer;
 
 import com.google.common.base.*;
 import com.google.common.collect.*;
+import net.milanaleksic.guitransformer.model.ModelBindingMetaData;
 import org.eclipse.swt.widgets.Shell;
 
 import javax.annotation.Nullable;
@@ -19,6 +20,8 @@ import java.util.Map;
 class TransformationWorkingContext {
 
     private final Map<String, Object> mappedObjects;
+
+    private final Map<Object, ModelBindingMetaData> modelToModelBinding = Maps.newHashMap();
 
     private boolean doNotCreateModalDialogs;
 
@@ -49,7 +52,15 @@ class TransformationWorkingContext {
 
     public TransformationContext createTransformationContext() {
         Preconditions.checkArgument(workItem instanceof Shell, "You can't create TransformationContext for a non-Shell hierarchy root, class="+workItem.getClass().getName());
-        return new TransformationContext((Shell) workItem, getMappedObjects());
+        return new TransformationContext((Shell) workItem, getMappedObjects(), modelToModelBinding);
+    }
+
+    public ModelBindingMetaData getModelBinding(Object model) {
+        return modelToModelBinding.get(model);
+    }
+
+    public void putModelBinding(Object model, ModelBindingMetaData metaData) {
+        modelToModelBinding.put(model, metaData);
     }
 
     public Object getMappedObject(String key) {

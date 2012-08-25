@@ -2,6 +2,7 @@ package net.milanaleksic.guitransformer;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
+import net.milanaleksic.guitransformer.model.ModelBindingMetaData;
 import org.eclipse.swt.widgets.Shell;
 
 import java.util.Map;
@@ -13,12 +14,15 @@ import java.util.Map;
  */
 public class TransformationContext {
 
+    private final Map<Object, ModelBindingMetaData> modelToModelBinding;
+
     private final Map<String, Object> mappedObjects;
 
     private final Shell shell;
 
-    public TransformationContext(Shell shell, Map<String, Object> mappedObjects) {
+    public TransformationContext(Shell shell, Map<String, Object> mappedObjects, Map<Object, ModelBindingMetaData> modelToModelBinding) {
         this.shell = shell;
+        this.modelToModelBinding = ImmutableMap.copyOf(modelToModelBinding);
         this.mappedObjects = ImmutableMap.copyOf(mappedObjects);
     }
 
@@ -37,5 +41,18 @@ public class TransformationContext {
 
     public Map<String, Object> getMappedObjects() {
         return ImmutableMap.copyOf(mappedObjects);
+    }
+
+    public ModelBindingMetaData getModelBindingFor(Object model) {
+        return modelToModelBinding.get(model);
+    }
+
+    @Override
+    public String toString() {
+        return "TransformationContext{" +
+                "modelToModelBinding=" + modelToModelBinding +
+                ", mappedObjects=" + mappedObjects +
+                ", shell=" + shell +
+                '}';
     }
 }
