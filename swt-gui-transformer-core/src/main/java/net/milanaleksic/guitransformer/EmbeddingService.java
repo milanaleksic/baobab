@@ -343,7 +343,7 @@ class EmbeddingService {
                         if (setterMethod == null)
                             return;
                         Object currentValue = fieldMapping.getGetterMethod().invoke(component);
-                        if (modelValue.getClass().isArray()) {
+                        if (modelValue != null && modelValue.getClass().isArray()) {
                             if (Arrays.hashCode((Object[])modelValue) == Arrays.hashCode((Object[])currentValue))
                                 return;
                         } else {
@@ -353,7 +353,7 @@ class EmbeddingService {
                         if (fieldMapping.getBindingType().equals(FieldMapping.BindingType.BY_REFERENCE))
                             setterMethod.invoke(component, modelValue);
                         else
-                            setterMethod.invoke(component, modelValue.toString());
+                            setterMethod.invoke(component, modelValue == null ? null : modelValue.toString());
                     }
                 });
             }
