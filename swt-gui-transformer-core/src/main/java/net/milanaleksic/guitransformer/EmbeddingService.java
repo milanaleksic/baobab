@@ -138,9 +138,14 @@ class EmbeddingService {
                         method.invoke(targetObject, event);
                     else
                         method.invoke(targetObject);
+                } catch (InvocationTargetException invocationException) {
+                    if (methodEventListenerExceptionHandler != null)
+                        methodEventListenerExceptionHandler.handleException((Shell) transformationContext.getWorkItem(), (Exception) invocationException.getCause());
+                    else
+                        throw new RuntimeException("Transformer event delegation got an exception: " + invocationException.getCause().getMessage(), invocationException.getCause());
                 } catch (Exception e) {
                     if (methodEventListenerExceptionHandler != null)
-                        methodEventListenerExceptionHandler.handleException((Shell)transformationContext.getWorkItem(), e);
+                        methodEventListenerExceptionHandler.handleException((Shell) transformationContext.getWorkItem(), e);
                     else
                         throw new RuntimeException("Transformer event delegation got an exception: " + e.getMessage(), e);
                 } finally {
@@ -344,7 +349,7 @@ class EmbeddingService {
                             return;
                         Object currentValue = fieldMapping.getGetterMethod().invoke(component);
                         if (modelValue != null && modelValue.getClass().isArray()) {
-                            if (Arrays.hashCode((Object[])modelValue) == Arrays.hashCode((Object[])currentValue))
+                            if (Arrays.hashCode((Object[]) modelValue) == Arrays.hashCode((Object[]) currentValue))
                                 return;
                         } else {
                             if (Objects.hashCode(modelValue) == Objects.hashCode(currentValue))
