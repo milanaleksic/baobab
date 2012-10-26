@@ -1,6 +1,5 @@
 package net.milanaleksic.guitransformer;
 
-import com.google.common.base.Objects;
 import com.google.common.base.*;
 import com.google.common.collect.Lists;
 import net.milanaleksic.guitransformer.model.*;
@@ -351,9 +350,10 @@ class EmbeddingService {
                         if (modelValue != null && modelValue.getClass().isArray()) {
                             if (Arrays.hashCode((Object[]) modelValue) == Arrays.hashCode((Object[]) currentValue))
                                 return;
-                        } else {
-                            if (Objects.hashCode(modelValue) == Objects.hashCode(currentValue))
-                                return;
+                        } else if (modelValue == null && currentValue == null) {
+                            return;
+                        } else if (modelValue != null && modelValue.equals(currentValue)) {
+                            return;
                         }
                         if (fieldMapping.getBindingType().equals(FieldMapping.BindingType.BY_REFERENCE))
                             setterMethod.invoke(component, modelValue);
