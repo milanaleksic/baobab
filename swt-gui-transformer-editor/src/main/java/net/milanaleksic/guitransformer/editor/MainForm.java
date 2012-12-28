@@ -67,9 +67,9 @@ public class MainForm {
 
     @EmbeddedEventListener(component = "editorDropTarget", event = DND.Drop)
     private void editorDropTargetDropListener(Event event) {
-        if (event.data instanceof String[]) {
+        if (event.data != null && event.data instanceof String[]) {
             String[] typedData = (String[]) event.data;
-            if (typedData != null && typedData.length > 0) {
+            if (typedData.length > 0) {
                 openFile(new File(typedData[0]));
             }
         }
@@ -233,6 +233,7 @@ public class MainForm {
                 event.doit = true;
                 break;
             case SWT.NO:
+            default:
                 event.doit = true;
                 break;
         }
@@ -319,7 +320,6 @@ public class MainForm {
             shell.open();
         } catch (TransformerException e) {
             e.printStackTrace();
-            System.exit(1);
         }
     }
 

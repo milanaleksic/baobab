@@ -27,7 +27,7 @@ public class FieldMapping {
         this.getterMethod = getterMethod;
         this.setterMethod = setterMethod;
         this.bindingType = bindingType;
-        this.events = events;
+        this.events = Arrays.copyOf(events, events.length);
     }
 
     public Object getComponent() {
@@ -47,7 +47,7 @@ public class FieldMapping {
     }
 
     public int[] getEvents() {
-        return events;
+        return Arrays.copyOf(events, events.length);
     }
 
     public static FieldMappingBuilder builder() {
@@ -94,11 +94,11 @@ public class FieldMapping {
         }
 
         public void setEvents(int[] events) {
-            this.events = events;
+            this.events = Arrays.copyOf(events, events.length);
         }
 
         public int[] getEvents() {
-            return events;
+            return Arrays.copyOf(events, events.length);
         }
     }
 
