@@ -366,3 +366,12 @@ footer p + p {
     content: 'at http://github.com/';
   }
 }
+
+div.gist table.highlight {
+  background: none;
+  color: #000000;
+  font-size: 12px;
+  margin-bottom: 0px;
+}
+
+
