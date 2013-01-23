@@ -9,6 +9,10 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.List;
 
+import net.milanaleksic.guitransformer.util.ObjectUtil.OperationOnField;
+import static net.milanaleksic.guitransformer.util.ObjectUtil.allowOperationOnField;
+
+
 class EmbeddingService {
 
     private MethodEventListenerExceptionHandler methodEventListenerExceptionHandler;
@@ -22,26 +26,6 @@ class EmbeddingService {
         embedModels(formObject, transformationContext);
         embedEventListenersAsFields(formObject, transformationContext);
         embedEventListenersAsMethods(formObject, transformationContext);
-    }
-
-    private interface OperationOnField {
-        void operate(Field field) throws ReflectiveOperationException, TransformerException;
-    }
-
-    private void allowOperationOnField(Field field, OperationOnField operation) throws TransformerException {
-        boolean wasPublic = Modifier.isPublic(field.getModifiers());
-        if (!wasPublic)
-            field.setAccessible(true);
-        try {
-            operation.operate(field);
-        } catch (TransformerException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new TransformerException("Error while operating on field named " + field.getName(), e);
-        } finally {
-            if (!wasPublic)
-                field.setAccessible(false);
-        }
     }
 
     private void embedComponents(final Object targetObject, TransformationWorkingContext transformationContext) throws TransformerException {

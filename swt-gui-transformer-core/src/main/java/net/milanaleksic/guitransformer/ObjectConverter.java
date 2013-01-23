@@ -3,7 +3,7 @@ package net.milanaleksic.guitransformer;
 import com.google.common.base.*;
 import com.google.common.collect.*;
 import net.milanaleksic.guitransformer.builders.BuilderContext;
-import net.milanaleksic.guitransformer.providers.ObjectProvider;
+import net.milanaleksic.guitransformer.providers.*;
 import net.milanaleksic.guitransformer.typed.*;
 import org.codehaus.jackson.*;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -13,7 +13,7 @@ import org.eclipse.swt.widgets.*;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
-import java.io.*;
+import java.io.IOException;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.List;
@@ -37,9 +37,6 @@ public class ObjectConverter implements Converter<Object> {
     private static final int DEFAULT_STYLE_SHELL = SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL;
     private static final int DEFAULT_STYLE_REST = SWT.NONE;
 
-    private static final String GUI_TRANSFORMER_SHORTCUTS_PROPERTIES = "/META-INF/guitransformer.shortcuts-default.properties"; //NON-NLS
-    private static final String GUI_TRANSFORMER_SHORTCUTS_EXTENSION_PROPERTIES = "/META-INF/guitransformer.shortcuts.properties"; //NON-NLS
-
     private static final String KEY_SPECIAL_TYPE = "_type"; //NON-NLS
     private static final String KEY_SPECIAL_CHILDREN = "_children"; //NON-NLS
     private static final String KEY_SPECIAL_NAME = "_name"; //NON-NLS
@@ -61,20 +58,17 @@ public class ObjectConverter implements Converter<Object> {
     private ObjectProvider objectProvider;
 
     @Inject
-    private ConverterFactory converterFactory;
-
-    private Map<String, Builder<?>> registeredBuilders;
-
-    private final ImmutableMap<String, Class<?>> registeredShortcuts;
+    private ConverterProvider converterProvider;
 
     @Inject
-    public void setRegisteredBuilders(Map<String, Builder<?>> registeredBuilders) {
-        this.registeredBuilders = registeredBuilders;
-    }
+    private BuilderProvider builderProvider;
+
+    @Inject
+    private ShortcutsProvider shortcutsProvider;
 
     private abstract class ObjectCreator {
 
-        protected abstract boolean isWidgetUsingBuilder(String key, JsonNode value) ;
+        protected abstract boolean isWidgetUsingBuilder(String key, JsonNode value);
 
         protected abstract TransformationWorkingContext createWidgetUsingBuilder(TransformationWorkingContext context, @Nullable String key, JsonNode value)
                 throws TransformerException;
@@ -123,7 +117,7 @@ public class ObjectConverter implements Converter<Object> {
         }
 
         protected Class<?> deduceClassFromNode(String classIdentifier) throws TransformerException {
-            Class<?> aClass = registeredShortcuts.get(classIdentifier);
+            Class<?> aClass = shortcutsProvider.provideClassForShortcut(classIdentifier);
             if (aClass != null)
                 return aClass;
             else
@@ -164,7 +158,7 @@ public class ObjectConverter implements Converter<Object> {
             if (objectDefinition.has(KEY_SPECIAL_STYLE)) {
                 JsonNode styleNode = objectDefinition.get(KEY_SPECIAL_STYLE);
                 IntegerConverter exactTypeConverter = (IntegerConverter)
-                        converterFactory.getExactTypeConverter(int.class).get();
+                        converterProvider.provideExactTypeConverterForClass(int.class).get();
                 style = exactTypeConverter.getValueFromString(styleNode.asText());
             }
 
@@ -224,7 +218,7 @@ public class ObjectConverter implements Converter<Object> {
             int style = widgetClass == Shell.class ? DEFAULT_STYLE_SHELL : DEFAULT_STYLE_REST;
             if (!Strings.isNullOrEmpty(styleDefinition)) {
                 IntegerConverter exactTypeConverter = (IntegerConverter)
-                        converterFactory.getExactTypeConverter(int.class).get();
+                        converterProvider.provideExactTypeConverterForClass(int.class).get();
                 style = exactTypeConverter.getValueFromString(styleDefinition);
             }
 
@@ -240,30 +234,10 @@ public class ObjectConverter implements Converter<Object> {
     public ObjectConverter() {
         this.mapper = new ObjectMapper();
         this.mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
-        registeredShortcuts = ImmutableMap.<String, Class<?>>builder()
-                .putAll(getStringToClassMappingFromPropertiesFile(GUI_TRANSFORMER_SHORTCUTS_PROPERTIES))
-                .putAll(getStringToClassMappingFromPropertiesFile(GUI_TRANSFORMER_SHORTCUTS_EXTENSION_PROPERTIES))
-                .build();
     }
 
     public TransformationWorkingContext createHierarchy(TransformationWorkingContext context, JsonNode shellDefinition) throws TransformerException {
         return new OldSchoolObjectCreator().create(context, null, shellDefinition);
-    }
-
-    private Map<? extends String, ? extends Class<?>> getStringToClassMappingFromPropertiesFile(String propertiesLocation) {
-        Map<String, Class<?>> ofTheJedi = new HashMap<>();
-        try (InputStream additionalShortcutsStream = ObjectConverter.class.getResourceAsStream(propertiesLocation)) {
-            if (additionalShortcutsStream == null)
-                return ofTheJedi;
-            final Properties properties = new Properties();
-            properties.load(additionalShortcutsStream);
-            for (Map.Entry entry : properties.entrySet()) {
-                ofTheJedi.put(entry.getKey().toString(), Class.forName(entry.getValue().toString()));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return ofTheJedi;
     }
 
     @Override
@@ -325,7 +299,7 @@ public class ObjectConverter implements Converter<Object> {
 
     private BuilderContext<?> constructObjectUsingBuilderNotation(TransformationWorkingContext context, String builderName, String parameters) throws TransformerException {
         final List<String> params = Lists.newArrayList(Splitter.on(",").trimResults().split(parameters));
-        final Builder<?> builder = registeredBuilders.get(builderName);
+        final Builder<?> builder = builderProvider.provideBuilderForName(builderName);
         if (builder == null)
             throw new TransformerException("Builder is not registered: " + builderName);
         return builder.create(context.getWorkItem(), params);
@@ -416,13 +390,13 @@ public class ObjectConverter implements Converter<Object> {
             Optional<Method> method = getSetterByName(context.getWorkItem(), getSetterForField(field.getKey()));
             if (method.isPresent()) {
                 Class<?> argType = method.get().getParameterTypes()[0];
-                Converter converter = converterFactory.getConverter(argType);
+                Converter converter = converterProvider.provideConverterForClass(argType);
                 safeCallInvoke(context, field, method, argType, converter);
             } else {
                 Optional<Field> fieldByName = getFieldByName(context.getWorkItem(), field.getKey());
                 if (fieldByName.isPresent()) {
                     Class<?> argType = fieldByName.get().getType();
-                    Converter converter = converterFactory.getConverter(argType);
+                    Converter converter = converterProvider.provideConverterForClass(argType);
                     safeCallSetField(context, field, fieldByName, converter);
                 } else
                     throw new TransformerException("No setter nor field " + field.getKey() + " could be found in class " + context.getWorkItem().getClass().getName() + "; context: " + field.getValue());

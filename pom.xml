@@ -36,6 +36,7 @@
         <guava.version>11.0.2</guava.version>
         <jackson.version>1.9.0</jackson.version>
         <guice.version>3.0</guice.version>
+        <spring.version>3.1.1.RELEASE</spring.version>
     </properties>
 
     <modules>

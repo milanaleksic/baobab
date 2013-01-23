@@ -14,8 +14,6 @@ import java.util.List;
  */
 public class LabelBuilder implements Builder<Label> {
 
-    public static final String BUILDER_NAME = "label";
-
     @Inject
     private IntegerConverter integerConverter;
 
