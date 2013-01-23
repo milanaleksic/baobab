@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.List;
 
 import net.milanaleksic.guitransformer.util.ObjectUtil.OperationOnField;
-import static net.milanaleksic.guitransformer.util.ObjectUtil.allowOperationOnField;
+import static net.milanaleksic.guitransformer.util.ObjectUtil.*;
 
 
 class EmbeddingService {
@@ -40,12 +40,7 @@ class EmbeddingService {
             final Object mappedObject = transformationContext.getMappedObject(name);
             if (mappedObject == null)
                 throw new IllegalStateException("Field marked as embedded could not be found: " + targetObject.getClass().getName() + "." + field.getName());
-            allowOperationOnField(field, new OperationOnField() {
-                @Override
-                public void operate(Field field) throws ReflectiveOperationException {
-                    field.set(targetObject, mappedObject);
-                }
-            });
+            setFieldValueOnObject(field, targetObject, mappedObject);
         }
     }
 
@@ -145,14 +140,14 @@ class EmbeddingService {
             TransformerModel annotation = field.getAnnotation(TransformerModel.class);
             if (annotation == null)
                 continue;
-            allowOperationOnField(field, new OperationOnField() {
-                @Override
-                public void operate(Field field) throws ReflectiveOperationException, TransformerException {
-                    Object model = field.getType().newInstance();
-                    bindModel(model, transformationContext);
-                    field.set(formObject, model);
-                }
-            });
+            Object model;
+            try {
+                model = field.getType().newInstance();
+            } catch (Exception e) {
+                throw new TransformerException("Could not create instance of model object using default constructor!");
+            }
+            bindModel(model, transformationContext);
+            setFieldValueOnObject(field, formObject, model);
         }
     }
 
@@ -189,17 +184,12 @@ class EmbeddingService {
 
     private void setModelFieldValue(final Object model, Field field, final Object component, final ModelBindingMetaData modelBindingMetaData, final TransformationWorkingContext transformationContext) {
         try {
-            allowOperationOnField(field, new OperationOnField() {
-                @Override
-                public void operate(Field field) throws ReflectiveOperationException, TransformerException {
-                    FieldMapping fieldMapping = modelBindingMetaData.getFieldMapping().get(field);
-                    final Method getterMethod = fieldMapping.getGetterMethod();
-                    if (fieldMapping.getBindingType().equals(FieldMapping.BindingType.BY_REFERENCE))
-                        field.set(model, getterMethod.invoke(component));
-                    else
-                        field.set(model, convertFromComponentToModelValue((String) getterMethod.invoke(component), field.getType()));
-                }
-            });
+            FieldMapping fieldMapping = modelBindingMetaData.getFieldMapping().get(field);
+            final Method getterMethod = fieldMapping.getGetterMethod();
+            if (fieldMapping.getBindingType().equals(FieldMapping.BindingType.BY_REFERENCE))
+                setFieldValueOnObject(field, model, getterMethod.invoke(component));
+            else
+                setFieldValueOnObject(field, model, convertFromComponentToModelValue((String) getterMethod.invoke(component), field.getType()));
         } catch (Exception e) {
             handleException(e, transformationContext);
         }

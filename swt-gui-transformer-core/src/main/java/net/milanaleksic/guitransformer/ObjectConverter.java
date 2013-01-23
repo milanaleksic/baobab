@@ -20,13 +20,14 @@ import java.util.List;
 import java.util.regex.*;
 
 import static com.google.common.base.Preconditions.checkState;
+import static net.milanaleksic.guitransformer.util.ObjectUtil.*;
 
 /**
  * User: Milan Aleksic
  * Date: 4/19/12
  * Time: 3:03 PM
  * <p/>
- * ObjectConverter's soul purpose is to convert object nodes to SWT objects
+ * ObjectConverter's sole purpose is to convert object nodes to SWT objects
  */
 public class ObjectConverter implements Converter<Object> {
 
@@ -241,33 +242,11 @@ public class ObjectConverter implements Converter<Object> {
     }
 
     @Override
-    public final void invoke(Method method, Object targetObject, JsonNode value, Map<String, Object> mappedObjects, Class<Object> argType) throws TransformerException {
-        try {
-            method.invoke(targetObject, getValueFromJson(targetObject, value, mappedObjects));
-        } catch (TransformerException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new TransformerException("Wrapped invoke failed: method=" + method +
-                    ", targetObject=" + targetObject + ", json=" + (value == null ? "<NULL>" : value.asText()) +
-                    ", argType=" + argType, e);
-        }
-    }
-
-    @Override
-    public final void setField(Field field, Object targetObject, JsonNode value, Map<String, Object> mappedObjects) throws TransformerException {
-        try {
-            final Object valueFromJson = getValueFromJson(targetObject, value, mappedObjects);
-            field.set(targetObject, valueFromJson);
-        } catch (IllegalAccessException e) {
-            throw new TransformerException("Wrapped setField failed: ", e);
-        }
-    }
-
-    @Override
     public void cleanUp() {
     }
 
-    private Object getValueFromJson(Object targetObject, JsonNode value, Map<String, Object> mappedObjects) throws TransformerException {
+    @Override
+    public Object getValueFromJson(Object targetObject, JsonNode value, Map<String, Object> mappedObjects) throws TransformerException {
         final TransformationWorkingContext transformationWorkingContext = new TransformationWorkingContext();
         transformationWorkingContext.setWorkItem(targetObject);
         transformationWorkingContext.mapAll(mappedObjects);
@@ -383,21 +362,25 @@ public class ObjectConverter implements Converter<Object> {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void transformSingleJsonNode(TransformationWorkingContext context, Map.Entry<String, JsonNode> field) throws TransformerException {
         try {
             if (SPECIAL_KEYS.contains(field.getKey()))
                 return;
+
             Optional<Method> method = getSetterByName(context.getWorkItem(), getSetterForField(field.getKey()));
             if (method.isPresent()) {
                 Class<?> argType = method.get().getParameterTypes()[0];
                 Converter converter = converterProvider.provideConverterForClass(argType);
-                safeCallInvoke(context, field, method, argType, converter);
+                Object value = converter.getValueFromJson(context.getWorkItem(), field.getValue(), context.getMappedObjects());
+                method.get().invoke(context.getWorkItem(), value);
             } else {
                 Optional<Field> fieldByName = getFieldByName(context.getWorkItem(), field.getKey());
                 if (fieldByName.isPresent()) {
                     Class<?> argType = fieldByName.get().getType();
                     Converter converter = converterProvider.provideConverterForClass(argType);
-                    safeCallSetField(context, field, fieldByName, converter);
+                    Object value = converter.getValueFromJson(context.getWorkItem(), field.getValue(), context.getMappedObjects());
+                    fieldByName.get().set(context.getWorkItem(), value);
                 } else
                     throw new TransformerException("No setter nor field " + field.getKey() + " could be found in class " + context.getWorkItem().getClass().getName() + "; context: " + field.getValue());
             }
@@ -406,46 +389,6 @@ public class ObjectConverter implements Converter<Object> {
         } catch (Throwable t) {
             throw new TransformerException("Transformation was not successful", t);
         }
-    }
-
-    @SuppressWarnings({"unchecked"})
-    private void safeCallSetField(TransformationWorkingContext context, Map.Entry<String, JsonNode> field, Optional<Field> fieldByName, Converter converter) throws TransformerException {
-        try {
-            converter.setField(fieldByName.get(), context.getWorkItem(), field.getValue(), context.getMappedObjects());
-        } catch (IncapableToExecuteTypedConversionException e) {
-            converter.setField(fieldByName.get(), context.getWorkItem(), field.getValue(), context.getMappedObjects());
-        }
-    }
-
-    @SuppressWarnings({"unchecked"})
-    private void safeCallInvoke(TransformationWorkingContext context, Map.Entry<String, JsonNode> field, Optional<Method> method, Class<?> argType, Converter converter) throws TransformerException {
-        try {
-            converter.invoke(method.get(), context.getWorkItem(), field.getValue(), context.getMappedObjects(), argType);
-        } catch (IncapableToExecuteTypedConversionException e) {
-            converter.invoke(method.get(), context.getWorkItem(), field.getValue(), context.getMappedObjects(), Object.class);
-        }
-    }
-
-    private Optional<Field> getFieldByName(Object object, String fieldName) {
-        for (Field field : object.getClass().getFields()) {
-            if (field.getName().equals(fieldName)) {
-                return Optional.of(field);
-            }
-        }
-        return Optional.absent();
-    }
-
-    private Optional<Method> getSetterByName(Object object, String setterName) {
-        for (Method method : object.getClass().getMethods()) {
-            if (method.getName().equals(setterName) && method.getParameterTypes().length == 1) {
-                return Optional.of(method);
-            }
-        }
-        return Optional.absent();
-    }
-
-    private String getSetterForField(String fieldName) {
-        return "set" + fieldName.substring(0, 1).toUpperCase(Locale.getDefault()) + fieldName.substring(1); //NON-NLS
     }
 
 }

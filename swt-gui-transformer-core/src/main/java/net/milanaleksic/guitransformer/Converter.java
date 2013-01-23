@@ -2,7 +2,6 @@ package net.milanaleksic.guitransformer;
 
 import org.codehaus.jackson.JsonNode;
 
-import java.lang.reflect.*;
 import java.util.Map;
 
 /**
@@ -12,9 +11,7 @@ import java.util.Map;
  */
 public interface Converter<T> {
 
-    void invoke(Method method, Object targetObject, JsonNode value, Map<String, Object> mappedObjects, Class<T> argType) throws TransformerException;
-
-    void setField(Field field, Object targetObject, JsonNode value, Map<String, Object> mappedObjects) throws TransformerException;
+    public Object getValueFromJson(Object targetObject, JsonNode value, Map<String, Object> mappedObjects) throws TransformerException;
 
     void cleanUp() ;
 
