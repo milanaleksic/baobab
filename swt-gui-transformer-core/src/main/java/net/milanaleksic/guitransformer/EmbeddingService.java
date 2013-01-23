@@ -348,7 +348,7 @@ class EmbeddingService {
                             return;
                         Object currentValue = fieldMapping.getGetterMethod().invoke(component);
                         if (modelValue != null && modelValue.getClass().isArray()) {
-                            if (Arrays.hashCode((Object[]) modelValue) == Arrays.hashCode((Object[]) currentValue))
+                            if (Arrays.equals((Object[]) modelValue, (Object[]) currentValue))
                                 return;
                         } else if (modelValue == null && currentValue == null) {
                             return;
