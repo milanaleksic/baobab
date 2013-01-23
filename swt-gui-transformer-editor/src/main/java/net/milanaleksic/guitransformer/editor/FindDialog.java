@@ -61,7 +61,6 @@ public class FindDialog {
             return text;
         } catch (TransformerException e) {
             e.printStackTrace();
-            System.exit(1);
             return null;
         }
     }

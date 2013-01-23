@@ -263,7 +263,9 @@ class EmbeddingService {
 
         Method getterMethod = mappedObject.getClass().getMethod("get" + propertyNameSentenceCase, new Class[0]);
         builder.setGetterMethod(getterMethod);
-        builder.setEvents(propertyAnnotation == null ? TransformerPropertyConstants.DEFAULT_EVENTS : propertyAnnotation.events());
+        builder.setEvents(propertyAnnotation == null
+                ? new int[]{ TransformerPropertyConstants.DEFAULT_EVENT }
+                : propertyAnnotation.events());
 
         if (field.getType().isAssignableFrom(getterMethod.getReturnType()))
             builder.setBindingType(FieldMapping.BindingType.BY_REFERENCE);

@@ -251,9 +251,8 @@ public class ObjectConverter implements Converter<Object> {
     }
 
     private Map<? extends String, ? extends Class<?>> getStringToClassMappingFromPropertiesFile(String propertiesLocation) {
-        Map<String, Class<?>> ofTheJedi = new HashMap<String, Class<?>>();
-        try {
-            final InputStream additionalShortcutsStream = ObjectConverter.class.getResourceAsStream(propertiesLocation);
+        Map<String, Class<?>> ofTheJedi = new HashMap<>();
+        try (InputStream additionalShortcutsStream = ObjectConverter.class.getResourceAsStream(propertiesLocation)) {
             if (additionalShortcutsStream == null)
                 return ofTheJedi;
             final Properties properties = new Properties();
@@ -344,9 +343,9 @@ public class ObjectConverter implements Converter<Object> {
         if (chosenConstructor.getParameterTypes().length == 0)
             return chosenConstructor.newInstance();
         if (Device.class.isAssignableFrom(chosenConstructor.getParameterTypes()[0])) {
+            if (parent == null)
+                throw new TransformerException("Null parent widget detected! widgetClass=" + widgetClass);
             final Widget parentAsWidget = (Widget) parent;
-            if (parentAsWidget == null)
-                throw new TransformerException("Null parent widget detected! parent=" + parent + ", widgetClass=" + widgetClass);
             return chosenConstructor.newInstance(parentAsWidget.getDisplay(), style);
         } else
             return chosenConstructor.newInstance(parent, style);

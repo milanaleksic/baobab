@@ -40,7 +40,6 @@ public class ErrorDialog {
             shell.open();
         } catch (TransformerException e) {
             e.printStackTrace();
-            System.exit(1);
         }
     }
 
