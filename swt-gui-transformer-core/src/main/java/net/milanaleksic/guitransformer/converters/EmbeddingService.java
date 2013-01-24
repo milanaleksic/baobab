@@ -9,6 +9,7 @@ import net.milanaleksic.guitransformer.util.ObjectUtil.*;
 import net.sf.cglib.proxy.*;
 import org.eclipse.swt.widgets.*;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.List;
@@ -192,7 +193,7 @@ class EmbeddingService {
                 return input.getName();
             }
         });
-        return ImmutableSet.copyOf(Iterables.transform(Iterables.filter(bindingMetaData.getFieldMapping().keySet(), new Predicate<Field>() {
+        return ImmutableSet.copyOf(Iterables.concat(Iterables.transform(Iterables.filter(bindingMetaData.getFieldMapping().keySet(), new Predicate<Field>() {
             @Override
             public boolean apply(Field input) {
                 return input.getAnnotation(TransformerIgnoredProperty.class) == null &&
@@ -203,7 +204,12 @@ class EmbeddingService {
             public Method apply(Field input) {
                 return methods.get(ObjectUtil.getSetterForField(input.getName()));
             }
-        }));
+        }), Iterables.filter(methods.values(), new Predicate<Method>() {
+            @Override
+            public boolean apply(Method method) {
+                return method.getAnnotation(TransformerFireUpdate.class) != null;
+            }
+        })));
     }
 
     private void mapOnChangeListeners(final Object model, final TransformationWorkingContext transformationContext) throws ReflectiveOperationException {
