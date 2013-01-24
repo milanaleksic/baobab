@@ -7,9 +7,6 @@ import org.eclipse.swt.widgets.Event;
 
 import javax.inject.Inject;
 
-import static net.milanaleksic.guitransformer.editor.DialogHelper.BlockingMode.NON_BLOCKING;
-
-
 /**
  * User: Milan Aleksic
  * Date: 5/14/12
@@ -29,8 +26,8 @@ public class ErrorDialog {
     }
 
     public void showMessage(final String stackTrace) {
+        dialogHelper.bootUpDialog(this);
         model.setText(stackTrace);
-        dialogHelper.bootUpDialog(this, NON_BLOCKING);
     }
 
 }

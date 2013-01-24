@@ -7,8 +7,6 @@ import org.eclipse.swt.widgets.*;
 
 import javax.inject.Inject;
 
-import static net.milanaleksic.guitransformer.editor.DialogHelper.BlockingMode.BLOCKING;
-
 /**
  * User: Milan Aleksic
  * Date: 5/14/12
@@ -18,8 +16,6 @@ public class FindDialog {
 
     @Inject
     private DialogHelper dialogHelper;
-
-    private boolean accepted;
 
     @TransformerModel(observe = true)
     private FindDialogModel model;
@@ -31,7 +27,7 @@ public class FindDialog {
 
     @EmbeddedEventListener(component = "btnAccept")
     private void btnAcceptSelectionListener() {
-        accepted = true;
+        model.setAccepted(true);
         Display.getDefault().getActiveShell().close();
     }
 
@@ -41,9 +37,10 @@ public class FindDialog {
     }
 
     public String getSearchString() {
-        accepted = false;
-        dialogHelper.bootUpDialog(this, BLOCKING);
-        return accepted ? model.getSearchText() : null;
+        Shell shell = dialogHelper.bootUpDialog(this);
+        model.setAccepted(false);
+        dialogHelper.blockUntilClosed(shell);
+        return model.isAccepted() ? model.getSearchText() : null;
     }
 
 }

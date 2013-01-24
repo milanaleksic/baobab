@@ -1,6 +1,7 @@
 package net.milanaleksic.guitransformer.editor;
 
 import com.google.common.base.*;
+import com.google.common.collect.Maps;
 import net.milanaleksic.guitransformer.*;
 import net.milanaleksic.guitransformer.model.TransformerModel;
 import net.milanaleksic.guitransformer.providers.ResourceBundleProvider;
@@ -43,13 +44,6 @@ public class MainForm {
     @TransformerModel(observe = true)
     private MainFormModel model;
 
-    /* editing context */
-    private Shell currentShell = null;
-    private File currentFile = null;
-    private boolean modified = false;
-    private Exception lastException = null;
-    private String lastSearchString = null;
-
     /* editor's own context */
     private Shell shell;
     private ResourceBundle resourceBundle;
@@ -64,13 +58,14 @@ public class MainForm {
         }
     }
 
+    @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
     @EmbeddedEventListener(component = "infoLabel", event = SWT.MouseDown)
     private void infoLabelMouseDownListener() {
-        if (lastException == null)
+        if (model.getLastException() == null)
             return;
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
-        lastException.printStackTrace(pw);
+        model.getLastException().printStackTrace(pw);
         errorDialog.showMessage(sw.toString());
     }
 
@@ -78,7 +73,7 @@ public class MainForm {
 
         @Override
         public void handleEvent(Event event) {
-            showInformation("", null);
+            model.showInformation("", null);
             String text = editor.getText();
             if (Strings.isNullOrEmpty(text))
                 return;
@@ -90,28 +85,30 @@ public class MainForm {
                 removePreviousShell();
 
                 setSizeOverride(newShell);
-                currentShell = newShell;
-                currentShell.open();
+                model.setCurrentShell(newShell);
+                newShell.open();
 
                 ((Control)event.widget).setFocus();
 
                 model.setActiveWidgets(nonManagedForm.getMappedObjects());
-
-                modified = true;
             } catch (TransformerException e) {
-                showInformation(String.format(resourceBundle.getString("mainForm.transformationError"), e.getMessage()), e);
+                model.clearActiveWidgets();
+                model.showInformation(String.format(resourceBundle.getString("mainForm.transformationError"), e.getMessage()), e);
             } catch (Exception e) {
-                showInformation(resourceBundle.getString("mainForm.error"), e);
+                model.clearActiveWidgets();
+                model.showInformation(resourceBundle.getString("mainForm.error"), e);
+            } finally {
+                model.setModified(true);
             }
         }
 
         private void removePreviousShell() {
-            if (currentShell == null)
+            if (model.getCurrentShell() == null)
                 return;
-            Shell shell = currentShell;
+            Shell shell = model.getCurrentShell();
             if (!shell.isDisposed())
                 shell.dispose();
-            currentShell = null;
+            model.setCurrentShell(null);
         }
 
         private void setSizeOverride(Shell shell) {
@@ -201,7 +198,7 @@ public class MainForm {
 
     @EmbeddedEventListener(component = "shell", event = SWT.Close)
     private void shellCloseListener(Event event) {
-        if (!modified)
+        if (!model.isModified())
             return;
         int style = SWT.APPLICATION_MODAL | SWT.YES | SWT.NO | SWT.CANCEL | SWT.ICON_QUESTION;
         MessageBox messageBox = new MessageBox(shell, style);
@@ -238,6 +235,7 @@ public class MainForm {
     }
 
     private void saveCurrentDocument() {
+        final File currentFile = model.getCurrentFile();
         if (currentFile == null && editor.getText().trim().length() == 0)
             return;
         if (currentFile == null) {
@@ -250,7 +248,7 @@ public class MainForm {
             e.printStackTrace();
             showError(String.format(resourceBundle.getString("mainForm.ioError.save"), currentFile.getAbsolutePath()));
         }
-        modified = false;
+        model.setModified(false);
     }
 
     private void saveDocumentAs() {
@@ -262,13 +260,6 @@ public class MainForm {
             return;
         setCurrentFile(new File(selectedFile));
         saveCurrentDocument();
-    }
-
-    private void showInformation(String infoText, @Nullable Exception exception) {
-        infoText = infoText.replaceAll("\r", "");
-        infoText = infoText.replaceAll("\n", "");
-        model.setInfoText(infoText);
-        lastException = exception;
     }
 
     private void showError(String errorMessage) {
@@ -283,13 +274,13 @@ public class MainForm {
     }
 
     private void setCurrentFile(@Nullable File file) {
-        this.currentFile = file;
+        model.setCurrentFile(file);
         shell.setText(String.format("%s - [%s]",  //NON-NLS
                 resourceBundle.getString("mainForm.title"),
-                currentFile == null
+                file == null
                         ? resourceBundle.getString("mainForm.newFile")
-                        : currentFile.getName()));
-        modified = false;
+                        : file.getName()));
+        model.setModified(false);
     }
 
     public void init() {
@@ -326,32 +317,32 @@ public class MainForm {
     }
 
     private void findText() {
-        lastSearchString = findDialog.getSearchString();
+        model.setLastSearchString(findDialog.getSearchString());
         executeSearch();
     }
 
     private void findNext() {
-        if (lastSearchString == null)
-            lastSearchString = findDialog.getSearchString();
+        if (model.getLastSearchString() == null)
+            model.setLastSearchString(findDialog.getSearchString());
         executeSearch();
     }
 
     private void executeSearch() {
-        if (lastSearchString == null)
+        if (model.getLastSearchString() == null)
             return;
         try {
-            showInformation("", null);
+            model.showInformation("", null);
             int caretOffset = editor.getCaretOffset();
-            int loc = editor.getText().indexOf(lastSearchString, caretOffset);
+            int loc = editor.getText().indexOf(model.getLastSearchString(), caretOffset);
             if (loc == -1) {
-                showInformation(resourceBundle.getString("mainForm.find.noMore"), null);
-                loc = editor.getText().indexOf(lastSearchString, 0);
+                model.showInformation(resourceBundle.getString("mainForm.find.noMore"), null);
+                loc = editor.getText().indexOf(model.getLastSearchString(), 0);
             }
             if (loc == -1) {
-                showInformation(resourceBundle.getString("mainForm.find.noMoreForSure"), null);
+                model.showInformation(resourceBundle.getString("mainForm.find.noMoreForSure"), null);
                 return;
             }
-            editor.setSelection(loc, loc + lastSearchString.length());
+            editor.setSelection(loc, loc + model.getLastSearchString().length());
         } catch (Throwable t) {
             t.printStackTrace();
             showError(t.getMessage());

@@ -12,33 +12,32 @@ import javax.inject.Inject;
  */
 public class DialogHelper {
 
-    public enum BlockingMode {
-        BLOCKING, NON_BLOCKING
-    }
-
     @Inject
     private Transformer transformer;
 
     @Inject
     private MainForm mainForm;
 
-    public void bootUpDialog(Object dialog, BlockingMode blockingMode) {
+    public Shell bootUpDialog(Object dialog) {
         try {
             final TransformationContext transformationContext = transformer.fillManagedForm(mainForm.getShell(), dialog);
             final Shell shell = transformationContext.getShell();
 
             shell.open();
 
-            if (blockingMode == BlockingMode.BLOCKING) {
-                Display display = shell.getDisplay();
-                while (!shell.isDisposed()) {
-                    if (!display.readAndDispatch()) {
-                        display.sleep();
-                    }
-                }
-            }
+            return shell;
         } catch (TransformerException e) {
             e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void blockUntilClosed(Shell shell) {
+        Display display = shell.getDisplay();
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch()) {
+                display.sleep();
+            }
         }
     }
 
