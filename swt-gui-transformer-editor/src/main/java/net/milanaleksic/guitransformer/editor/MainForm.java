@@ -2,6 +2,7 @@ package net.milanaleksic.guitransformer.editor;
 
 import com.google.common.base.*;
 import net.milanaleksic.guitransformer.*;
+import net.milanaleksic.guitransformer.model.TransformerModel;
 import net.milanaleksic.guitransformer.providers.ResourceBundleProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
@@ -39,20 +40,8 @@ public class MainForm {
     @EmbeddedComponent
     private StyledText editor;
 
-    @EmbeddedComponent
-    private Label infoLabel;
-
-    @EmbeddedComponent
-    private Text textWidth;
-
-    @EmbeddedComponent
-    private Text textHeight;
-
-    @EmbeddedComponent
-    private org.eclipse.swt.widgets.List contextWidgets;
-
-    @EmbeddedComponent
-    private Label caretPositionLabel;
+    @TransformerModel(observe = true)
+    private MainFormModel model;
 
     /* editing context */
     private Shell currentShell = null;
@@ -106,7 +95,7 @@ public class MainForm {
 
                 ((Control)event.widget).setFocus();
 
-                updateAvailableWidgets(nonManagedForm);
+                model.setActiveWidgets(nonManagedForm.getMappedObjects());
 
                 modified = true;
             } catch (TransformerException e) {
@@ -126,8 +115,8 @@ public class MainForm {
         }
 
         private void setSizeOverride(Shell shell) {
-            final String width = textWidth.getText();
-            final String height = textHeight.getText();
+            final String width = model.getWidthText();
+            final String height = model.getHeightText();
             if (Strings.isNullOrEmpty(width) || Strings.isNullOrEmpty(height))
                 return;
             try {
@@ -141,12 +130,6 @@ public class MainForm {
             }
         }
 
-        private void updateAvailableWidgets(TransformationContext nonManagedForm) {
-            contextWidgets.setItems(new String[]{});
-            for (Map.Entry<String, Object> entry : nonManagedForm.getMappedObjects().entrySet()) {
-                contextWidgets.add(String.format("[%s] - %s", entry.getKey(), entry.getValue().getClass().getName()));
-            }
-        }
     }
 
     @EmbeddedEventListeners({
@@ -284,7 +267,7 @@ public class MainForm {
     private void showInformation(String infoText, @Nullable Exception exception) {
         infoText = infoText.replaceAll("\r", "");
         infoText = infoText.replaceAll("\n", "");
-        infoLabel.setText(infoText);
+        model.setInfoText(infoText);
         lastException = exception;
     }
 
@@ -337,7 +320,7 @@ public class MainForm {
     private void refreshCaretPositionInformation() {
         final int caretOffset = editor.getCaretOffset();
         final int line = editor.getLineAtOffset(caretOffset);
-        caretPositionLabel.setText(String.format("%dx%d",
+        model.setCaretPositionText(String.format("%dx%d",
                 line + 1,
                 caretOffset - editor.getContent().getOffsetAtLine(line) + 1));
     }
@@ -358,8 +341,8 @@ public class MainForm {
             return;
         try {
             showInformation("", null);
-            int carretOffset = editor.getCaretOffset();
-            int loc = editor.getText().indexOf(lastSearchString, carretOffset);
+            int caretOffset = editor.getCaretOffset();
+            int loc = editor.getText().indexOf(lastSearchString, caretOffset);
             if (loc == -1) {
                 showInformation(resourceBundle.getString("mainForm.find.noMore"), null);
                 loc = editor.getText().indexOf(lastSearchString, 0);

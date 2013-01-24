@@ -4,6 +4,7 @@ import com.google.common.base.*;
 import com.google.common.collect.Iterables;
 import net.milanaleksic.guitransformer.TransformerException;
 
+import javax.annotation.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
@@ -67,7 +68,9 @@ public class ObjectUtil {
     public static Iterable<Field> getFieldsWithAnnotation(Class<?> clazz, final Class<? extends Annotation> annotation) {
         return Iterables.filter(Arrays.asList(clazz.getDeclaredFields()), new Predicate<Field>() {
             @Override
-            public boolean apply(Field field) {
+            public boolean apply(@Nullable Field field) {
+                if (field == null)
+                    throw new IllegalStateException("field is null");
                 return field.getAnnotation(annotation) != null;
             }
         });

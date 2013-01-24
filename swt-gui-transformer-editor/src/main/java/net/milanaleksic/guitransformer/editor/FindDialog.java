@@ -1,10 +1,13 @@
 package net.milanaleksic.guitransformer.editor;
 
-import net.milanaleksic.guitransformer.*;
+import net.milanaleksic.guitransformer.EmbeddedEventListener;
+import net.milanaleksic.guitransformer.model.TransformerModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.*;
 
 import javax.inject.Inject;
+
+import static net.milanaleksic.guitransformer.editor.DialogHelper.BlockingMode.BLOCKING;
 
 /**
  * User: Milan Aleksic
@@ -14,55 +17,33 @@ import javax.inject.Inject;
 public class FindDialog {
 
     @Inject
-    private Transformer transformer;
+    private DialogHelper dialogHelper;
 
-    @Inject
-    private MainForm mainForm;
+    private boolean accepted;
 
-    @EmbeddedComponent
-    private Text searchText;
-
-    private Shell shell;
-
-    private String text;
+    @TransformerModel(observe = true)
+    private FindDialogModel model;
 
     @EmbeddedEventListener(component = "shell", event = SWT.Close)
-    private void shellCloseListener() {
-        shell.dispose();
+    private void shellCloseListener(Event event) {
+        event.widget.dispose();
     }
 
-    @EmbeddedEventListener(component = "btnAccept", event = SWT.Selection)
+    @EmbeddedEventListener(component = "btnAccept")
     private void btnAcceptSelectionListener() {
-        text = searchText.getText();
-        shell.dispose();
+        accepted = true;
+        Display.getDefault().getActiveShell().close();
     }
 
-    @EmbeddedEventListener(component = "btnCancel", event = SWT.Selection)
+    @EmbeddedEventListener(component = "btnCancel")
     private void btnCancelSelectionListener() {
-        shell.close();
+        Display.getDefault().getActiveShell().close();
     }
 
     public String getSearchString() {
-        try {
-            final TransformationContext transformationContext = transformer.fillManagedForm(mainForm.getShell(), this);
-            this.shell = transformationContext.getShell();
-
-            text = null;
-
-            shell.open();
-
-            Display display = shell.getDisplay();
-            while (!shell.isDisposed()) {
-                if (!display.readAndDispatch()) {
-                    display.sleep();
-                }
-            }
-
-            return text;
-        } catch (TransformerException e) {
-            e.printStackTrace();
-            return null;
-        }
+        accepted = false;
+        dialogHelper.bootUpDialog(this, BLOCKING);
+        return accepted ? model.getSearchText() : null;
     }
 
 }

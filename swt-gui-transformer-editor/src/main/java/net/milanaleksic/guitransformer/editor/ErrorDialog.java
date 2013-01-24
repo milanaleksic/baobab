@@ -1,10 +1,14 @@
 package net.milanaleksic.guitransformer.editor;
 
-import net.milanaleksic.guitransformer.*;
+import net.milanaleksic.guitransformer.EmbeddedEventListener;
+import net.milanaleksic.guitransformer.model.TransformerModel;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Event;
 
 import javax.inject.Inject;
+
+import static net.milanaleksic.guitransformer.editor.DialogHelper.BlockingMode.NON_BLOCKING;
+
 
 /**
  * User: Milan Aleksic
@@ -14,33 +18,19 @@ import javax.inject.Inject;
 public class ErrorDialog {
 
     @Inject
-    private Transformer transformer;
+    private DialogHelper dialogHelper;
 
-    @Inject
-    private MainForm mainForm;
-
-    @EmbeddedComponent
-    private Text text;
-
-    private Shell shell;
+    @TransformerModel(observe = true)
+    private ErrorDialogModel model;
 
     @EmbeddedEventListener(component = "shell", event = SWT.Close)
-    private void shellCloseListener() {
-        shell.dispose();
-        shell = null;
+    private void shellCloseListener(Event event) {
+        event.widget.dispose();
     }
 
-    public void showMessage(String stackTrace) {
-        try {
-            final TransformationContext transformationContext = transformer.fillManagedForm(mainForm.getShell(), this);
-            this.shell = transformationContext.getShell();
-
-            text.setText(stackTrace);
-
-            shell.open();
-        } catch (TransformerException e) {
-            e.printStackTrace();
-        }
+    public void showMessage(final String stackTrace) {
+        model.setText(stackTrace);
+        dialogHelper.bootUpDialog(this, NON_BLOCKING);
     }
 
 }
