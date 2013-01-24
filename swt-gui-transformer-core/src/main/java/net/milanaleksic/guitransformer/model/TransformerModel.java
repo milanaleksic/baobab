@@ -8,4 +8,5 @@ public @interface TransformerModel {
 
     String value() default "";
 
+    boolean observe() default false;
 }

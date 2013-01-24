@@ -2,10 +2,10 @@ package net.milanaleksic.guitransformer.converters;
 
 import com.google.common.base.*;
 import com.google.common.collect.*;
-import net.milanaleksic.guitransformer.*;
+import net.milanaleksic.guitransformer.TransformerException;
 import net.milanaleksic.guitransformer.builders.*;
+import net.milanaleksic.guitransformer.converters.typed.IntegerConverter;
 import net.milanaleksic.guitransformer.providers.*;
-import net.milanaleksic.guitransformer.converters.typed.*;
 import org.codehaus.jackson.*;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.swt.SWT;
@@ -67,6 +67,9 @@ public class ObjectConverter implements Converter {
 
     @Inject
     private ShortcutsProvider shortcutsProvider;
+
+    @Inject
+    private EmbeddingService embeddingService;
 
     private abstract class ObjectCreator {
 
@@ -247,10 +250,13 @@ public class ObjectConverter implements Converter {
         }
     }
 
-    public TransformationWorkingContext createHierarchy(TransformationWorkingContext context, InputStream content) throws TransformerException {
+    public TransformationWorkingContext createHierarchy(Object formObject, TransformationWorkingContext context, InputStream content) throws TransformerException {
         try {
             final JsonNode shellDefinition = mapper.readValue(content, JsonNode.class);
-            return getTransformationWorkingContext(context, shellDefinition);
+            final TransformationWorkingContext transformationWorkingContext = getTransformationWorkingContext(context, shellDefinition);
+            if (formObject != null)
+                embeddingService.embed(formObject, transformationWorkingContext);
+            return transformationWorkingContext;
         } catch (IOException e) {
             throw new TransformerException("IO Error while trying to find and parse required form: " + context.getFormName(), e);
         }

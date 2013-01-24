@@ -47,13 +47,6 @@ public class ModelAcceptanceTestModel {
         this.numericalValue = numericalValue;
     }
 
-    public String[] getaList() {
-        return aList;
-    }
-
-    public void setaList(String[] aList) {
-        this.aList = aList;
-    }
 
     public Object getData() {
         return data;
@@ -61,5 +54,13 @@ public class ModelAcceptanceTestModel {
 
     public void setData(Object data) {
         this.data = data;
+    }
+
+    public String[] getAList() {
+        return aList;
+    }
+
+    public void setAList(String[] aList) {
+        this.aList = aList;
     }
 }

@@ -22,9 +22,6 @@ public class Transformer {
     @Inject
     private ObjectConverter objectConverter;
 
-    @Inject
-    private EmbeddingService embeddingService;
-
     private boolean doNotCreateModalDialogs = false;
 
     public TransformationContext createNonManagedForm(@Nullable Shell parent, String definition) throws TransformerException {
@@ -49,9 +46,7 @@ public class Transformer {
 
             resourceAsStream = Transformer.class.getResourceAsStream(formFileFullName);
 
-            context = objectConverter.createHierarchy(context, resourceAsStream);
-            if (formObject != null)
-                embeddingService.embed(formObject, context);
+            context = objectConverter.createHierarchy(formObject, context, resourceAsStream);
             return context.createTransformationContext();
         } finally {
             try {
@@ -87,7 +82,7 @@ public class Transformer {
     }
 
     public void updateFormFromModel(Object model, TransformationContext transformationContext) {
-        embeddingService.updateFormFromModel(model, transformationContext);
+        FormUpdater.updateFormFromModel(model, transformationContext.getModelBindingFor(model));
     }
 
 }
