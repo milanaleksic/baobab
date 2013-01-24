@@ -34,7 +34,7 @@
         {
             "_type" : "label",
             "_style" : "{wrap}|{shadow_out}|{horizontal}|{center}",
-            "_name" : "labFilmNaziv",
+            "_name" : "labFilmName",
             "layoutData" : "[gridData](center,begin,true,false)"
         },
         {

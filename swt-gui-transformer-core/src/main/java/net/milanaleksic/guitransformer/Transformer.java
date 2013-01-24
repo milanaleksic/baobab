@@ -82,7 +82,7 @@ public class Transformer {
     }
 
     public void updateFormFromModel(Object model, TransformationContext transformationContext) {
-        FormUpdater.updateFormFromModel(model, transformationContext.getModelBindingFor(model));
+        FormUpdater.updateFormFromModel(model, transformationContext.getModelBindingMetaData());
     }
 
 }

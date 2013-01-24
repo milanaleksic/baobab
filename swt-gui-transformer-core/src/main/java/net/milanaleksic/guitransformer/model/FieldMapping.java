@@ -22,7 +22,7 @@ public class FieldMapping {
 
     private final int[] events;
 
-    public FieldMapping(Object component, Method getterMethod, Method setterMethod, BindingType bindingType, int[] events) {
+    private FieldMapping(Object component, Method getterMethod, Method setterMethod, BindingType bindingType, int[] events) {
         this.component = component;
         this.getterMethod = getterMethod;
         this.setterMethod = setterMethod;

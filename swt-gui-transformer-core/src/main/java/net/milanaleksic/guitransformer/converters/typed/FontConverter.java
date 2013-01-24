@@ -52,12 +52,16 @@ public class FontConverter extends TypedConverter<Font> {
 
         String[] styles = node.get(FIELD_STYLE).asText().split("\\|");
         for (String style : styles) {
-            if (FIELD_STYLE_BOLD.equals(style))
-                ofTheJedi |= SWT.BOLD;
-            else if (FIELD_STYLE_ITALIC.equals(style))
-                ofTheJedi |= SWT.ITALIC;
-            else
-                throw new TransformerException("Unrecognized field style - "+style);
+            switch (style) {
+                case FIELD_STYLE_BOLD:
+                    ofTheJedi |= SWT.BOLD;
+                    break;
+                case FIELD_STYLE_ITALIC:
+                    ofTheJedi |= SWT.ITALIC;
+                    break;
+                default:
+                    throw new TransformerException("Unrecognized field style - " + style);
+            }
         }
         return ofTheJedi;
     }

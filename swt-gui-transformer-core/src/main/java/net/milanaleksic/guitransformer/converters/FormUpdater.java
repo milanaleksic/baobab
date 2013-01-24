@@ -24,7 +24,7 @@ public class FormUpdater {
                 final Object component = fieldMapping.getComponent();
                 allowOperationOnField(binding.getKey(), new ObjectUtil.OperationOnField() {
                     @Override
-                    public void operate(Field field) throws ReflectiveOperationException, TransformerException {
+                    public void operate(Field field) throws ReflectiveOperationException {
                         Object modelValue = field.get(model);
                         Method setterMethod = fieldMapping.getSetterMethod();
                         if (setterMethod == null)

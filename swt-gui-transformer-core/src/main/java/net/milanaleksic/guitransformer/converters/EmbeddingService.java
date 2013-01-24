@@ -75,7 +75,7 @@ class EmbeddingService {
         }
     }
 
-    private void embedEventListenersAsMethods(Object targetObject, TransformationWorkingContext transformationContext) throws TransformerException {
+    private void embedEventListenersAsMethods(Object targetObject, TransformationWorkingContext transformationContext) {
         Method[] methods = targetObject.getClass().getDeclaredMethods();
         for (Method method : methods) {
             List<EmbeddedEventListener> allListeners = Lists.newArrayList();
@@ -160,7 +160,7 @@ class EmbeddingService {
     }
 
     private void bindModel(Object model, TransformationWorkingContext transformationContext, ModelBindingMetaData bindingMetaData) throws TransformerException {
-        transformationContext.putModelBinding(model, bindingMetaData);
+        transformationContext.setModelBindingMetaData(bindingMetaData);
         try {
             mapOnChangeListeners(model, transformationContext);
             updateModelFromForm(model, transformationContext);
@@ -207,7 +207,7 @@ class EmbeddingService {
     }
 
     private void mapOnChangeListeners(final Object model, final TransformationWorkingContext transformationContext) throws ReflectiveOperationException {
-        final ModelBindingMetaData modelBindingMetaData = transformationContext.getModelBinding(model);
+        final ModelBindingMetaData modelBindingMetaData = transformationContext.getModelBindingMetaData();
         for (Map.Entry<Field, FieldMapping> mapping : modelBindingMetaData.getFieldMapping().entrySet()) {
             final Field field = mapping.getKey();
             FieldMapping fieldMapping = mapping.getValue();
@@ -257,8 +257,6 @@ class EmbeddingService {
                 continue;
             try {
                 bindingData.getFieldMapping().put(field, createSingleBindingMetaData(field, transformationContext));
-            } catch (TransformerException e) {
-                throw e;
             } catch (Exception e) {
                 throw new TransformerException("Error while creating binding metadata for component field " + field, e);
             }
@@ -266,7 +264,7 @@ class EmbeddingService {
         return bindingData;
     }
 
-    private FieldMapping createSingleBindingMetaData(Field field, TransformationWorkingContext transformationContext) throws TransformerException, NoSuchMethodException {
+    private FieldMapping createSingleBindingMetaData(Field field, TransformationWorkingContext transformationContext) throws NoSuchMethodException {
         TransformerProperty propertyAnnotation = field.getAnnotation(TransformerProperty.class);
         String name = propertyAnnotation == null ? null : propertyAnnotation.component();
         if (Strings.isNullOrEmpty(name))
@@ -314,8 +312,8 @@ class EmbeddingService {
         return annotation.value();
     }
 
-    private void updateModelFromForm(Object model, TransformationWorkingContext transformationContext) throws ReflectiveOperationException, TransformerException {
-        ModelBindingMetaData modelBindingMetaData = transformationContext.getModelBinding(model);
+    private void updateModelFromForm(Object model, TransformationWorkingContext transformationContext) {
+        ModelBindingMetaData modelBindingMetaData = transformationContext.getModelBindingMetaData();
         for (Map.Entry<Field, FieldMapping> binding : modelBindingMetaData.getFieldMapping().entrySet()) {
             Field field = binding.getKey();
             Object component = binding.getValue().getComponent();
@@ -323,7 +321,7 @@ class EmbeddingService {
         }
     }
 
-    private Object convertFromComponentToModelValue(String value, Class<?> targetClass) throws ReflectiveOperationException, TransformerException {
+    private Object convertFromComponentToModelValue(String value, Class<?> targetClass) throws TransformerException {
         if (String.class.isAssignableFrom(targetClass))
             return value;
         else if (Long.class.isAssignableFrom(targetClass) || long.class.isAssignableFrom(targetClass))

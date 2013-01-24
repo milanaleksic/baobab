@@ -106,7 +106,7 @@ public class ObjectConverter implements Converter {
             }
         }
 
-        protected int fixStyleIfNoModalDialogs(TransformationWorkingContext context, int style) {
+        int fixStyleIfNoModalDialogs(TransformationWorkingContext context, int style) {
             if (context.isDoNotCreateModalDialogs()) {
                 style = style & (~SWT.APPLICATION_MODAL);
                 style = style & (~SWT.SYSTEM_MODAL);
@@ -115,13 +115,13 @@ public class ObjectConverter implements Converter {
             return style;
         }
 
-        protected Class<?> deduceClassFromNode(JsonNode valueNode) throws TransformerException {
+        Class<?> deduceClassFromNode(JsonNode valueNode) throws TransformerException {
             Preconditions.checkArgument(valueNode.has(KEY_SPECIAL_TYPE), "Item definition does not define type");
             String classIdentifier = valueNode.get(KEY_SPECIAL_TYPE).asText();
             return deduceClassFromNode(classIdentifier);
         }
 
-        protected Class<?> deduceClassFromNode(String classIdentifier) throws TransformerException {
+        Class<?> deduceClassFromNode(String classIdentifier) throws TransformerException {
             Class<?> aClass = shortcutsProvider.provideClassForShortcut(classIdentifier);
             if (aClass != null)
                 return aClass;
@@ -134,7 +134,7 @@ public class ObjectConverter implements Converter {
         }
     }
 
-    public class OldSchoolObjectCreator extends ObjectCreator {
+    private class OldSchoolObjectCreator extends ObjectCreator {
 
         protected boolean isWidgetUsingBuilder(String key, JsonNode value) {
             return value.has(KEY_SPECIAL_TYPE) && builderValue.matcher(value.get(KEY_SPECIAL_TYPE).asText()).matches();
@@ -309,7 +309,7 @@ public class ObjectConverter implements Converter {
         return builder.create(context.getWorkItem(), params);
     }
 
-    private Object provideObjectFromDIContainer(TransformationWorkingContext mappedObjects, String magicName) throws TransformerException {
+    private Object provideObjectFromDIContainer(TransformationWorkingContext mappedObjects, String magicName) {
         Object mappedObject = mappedObjects.getMappedObject(magicName);
         if (mappedObject == null)
             mappedObject = objectProvider.provideObjectNamed(magicName);

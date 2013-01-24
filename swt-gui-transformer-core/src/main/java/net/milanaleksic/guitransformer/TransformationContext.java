@@ -14,15 +14,15 @@ import java.util.Map;
  */
 public class TransformationContext {
 
-    private final Map<Object, ModelBindingMetaData> modelToModelBinding;
+    private final ModelBindingMetaData modelBindingMetaData;
 
     private final Map<String, Object> mappedObjects;
 
     private final Shell shell;
 
-    public TransformationContext(Shell shell, Map<String, Object> mappedObjects, Map<Object, ModelBindingMetaData> modelToModelBinding) {
+    public TransformationContext(Shell shell, Map<String, Object> mappedObjects, ModelBindingMetaData modelBindingMetaData) {
         this.shell = shell;
-        this.modelToModelBinding = ImmutableMap.copyOf(modelToModelBinding);
+        this.modelBindingMetaData = modelBindingMetaData;
         this.mappedObjects = ImmutableMap.copyOf(mappedObjects);
     }
 
@@ -43,14 +43,14 @@ public class TransformationContext {
         return ImmutableMap.copyOf(mappedObjects);
     }
 
-    public ModelBindingMetaData getModelBindingFor(Object model) {
-        return modelToModelBinding.get(model);
+    ModelBindingMetaData getModelBindingMetaData() {
+        return modelBindingMetaData;
     }
 
     @Override
     public String toString() {
         return "TransformationContext{" +
-                "modelToModelBinding=" + modelToModelBinding +
+                "modelBindingMetaData=" + modelBindingMetaData +
                 ", mappedObjects=" + mappedObjects +
                 ", shell=" + shell +
                 '}';

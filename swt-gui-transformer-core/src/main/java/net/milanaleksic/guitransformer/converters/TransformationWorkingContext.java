@@ -22,7 +22,8 @@ public class TransformationWorkingContext {
 
     private final Map<String, Object> mappedObjects;
 
-    private final Map<Object, ModelBindingMetaData> modelToModelBinding = Maps.newHashMap();
+    private ModelBindingMetaData modelBindingMetaData;
+
     private final String formName;
 
     private boolean doNotCreateModalDialogs;
@@ -39,7 +40,7 @@ public class TransformationWorkingContext {
         this(null, formName);
     }
 
-    public TransformationWorkingContext(@Nullable TransformationWorkingContext parentContext) {
+    public TransformationWorkingContext(TransformationWorkingContext parentContext) {
         this(parentContext, parentContext.getFormName());
     }
 
@@ -63,15 +64,15 @@ public class TransformationWorkingContext {
 
     public TransformationContext createTransformationContext() {
         Preconditions.checkArgument(workItem instanceof Shell, "You can't create TransformationContext for a non-Shell hierarchy root, class="+workItem.getClass().getName());
-        return new TransformationContext((Shell) workItem, getMappedObjects(), modelToModelBinding);
+        return new TransformationContext((Shell) workItem, getMappedObjects(), modelBindingMetaData);
     }
 
-    public ModelBindingMetaData getModelBinding(Object model) {
-        return modelToModelBinding.get(model);
+    public ModelBindingMetaData getModelBindingMetaData() {
+        return modelBindingMetaData;
     }
 
-    public void putModelBinding(Object model, ModelBindingMetaData metaData) {
-        modelToModelBinding.put(model, metaData);
+    public void setModelBindingMetaData(ModelBindingMetaData modelBindingMetaData) {
+        this.modelBindingMetaData = modelBindingMetaData;
     }
 
     public Object getMappedObject(String key) {

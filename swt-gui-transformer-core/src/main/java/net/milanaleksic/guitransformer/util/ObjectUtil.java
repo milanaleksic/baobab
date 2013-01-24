@@ -25,7 +25,7 @@ public class ObjectUtil {
     }
 
     public interface OperationOnField {
-        void operate(Field field) throws ReflectiveOperationException, TransformerException;
+        void operate(Field field) throws ReflectiveOperationException;
     }
 
     public static void allowOperationOnField(Field field, OperationOnField operation) throws TransformerException {
@@ -34,8 +34,6 @@ public class ObjectUtil {
             field.setAccessible(true);
         try {
             operation.operate(field);
-        } catch (TransformerException e) {
-            throw e;
         } catch (Exception e) {
             throw new TransformerException("Error while operating on field named " + field.getName(), e);
         } finally {
@@ -67,11 +65,7 @@ public class ObjectUtil {
     }
 
     public static Iterable<Field> getFieldsWithAnnotation(Class<?> clazz, final Class<? extends Annotation> annotation) {
-        return getFieldsWithAnnotation(clazz.getDeclaredFields(), annotation);
-    }
-
-    public static Iterable<Field> getFieldsWithAnnotation(Field[] fields, final Class<? extends Annotation> annotation) {
-        return Iterables.filter(Arrays.asList(fields), new Predicate<Field>() {
+        return Iterables.filter(Arrays.asList(clazz.getDeclaredFields()), new Predicate<Field>() {
             @Override
             public boolean apply(Field field) {
                 return field.getAnnotation(annotation) != null;
