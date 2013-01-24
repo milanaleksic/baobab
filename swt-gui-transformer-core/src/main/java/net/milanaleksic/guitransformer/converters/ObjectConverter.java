@@ -14,7 +14,7 @@ import org.eclipse.swt.widgets.*;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.List;
@@ -238,7 +238,25 @@ public class ObjectConverter implements Converter {
         this.mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
     }
 
-    public TransformationWorkingContext createHierarchy(TransformationWorkingContext context, JsonNode shellDefinition) throws TransformerException {
+    public TransformationWorkingContext createHierarchy(TransformationWorkingContext context, String content) throws TransformerException {
+        try {
+            final JsonNode shellDefinition = mapper.readValue(content, JsonNode.class);
+            return getTransformationWorkingContext(context, shellDefinition);
+        } catch (IOException e) {
+            throw new TransformerException("IO Error while trying to find and parse required form: " + context.getFormName(), e);
+        }
+    }
+
+    public TransformationWorkingContext createHierarchy(TransformationWorkingContext context, InputStream content) throws TransformerException {
+        try {
+            final JsonNode shellDefinition = mapper.readValue(content, JsonNode.class);
+            return getTransformationWorkingContext(context, shellDefinition);
+        } catch (IOException e) {
+            throw new TransformerException("IO Error while trying to find and parse required form: " + context.getFormName(), e);
+        }
+    }
+
+    private TransformationWorkingContext getTransformationWorkingContext(TransformationWorkingContext context, JsonNode shellDefinition) throws TransformerException {
         return new OldSchoolObjectCreator().create(context, null, shellDefinition);
     }
 

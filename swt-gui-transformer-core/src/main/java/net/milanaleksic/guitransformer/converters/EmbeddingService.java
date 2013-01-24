@@ -4,15 +4,14 @@ import com.google.common.base.*;
 import com.google.common.collect.Lists;
 import net.milanaleksic.guitransformer.*;
 import net.milanaleksic.guitransformer.model.*;
+import net.milanaleksic.guitransformer.util.ObjectUtil.*;
 import org.eclipse.swt.widgets.*;
 
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.List;
 
-import net.milanaleksic.guitransformer.util.ObjectUtil.OperationOnField;
 import static net.milanaleksic.guitransformer.util.ObjectUtil.*;
-
 
 public class EmbeddingService {
 
