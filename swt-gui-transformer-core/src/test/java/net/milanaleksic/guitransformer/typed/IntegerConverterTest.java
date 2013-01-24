@@ -1,6 +1,6 @@
-package net.milanaleksic.guitransformer;
+package net.milanaleksic.guitransformer.typed;
 
-import net.milanaleksic.guitransformer.typed.IntegerConverter;
+import net.milanaleksic.guitransformer.TransformerException;
 import org.codehaus.jackson.node.TextNode;
 import org.eclipse.swt.SWT;
 import org.junit.Test;
