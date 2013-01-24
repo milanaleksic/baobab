@@ -1,4 +1,4 @@
-package net.milanaleksic.guitransformer;
+package net.milanaleksic.guitransformer.converters;
 
 import org.eclipse.swt.widgets.Shell;
 

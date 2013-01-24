@@ -1,11 +1,12 @@
-package net.milanaleksic.guitransformer;
+package net.milanaleksic.guitransformer.converters;
 
 import com.google.common.base.*;
 import com.google.common.collect.*;
+import net.milanaleksic.guitransformer.TransformationContext;
 import net.milanaleksic.guitransformer.model.ModelBindingMetaData;
 import org.eclipse.swt.widgets.Shell;
 
-import javax.annotation.Nullable;
+import javax.annotation.*;
 import java.util.Map;
 
 /**
@@ -17,7 +18,7 @@ import java.util.Map;
  * involves aggregating all tree elements up to current context (to cover independent
  * trees).
  */
-class TransformationWorkingContext {
+public class TransformationWorkingContext {
 
     private final Map<String, Object> mappedObjects;
 
@@ -80,9 +81,9 @@ class TransformationWorkingContext {
 
     private Map<String, Object> getRootMappedObjects() {
         TransformationWorkingContext iterator = this;
-        while (iterator.getParentContext() != null)
+        while (iterator != null && iterator.getParentContext() != null)
             iterator = iterator.getParentContext();
-        return iterator.mappedObjects;
+        return iterator == null ? null : iterator.mappedObjects;
     }
 
     public Map<String, Object> getMappedObjects() {

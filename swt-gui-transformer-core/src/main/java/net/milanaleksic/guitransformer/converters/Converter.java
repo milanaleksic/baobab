@@ -1,5 +1,6 @@
-package net.milanaleksic.guitransformer;
+package net.milanaleksic.guitransformer.converters;
 
+import net.milanaleksic.guitransformer.TransformerException;
 import org.codehaus.jackson.JsonNode;
 
 import java.util.Map;
@@ -9,7 +10,7 @@ import java.util.Map;
  * Date: 4/19/12
  * Time: 2:10 PM
  */
-public interface Converter<T> {
+public interface Converter {
 
     public Object getValueFromJson(Object targetObject, JsonNode value, Map<String, Object> mappedObjects) throws TransformerException;
 

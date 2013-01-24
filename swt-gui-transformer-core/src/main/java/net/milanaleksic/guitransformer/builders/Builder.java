@@ -1,7 +1,6 @@
-package net.milanaleksic.guitransformer;
+package net.milanaleksic.guitransformer.builders;
 
-import net.milanaleksic.guitransformer.builders.BuilderContext;
-import org.eclipse.swt.widgets.Label;
+import net.milanaleksic.guitransformer.TransformerException;
 
 import java.util.List;
 

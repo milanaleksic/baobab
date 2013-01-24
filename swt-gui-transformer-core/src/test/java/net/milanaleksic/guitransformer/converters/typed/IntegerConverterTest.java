@@ -1,4 +1,4 @@
-package net.milanaleksic.guitransformer.typed;
+package net.milanaleksic.guitransformer.converters.typed;
 
 import net.milanaleksic.guitransformer.TransformerException;
 import org.codehaus.jackson.node.TextNode;

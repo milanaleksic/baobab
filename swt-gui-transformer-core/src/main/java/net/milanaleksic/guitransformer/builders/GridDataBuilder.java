@@ -25,9 +25,9 @@ public class GridDataBuilder implements Builder<GridData> {
     @Override
     public BuilderContext<GridData> create(Object parent, List<String> parameters) throws TransformerException {
         if (parameters.size() == 4)
-            return new BuilderContext<GridData>(createGridDataBasedOn4Params(parameters));
+            return new BuilderContext<>(createGridDataBasedOn4Params(parameters));
         if (parameters.size() == 6)
-            return new BuilderContext<GridData>(createGridDataBasedOn6Params(parameters));
+            return new BuilderContext<>(createGridDataBasedOn6Params(parameters));
         throw new TransformerException("GridData builder supports only either 4 or 6 parameters!");
     }
 

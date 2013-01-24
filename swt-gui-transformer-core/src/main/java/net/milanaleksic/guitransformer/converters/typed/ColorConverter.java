@@ -1,4 +1,4 @@
-package net.milanaleksic.guitransformer.typed;
+package net.milanaleksic.guitransformer.converters.typed;
 
 import com.google.common.collect.*;
 import net.milanaleksic.guitransformer.TransformerException;

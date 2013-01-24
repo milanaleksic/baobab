@@ -1,10 +1,11 @@
-package net.milanaleksic.guitransformer;
+package net.milanaleksic.guitransformer.converters;
 
 import com.google.common.base.*;
 import com.google.common.collect.*;
-import net.milanaleksic.guitransformer.builders.BuilderContext;
+import net.milanaleksic.guitransformer.*;
+import net.milanaleksic.guitransformer.builders.*;
 import net.milanaleksic.guitransformer.providers.*;
-import net.milanaleksic.guitransformer.typed.*;
+import net.milanaleksic.guitransformer.converters.typed.*;
 import org.codehaus.jackson.*;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.swt.SWT;
@@ -29,7 +30,7 @@ import static net.milanaleksic.guitransformer.util.ObjectUtil.*;
  * <p/>
  * ObjectConverter's sole purpose is to convert object nodes to SWT objects
  */
-public class ObjectConverter implements Converter<Object> {
+public class ObjectConverter implements Converter {
 
     private static final Pattern builderValue = Pattern.compile("\\[([^\\]]+)\\]\\s*\\(([^\\)]*)\\)"); //NON-NLS
 
@@ -159,7 +160,7 @@ public class ObjectConverter implements Converter<Object> {
             if (objectDefinition.has(KEY_SPECIAL_STYLE)) {
                 JsonNode styleNode = objectDefinition.get(KEY_SPECIAL_STYLE);
                 IntegerConverter exactTypeConverter = (IntegerConverter)
-                        converterProvider.provideExactTypeConverterForClass(int.class).get();
+                        converterProvider.provideTypedConverterForClass(int.class).get();
                 style = exactTypeConverter.getValueFromString(styleNode.asText());
             }
 
@@ -219,7 +220,7 @@ public class ObjectConverter implements Converter<Object> {
             int style = widgetClass == Shell.class ? DEFAULT_STYLE_SHELL : DEFAULT_STYLE_REST;
             if (!Strings.isNullOrEmpty(styleDefinition)) {
                 IntegerConverter exactTypeConverter = (IntegerConverter)
-                        converterProvider.provideExactTypeConverterForClass(int.class).get();
+                        converterProvider.provideTypedConverterForClass(int.class).get();
                 style = exactTypeConverter.getValueFromString(styleDefinition);
             }
 

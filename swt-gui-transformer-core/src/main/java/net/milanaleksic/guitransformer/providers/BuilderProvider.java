@@ -1,6 +1,6 @@
 package net.milanaleksic.guitransformer.providers;
 
-import net.milanaleksic.guitransformer.Builder;
+import net.milanaleksic.guitransformer.builders.Builder;
 
 public interface BuilderProvider {
 

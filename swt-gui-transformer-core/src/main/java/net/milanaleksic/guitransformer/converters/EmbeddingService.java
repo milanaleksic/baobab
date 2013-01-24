@@ -1,7 +1,8 @@
-package net.milanaleksic.guitransformer;
+package net.milanaleksic.guitransformer.converters;
 
 import com.google.common.base.*;
 import com.google.common.collect.Lists;
+import net.milanaleksic.guitransformer.*;
 import net.milanaleksic.guitransformer.model.*;
 import org.eclipse.swt.widgets.*;
 
@@ -13,7 +14,7 @@ import net.milanaleksic.guitransformer.util.ObjectUtil.OperationOnField;
 import static net.milanaleksic.guitransformer.util.ObjectUtil.*;
 
 
-class EmbeddingService {
+public class EmbeddingService {
 
     private MethodEventListenerExceptionHandler methodEventListenerExceptionHandler;
 
@@ -21,7 +22,7 @@ class EmbeddingService {
         this.methodEventListenerExceptionHandler = methodEventListenerExceptionHandler;
     }
 
-    void embed(Object formObject, TransformationWorkingContext transformationContext) throws TransformerException {
+    public void embed(Object formObject, TransformationWorkingContext transformationContext) throws TransformerException {
         embedComponents(formObject, transformationContext);
         embedModels(formObject, transformationContext);
         embedEventListenersAsFields(formObject, transformationContext);

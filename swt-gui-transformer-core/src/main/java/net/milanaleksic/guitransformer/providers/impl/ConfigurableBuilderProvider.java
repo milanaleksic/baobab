@@ -2,7 +2,7 @@ package net.milanaleksic.guitransformer.providers.impl;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
-import net.milanaleksic.guitransformer.Builder;
+import net.milanaleksic.guitransformer.builders.Builder;
 import net.milanaleksic.guitransformer.loader.Loader;
 import net.milanaleksic.guitransformer.providers.BuilderProvider;
 import net.milanaleksic.guitransformer.util.PropertiesMapper;
