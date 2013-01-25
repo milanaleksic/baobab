@@ -188,7 +188,7 @@ class EmbeddingService {
     }
 
     private ImmutableSet<Method> getObservableMethods(final Class<?> type, ModelBindingMetaData bindingMetaData) {
-        final Map<String, Method> methods = Maps.uniqueIndex(Arrays.asList(type.getDeclaredMethods()), new Function<Method, String>() {
+        final ImmutableListMultimap<String, Method> methods = Multimaps.index(Arrays.asList(type.getDeclaredMethods()), new Function<Method, String>() {
             public String apply(Method input) {
                 return input.getName();
             }
@@ -202,7 +202,9 @@ class EmbeddingService {
         }), new Function<Field, Method>() {
             @Override
             public Method apply(Field input) {
-                return methods.get(ObjectUtil.getSetterForField(input.getName()));
+                ImmutableList<Method> matchedMethods = methods.get(ObjectUtil.getSetterForField(input.getName()));
+                Preconditions.checkState(matchedMethods.size() == 1, "could not make an unique match for setter method");
+                return matchedMethods.get(0);
             }
         }), Iterables.filter(methods.values(), new Predicate<Method>() {
             @Override
