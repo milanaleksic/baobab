@@ -9,7 +9,6 @@ import net.milanaleksic.guitransformer.util.ObjectUtil.*;
 import net.sf.cglib.proxy.*;
 import org.eclipse.swt.widgets.*;
 
-import javax.annotation.Nullable;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.List;
