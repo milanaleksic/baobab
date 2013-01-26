@@ -25,13 +25,15 @@
             //On Click Event
             $("ul.tabs li").bind('click', function () {
                 var jThis = $(this);
+                if (jThis.hasClass("active"))
+                    return false;
                 var jTabs = jThis.parent(":first");
+                var jTargetContainer = $("#" + jTabs.attr("target"));
+                var jTargetTabs = jTargetContainer.find("> .tab_content");
                 jTabs.find("li").removeClass("active");
                 jThis.addClass("active");
-                var jTargetContainer = $("#" + jTabs.attr("target"));
-                jTargetContainer.find("> .tab_content").hide();
-
-                $(jTargetContainer.find(".tab_content").get(jThis.index())).fadeIn();
+                jTargetTabs.hide();
+                $(jTargetTabs.get(jThis.index())).fadeIn();
                 return false;
             });
             $("#tabs").show();
@@ -86,25 +88,50 @@
             in normal Java primitives. All you need to do is modify the model property values and
             SGT will make sure your form gets updated.</p>
 
+        <p>For a quite simple example, let's build a "text reverser" which reverses the text you typed and shows the
+            reversed output in another field. The interface will thus have only 2 text fields and some labels:</p>
+
+        <div style="text-align:center"><img src="images/text_reverser.png" width="610" height="160"/></div>
+
+        <ul class="tabs" target="tabs1">
+            <li><a href="#">GUI interface definition</a></li>
+            <li><a href="#">Java - form controller</a></li>
+            <li><a href="#">Java - form model</a></li>
+        </ul>
+        <div id="tabs1" class="tab_container">
+            <div class="tab_content">
+                <script src="https://gist.github.com/2708850.js?file=ObservedForm.java"></script>
+            </div>
+            <div class="tab_content">
+                <script src="https://gist.github.com/2708850.js?file=ObservedForm.gui.json"></script>
+                <p>Small note: the correct filename is ObservedForm.gui, but for the sake of syntax highlighting by
+                    Github's Gist I appended the "json" extension.</p>
+            </div>
+            <div class="tab_content">
+                <script src="https://gist.github.com/2708850.js?file=ObservedFormModel.java"></script>
+            </div>
+        </div>
+
+
     </div>
     <div class="tab_content">
         <p>Let's say you plan to make a simple username/password form with a single button to accept. If you wish to
             use SGT, you need to make 2 files: java code file <code>com.foobar.MyForm</code> and GUI definition file
             in the same package (with identical name as the form class): <code>com/foobar/MyForm.gui</code></p>
 
+        <p>This is the interface we wish to define in the GUI file:</p>
+
+        <div style="text-align:center"><img src="images/shot.png" width="300" height="110"/></div>
+
         <ul class="tabs" target="tabs2">
             <li><a href="#">GUI interface definition</a></li>
-            <li><a href="#">Java file</a></li>
+            <li><a href="#">Java controller</a></li>
             <li><a href="#">I18N</a></li>
         </ul>
         <div id="tabs2" class="tab_container">
             <div class="tab_content">
                 <p>First step you need to do is to define the interface in a JSON file (either manually or using SGT
                     editor) with extension .gui in the same package where the Java file with same name is placed.</p>
-
-                <p>This is the interface we wish to define in the GUI file:</p>
-
-                <div style="text-align:center"><img src="images/shot.png"/></div>
 
                 <script src="https://gist.github.com/2708850.js?file=MyForm.gui.json"></script>
                 <p>Small note: the correct filename is MyForm.gui, but for the sake of syntax highlighting by Github's
@@ -118,8 +145,8 @@
             </div>
             <div class="tab_content">
                 <p>By default a message bundle called "messages" is searched for in the root package,
-                with locale "en". You can decide to inject a different message bundle source which will
-                allow you to internationalize your application</p>
+                    with locale "en". You can decide to inject a different message bundle source which will
+                    allow you to internationalize your application</p>
                 <script src="https://gist.github.com/2708850.js?file=messages.properties"></script>
             </div>
         </div>
