@@ -5,6 +5,7 @@ import net.milanaleksic.guitransformer.*;
 import net.milanaleksic.guitransformer.guice.CoreModule;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.*;
+
 import javax.inject.Inject;
 
 public class MyForm {
