@@ -15,7 +15,7 @@
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
 
             //When page loads...
             $(".tab_content").hide(); //Hide all content
@@ -23,17 +23,18 @@
             $(".tab_container").find(".tab_content:first").show(); //Show first tab content
 
             //On Click Event
-            $("ul.tabs li").bind('click', function() {
+            $("ul.tabs li").bind('click', function () {
                 var jThis = $(this);
                 var jTabs = jThis.parent(":first");
                 jTabs.find("li").removeClass("active");
                 jThis.addClass("active");
-                var jTargetContainer = $("#"+jTabs.attr("target"));
+                var jTargetContainer = $("#" + jTabs.attr("target"));
                 jTargetContainer.find("> .tab_content").hide();
 
                 $(jTargetContainer.find(".tab_content").get(jThis.index())).fadeIn();
                 return false;
             });
+            $("#tabs").show();
 
         });
     </script>
@@ -78,12 +79,13 @@
     <li><a href="#">Component embedding</a></li>
 </ul>
 
-<div class="tab_container" id="tabs">
+<div class="tab_container" id="tabs" style="display:none">
     <div class="tab_content">
         <p>If you want to use the SGT "the proper way", you can avoid most of direct contact with the SWT
             components from your Java code. You use a model class that wraps all of the needed properties of your form
             in normal Java primitives. All you need to do is modify the model property values and
             SGT will make sure your form gets updated.</p>
+
     </div>
     <div class="tab_content">
         <p>Let's say you plan to make a simple username/password form with a single button to accept. If you wish to
@@ -93,6 +95,7 @@
         <ul class="tabs" target="tabs2">
             <li><a href="#">GUI interface definition</a></li>
             <li><a href="#">Java file</a></li>
+            <li><a href="#">I18N</a></li>
         </ul>
         <div id="tabs2" class="tab_container">
             <div class="tab_content">
@@ -109,10 +112,15 @@
             </div>
             <div class="tab_content">
                 <p id="wiring-example">Then you need only to define the class. Be aware though that there is much more
-                    noise
-                    in the example below then it will be in real program - I wanted to present a fully functional
+                    noise in the example below then it will be in real program - I wanted to present a fully functional
                     example.</p>
                 <script src="https://gist.github.com/2708850.js?file=MyForm.java"></script>
+            </div>
+            <div class="tab_content">
+                <p>By default a message bundle called "messages" is searched for in the root package,
+                with locale "en". You can decide to inject a different message bundle source which will
+                allow you to internationalize your application</p>
+                <script src="https://gist.github.com/2708850.js?file=messages.properties"></script>
             </div>
         </div>
     </div>
