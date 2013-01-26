@@ -17,7 +17,7 @@ public class SimpleResourceBundleProvider implements ResourceBundleProvider{
         try {
             resourceBundle = ResourceBundle.getBundle("messages", new Locale("en"));//NON-NLS
         } catch (MissingResourceException exc) {
-            System.err.println("WARNING: Could not find the messages resource bundle");
+            System.err.println("WARNING: SimpleResourceBundleProvider could not find the messages resource bundle in the root package ('messages.properties'). Did you forget to inject your version of ResourceBundleProvider?");
         }
     }
 
