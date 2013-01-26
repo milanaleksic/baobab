@@ -1,7 +1,7 @@
 package net.milanaleksic.guitransformer.builders;
 
 import net.milanaleksic.guitransformer.*;
-import net.milanaleksic.guitransformer.typed.IntegerConverter;
+import net.milanaleksic.guitransformer.converters.typed.IntegerConverter;
 import org.eclipse.swt.widgets.*;
 
 import javax.inject.Inject;
@@ -14,8 +14,6 @@ import java.util.List;
  */
 public class LabelBuilder implements Builder<Label> {
 
-    public static final String BUILDER_NAME = "label";
-
     @Inject
     private IntegerConverter integerConverter;
 
@@ -25,7 +23,7 @@ public class LabelBuilder implements Builder<Label> {
             throw new TransformerException("Label builder supports only two parameters (style and text)!");
         int styleParameter = integerConverter.getValueFromString(parameters.get(0));
         final String name = parameters.get(1);
-        return new BuilderContext<Label>(new Label((Composite) parent, styleParameter), name);
+        return new BuilderContext<>(new Label((Composite) parent, styleParameter), name);
     }
 
 }

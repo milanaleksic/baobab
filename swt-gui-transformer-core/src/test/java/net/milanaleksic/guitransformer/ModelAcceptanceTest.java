@@ -39,9 +39,9 @@ public class ModelAcceptanceTest {
         assertThat(model.getIgnoredProperty(), nullValue());
         text1.setText("new value");
         assertThat(model.getText1(), equalTo("new value"));
-        model.setaList(new String[]{"1", "2", "3"});
-        assertThat(model.getaList(), notNullValue());
-        assertThat(Arrays.asList(model.getaList()), hasItems("1", "2", "3"));
+        model.setAList(new String[]{"1", "2", "3"});
+        assertThat(model.getAList(), notNullValue());
+        assertThat(Arrays.asList(model.getAList()), hasItems("1", "2", "3"));
         assertThat(model.getIgnoredProperty(), nullValue());
     }
 

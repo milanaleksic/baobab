@@ -9,7 +9,7 @@
     "text" : "[mainForm.title]",
     "size" : "750,350",
     "_children" : {
-        "text(text,{multi}|{wrap}|{border}|{v_scroll})" : {
+        "text(text,{multi}|{wrap}|{border}|{v_scroll}|{read_only})" : {
             "background" : "color_widget_background",
             "layoutData" : {
                 "_type" : "[gridData](fill,fill,true,true)"

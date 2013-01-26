@@ -9,7 +9,7 @@ public class ModelBindingMetaData {
 
     private boolean formIsBeingUpdatedFromModelRightNow = false;
 
-    private Map<Field, FieldMapping> fieldMapping = Maps.newHashMap();
+    private final Map<Field, FieldMapping> fieldMapping = Maps.newHashMap();
 
     public ModelBindingMetaData() {
     }

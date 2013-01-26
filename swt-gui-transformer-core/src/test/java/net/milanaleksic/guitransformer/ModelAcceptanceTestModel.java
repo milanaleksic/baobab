@@ -1,7 +1,6 @@
 package net.milanaleksic.guitransformer;
 
-import net.milanaleksic.guitransformer.model.TransformerIgnoredProperty;
-import net.milanaleksic.guitransformer.model.TransformerProperty;
+import net.milanaleksic.guitransformer.model.*;
 
 /**
  * User: Milan Aleksic
@@ -47,19 +46,25 @@ public class ModelAcceptanceTestModel {
         this.numericalValue = numericalValue;
     }
 
-    public String[] getaList() {
-        return aList;
-    }
-
-    public void setaList(String[] aList) {
-        this.aList = aList;
-    }
 
     public Object getData() {
         return data;
     }
 
     public void setData(Object data) {
+        this.data = data;
+    }
+
+    public String[] getAList() {
+        return aList;
+    }
+
+    public void setAList(String[] aList) {
+        this.aList = aList;
+    }
+
+    @TransformerFireUpdate
+    public void setWithSideEffectValueOfData(Object data) {
         this.data = data;
     }
 }

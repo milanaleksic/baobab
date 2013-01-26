@@ -1,11 +1,12 @@
-package net.milanaleksic.guitransformer;
+package net.milanaleksic.guitransformer.converters;
 
 import com.google.common.base.*;
 import com.google.common.collect.*;
+import net.milanaleksic.guitransformer.TransformationContext;
 import net.milanaleksic.guitransformer.model.ModelBindingMetaData;
 import org.eclipse.swt.widgets.Shell;
 
-import javax.annotation.Nullable;
+import javax.annotation.*;
 import java.util.Map;
 
 /**
@@ -17,11 +18,13 @@ import java.util.Map;
  * involves aggregating all tree elements up to current context (to cover independent
  * trees).
  */
-class TransformationWorkingContext {
+public class TransformationWorkingContext {
 
     private final Map<String, Object> mappedObjects;
 
-    private final Map<Object, ModelBindingMetaData> modelToModelBinding = Maps.newHashMap();
+    private ModelBindingMetaData modelBindingMetaData;
+
+    private final String formName;
 
     private boolean doNotCreateModalDialogs;
 
@@ -30,12 +33,21 @@ class TransformationWorkingContext {
     private final TransformationWorkingContext parentContext;
 
     public TransformationWorkingContext() {
-        this(null);
+        this(null, "<no name>");
     }
 
-    public TransformationWorkingContext(@Nullable TransformationWorkingContext context) {
-        parentContext = context;
-        mappedObjects = context == null ? Maps.<String, Object>newHashMap() : ImmutableMap.<String, Object>of();
+    public TransformationWorkingContext(String formName) {
+        this(null, formName);
+    }
+
+    public TransformationWorkingContext(TransformationWorkingContext parentContext) {
+        this(parentContext, parentContext.getFormName());
+    }
+
+    public TransformationWorkingContext(@Nullable TransformationWorkingContext parentContext, String formName) {
+        this.formName = formName;
+        this.parentContext = parentContext;
+        mappedObjects = parentContext == null ? Maps.<String, Object>newHashMap() : ImmutableMap.<String, Object>of();
     }
 
     public void setDoNotCreateModalDialogs(boolean doNotCreateModalDialogs) {
@@ -52,15 +64,15 @@ class TransformationWorkingContext {
 
     public TransformationContext createTransformationContext() {
         Preconditions.checkArgument(workItem instanceof Shell, "You can't create TransformationContext for a non-Shell hierarchy root, class="+workItem.getClass().getName());
-        return new TransformationContext((Shell) workItem, getMappedObjects(), modelToModelBinding);
+        return new TransformationContext((Shell) workItem, getMappedObjects(), modelBindingMetaData);
     }
 
-    public ModelBindingMetaData getModelBinding(Object model) {
-        return modelToModelBinding.get(model);
+    public ModelBindingMetaData getModelBindingMetaData() {
+        return modelBindingMetaData;
     }
 
-    public void putModelBinding(Object model, ModelBindingMetaData metaData) {
-        modelToModelBinding.put(model, metaData);
+    public void setModelBindingMetaData(ModelBindingMetaData modelBindingMetaData) {
+        this.modelBindingMetaData = modelBindingMetaData;
     }
 
     public Object getMappedObject(String key) {
@@ -80,9 +92,9 @@ class TransformationWorkingContext {
 
     private Map<String, Object> getRootMappedObjects() {
         TransformationWorkingContext iterator = this;
-        while (iterator.getParentContext() != null)
+        while (iterator != null && iterator.getParentContext() != null)
             iterator = iterator.getParentContext();
-        return iterator.mappedObjects;
+        return iterator == null ? null : iterator.mappedObjects;
     }
 
     public Map<String, Object> getMappedObjects() {
@@ -102,5 +114,9 @@ class TransformationWorkingContext {
 
     TransformationWorkingContext getParentContext() {
         return parentContext;
+    }
+
+    public String getFormName() {
+        return formName;
     }
 }

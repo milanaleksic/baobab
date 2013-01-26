@@ -1,10 +1,11 @@
-package net.milanaleksic.guitransformer;
+package net.milanaleksic.guitransformer.converters;
 
 import com.google.common.base.*;
 import com.google.common.collect.*;
-import net.milanaleksic.guitransformer.builders.BuilderContext;
-import net.milanaleksic.guitransformer.providers.ObjectProvider;
-import net.milanaleksic.guitransformer.typed.*;
+import net.milanaleksic.guitransformer.TransformerException;
+import net.milanaleksic.guitransformer.builders.*;
+import net.milanaleksic.guitransformer.converters.typed.IntegerConverter;
+import net.milanaleksic.guitransformer.providers.*;
 import org.codehaus.jackson.*;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.swt.SWT;
@@ -20,15 +21,16 @@ import java.util.List;
 import java.util.regex.*;
 
 import static com.google.common.base.Preconditions.checkState;
+import static net.milanaleksic.guitransformer.util.ObjectUtil.*;
 
 /**
  * User: Milan Aleksic
  * Date: 4/19/12
  * Time: 3:03 PM
  * <p/>
- * ObjectConverter's soul purpose is to convert object nodes to SWT objects
+ * ObjectConverter's sole purpose is to convert object nodes to SWT objects
  */
-public class ObjectConverter implements Converter<Object> {
+public class ObjectConverter implements Converter {
 
     private static final Pattern builderValue = Pattern.compile("\\[([^\\]]+)\\]\\s*\\(([^\\)]*)\\)"); //NON-NLS
 
@@ -36,9 +38,6 @@ public class ObjectConverter implements Converter<Object> {
 
     private static final int DEFAULT_STYLE_SHELL = SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL;
     private static final int DEFAULT_STYLE_REST = SWT.NONE;
-
-    private static final String GUI_TRANSFORMER_SHORTCUTS_PROPERTIES = "/META-INF/guitransformer.shortcuts-default.properties"; //NON-NLS
-    private static final String GUI_TRANSFORMER_SHORTCUTS_EXTENSION_PROPERTIES = "/META-INF/guitransformer.shortcuts.properties"; //NON-NLS
 
     private static final String KEY_SPECIAL_TYPE = "_type"; //NON-NLS
     private static final String KEY_SPECIAL_CHILDREN = "_children"; //NON-NLS
@@ -61,20 +60,20 @@ public class ObjectConverter implements Converter<Object> {
     private ObjectProvider objectProvider;
 
     @Inject
-    private ConverterFactory converterFactory;
-
-    private Map<String, Builder<?>> registeredBuilders;
-
-    private final ImmutableMap<String, Class<?>> registeredShortcuts;
+    private ConverterProvider converterProvider;
 
     @Inject
-    public void setRegisteredBuilders(Map<String, Builder<?>> registeredBuilders) {
-        this.registeredBuilders = registeredBuilders;
-    }
+    private BuilderProvider builderProvider;
+
+    @Inject
+    private ShortcutsProvider shortcutsProvider;
+
+    @Inject
+    private EmbeddingService embeddingService;
 
     private abstract class ObjectCreator {
 
-        protected abstract boolean isWidgetUsingBuilder(String key, JsonNode value) ;
+        protected abstract boolean isWidgetUsingBuilder(String key, JsonNode value);
 
         protected abstract TransformationWorkingContext createWidgetUsingBuilder(TransformationWorkingContext context, @Nullable String key, JsonNode value)
                 throws TransformerException;
@@ -107,7 +106,7 @@ public class ObjectConverter implements Converter<Object> {
             }
         }
 
-        protected int fixStyleIfNoModalDialogs(TransformationWorkingContext context, int style) {
+        int fixStyleIfNoModalDialogs(TransformationWorkingContext context, int style) {
             if (context.isDoNotCreateModalDialogs()) {
                 style = style & (~SWT.APPLICATION_MODAL);
                 style = style & (~SWT.SYSTEM_MODAL);
@@ -116,14 +115,14 @@ public class ObjectConverter implements Converter<Object> {
             return style;
         }
 
-        protected Class<?> deduceClassFromNode(JsonNode valueNode) throws TransformerException {
+        Class<?> deduceClassFromNode(JsonNode valueNode) throws TransformerException {
             Preconditions.checkArgument(valueNode.has(KEY_SPECIAL_TYPE), "Item definition does not define type");
             String classIdentifier = valueNode.get(KEY_SPECIAL_TYPE).asText();
             return deduceClassFromNode(classIdentifier);
         }
 
-        protected Class<?> deduceClassFromNode(String classIdentifier) throws TransformerException {
-            Class<?> aClass = registeredShortcuts.get(classIdentifier);
+        Class<?> deduceClassFromNode(String classIdentifier) throws TransformerException {
+            Class<?> aClass = shortcutsProvider.provideClassForShortcut(classIdentifier);
             if (aClass != null)
                 return aClass;
             else
@@ -135,7 +134,7 @@ public class ObjectConverter implements Converter<Object> {
         }
     }
 
-    public class OldSchoolObjectCreator extends ObjectCreator {
+    private class OldSchoolObjectCreator extends ObjectCreator {
 
         protected boolean isWidgetUsingBuilder(String key, JsonNode value) {
             return value.has(KEY_SPECIAL_TYPE) && builderValue.matcher(value.get(KEY_SPECIAL_TYPE).asText()).matches();
@@ -164,7 +163,7 @@ public class ObjectConverter implements Converter<Object> {
             if (objectDefinition.has(KEY_SPECIAL_STYLE)) {
                 JsonNode styleNode = objectDefinition.get(KEY_SPECIAL_STYLE);
                 IntegerConverter exactTypeConverter = (IntegerConverter)
-                        converterFactory.getExactTypeConverter(int.class).get();
+                        converterProvider.provideTypedConverterForClass(int.class).get();
                 style = exactTypeConverter.getValueFromString(styleNode.asText());
             }
 
@@ -224,7 +223,7 @@ public class ObjectConverter implements Converter<Object> {
             int style = widgetClass == Shell.class ? DEFAULT_STYLE_SHELL : DEFAULT_STYLE_REST;
             if (!Strings.isNullOrEmpty(styleDefinition)) {
                 IntegerConverter exactTypeConverter = (IntegerConverter)
-                        converterFactory.getExactTypeConverter(int.class).get();
+                        converterProvider.provideTypedConverterForClass(int.class).get();
                 style = exactTypeConverter.getValueFromString(styleDefinition);
             }
 
@@ -240,61 +239,39 @@ public class ObjectConverter implements Converter<Object> {
     public ObjectConverter() {
         this.mapper = new ObjectMapper();
         this.mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
-        registeredShortcuts = ImmutableMap.<String, Class<?>>builder()
-                .putAll(getStringToClassMappingFromPropertiesFile(GUI_TRANSFORMER_SHORTCUTS_PROPERTIES))
-                .putAll(getStringToClassMappingFromPropertiesFile(GUI_TRANSFORMER_SHORTCUTS_EXTENSION_PROPERTIES))
-                .build();
     }
 
-    public TransformationWorkingContext createHierarchy(TransformationWorkingContext context, JsonNode shellDefinition) throws TransformerException {
+    public TransformationWorkingContext createHierarchy(TransformationWorkingContext context, String content) throws TransformerException {
+        try {
+            final JsonNode shellDefinition = mapper.readValue(content, JsonNode.class);
+            return getTransformationWorkingContext(context, shellDefinition);
+        } catch (IOException e) {
+            throw new TransformerException("IO Error while trying to find and parse required form: " + context.getFormName(), e);
+        }
+    }
+
+    public TransformationWorkingContext createHierarchy(Object formObject, TransformationWorkingContext context, InputStream content) throws TransformerException {
+        try {
+            final JsonNode shellDefinition = mapper.readValue(content, JsonNode.class);
+            final TransformationWorkingContext transformationWorkingContext = getTransformationWorkingContext(context, shellDefinition);
+            if (formObject != null)
+                embeddingService.embed(formObject, transformationWorkingContext);
+            return transformationWorkingContext;
+        } catch (IOException e) {
+            throw new TransformerException("IO Error while trying to find and parse required form: " + context.getFormName(), e);
+        }
+    }
+
+    private TransformationWorkingContext getTransformationWorkingContext(TransformationWorkingContext context, JsonNode shellDefinition) throws TransformerException {
         return new OldSchoolObjectCreator().create(context, null, shellDefinition);
-    }
-
-    private Map<? extends String, ? extends Class<?>> getStringToClassMappingFromPropertiesFile(String propertiesLocation) {
-        Map<String, Class<?>> ofTheJedi = new HashMap<String, Class<?>>();
-        try {
-            final InputStream additionalShortcutsStream = ObjectConverter.class.getResourceAsStream(propertiesLocation);
-            if (additionalShortcutsStream == null)
-                return ofTheJedi;
-            final Properties properties = new Properties();
-            properties.load(additionalShortcutsStream);
-            for (Map.Entry entry : properties.entrySet()) {
-                ofTheJedi.put(entry.getKey().toString(), Class.forName(entry.getValue().toString()));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return ofTheJedi;
-    }
-
-    @Override
-    public final void invoke(Method method, Object targetObject, JsonNode value, Map<String, Object> mappedObjects, Class<Object> argType) throws TransformerException {
-        try {
-            method.invoke(targetObject, getValueFromJson(targetObject, value, mappedObjects));
-        } catch (TransformerException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new TransformerException("Wrapped invoke failed: method=" + method +
-                    ", targetObject=" + targetObject + ", json=" + (value == null ? "<NULL>" : value.asText()) +
-                    ", argType=" + argType, e);
-        }
-    }
-
-    @Override
-    public final void setField(Field field, Object targetObject, JsonNode value, Map<String, Object> mappedObjects) throws TransformerException {
-        try {
-            final Object valueFromJson = getValueFromJson(targetObject, value, mappedObjects);
-            field.set(targetObject, valueFromJson);
-        } catch (IllegalAccessException e) {
-            throw new TransformerException("Wrapped setField failed: ", e);
-        }
     }
 
     @Override
     public void cleanUp() {
     }
 
-    private Object getValueFromJson(Object targetObject, JsonNode value, Map<String, Object> mappedObjects) throws TransformerException {
+    @Override
+    public Object getValueFromJson(Object targetObject, JsonNode value, Map<String, Object> mappedObjects) throws TransformerException {
         final TransformationWorkingContext transformationWorkingContext = new TransformationWorkingContext();
         transformationWorkingContext.setWorkItem(targetObject);
         transformationWorkingContext.mapAll(mappedObjects);
@@ -326,13 +303,13 @@ public class ObjectConverter implements Converter<Object> {
 
     private BuilderContext<?> constructObjectUsingBuilderNotation(TransformationWorkingContext context, String builderName, String parameters) throws TransformerException {
         final List<String> params = Lists.newArrayList(Splitter.on(",").trimResults().split(parameters));
-        final Builder<?> builder = registeredBuilders.get(builderName);
+        final Builder<?> builder = builderProvider.provideBuilderForName(builderName);
         if (builder == null)
             throw new TransformerException("Builder is not registered: " + builderName);
         return builder.create(context.getWorkItem(), params);
     }
 
-    private Object provideObjectFromDIContainer(TransformationWorkingContext mappedObjects, String magicName) throws TransformerException {
+    private Object provideObjectFromDIContainer(TransformationWorkingContext mappedObjects, String magicName) {
         Object mappedObject = mappedObjects.getMappedObject(magicName);
         if (mappedObject == null)
             mappedObject = objectProvider.provideObjectNamed(magicName);
@@ -344,9 +321,9 @@ public class ObjectConverter implements Converter<Object> {
         if (chosenConstructor.getParameterTypes().length == 0)
             return chosenConstructor.newInstance();
         if (Device.class.isAssignableFrom(chosenConstructor.getParameterTypes()[0])) {
+            if (parent == null)
+                throw new TransformerException("Null parent widget detected! widgetClass=" + widgetClass);
             final Widget parentAsWidget = (Widget) parent;
-            if (parentAsWidget == null)
-                throw new TransformerException("Null parent widget detected! parent=" + parent + ", widgetClass=" + widgetClass);
             return chosenConstructor.newInstance(parentAsWidget.getDisplay(), style);
         } else
             return chosenConstructor.newInstance(parent, style);
@@ -410,21 +387,25 @@ public class ObjectConverter implements Converter<Object> {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void transformSingleJsonNode(TransformationWorkingContext context, Map.Entry<String, JsonNode> field) throws TransformerException {
         try {
             if (SPECIAL_KEYS.contains(field.getKey()))
                 return;
+
             Optional<Method> method = getSetterByName(context.getWorkItem(), getSetterForField(field.getKey()));
             if (method.isPresent()) {
                 Class<?> argType = method.get().getParameterTypes()[0];
-                Converter converter = converterFactory.getConverter(argType);
-                safeCallInvoke(context, field, method, argType, converter);
+                Converter converter = converterProvider.provideConverterForClass(argType);
+                Object value = converter.getValueFromJson(context.getWorkItem(), field.getValue(), context.getMappedObjects());
+                method.get().invoke(context.getWorkItem(), value);
             } else {
                 Optional<Field> fieldByName = getFieldByName(context.getWorkItem(), field.getKey());
                 if (fieldByName.isPresent()) {
                     Class<?> argType = fieldByName.get().getType();
-                    Converter converter = converterFactory.getConverter(argType);
-                    safeCallSetField(context, field, fieldByName, converter);
+                    Converter converter = converterProvider.provideConverterForClass(argType);
+                    Object value = converter.getValueFromJson(context.getWorkItem(), field.getValue(), context.getMappedObjects());
+                    fieldByName.get().set(context.getWorkItem(), value);
                 } else
                     throw new TransformerException("No setter nor field " + field.getKey() + " could be found in class " + context.getWorkItem().getClass().getName() + "; context: " + field.getValue());
             }
@@ -433,46 +414,6 @@ public class ObjectConverter implements Converter<Object> {
         } catch (Throwable t) {
             throw new TransformerException("Transformation was not successful", t);
         }
-    }
-
-    @SuppressWarnings({"unchecked"})
-    private void safeCallSetField(TransformationWorkingContext context, Map.Entry<String, JsonNode> field, Optional<Field> fieldByName, Converter converter) throws TransformerException {
-        try {
-            converter.setField(fieldByName.get(), context.getWorkItem(), field.getValue(), context.getMappedObjects());
-        } catch (IncapableToExecuteTypedConversionException e) {
-            converter.setField(fieldByName.get(), context.getWorkItem(), field.getValue(), context.getMappedObjects());
-        }
-    }
-
-    @SuppressWarnings({"unchecked"})
-    private void safeCallInvoke(TransformationWorkingContext context, Map.Entry<String, JsonNode> field, Optional<Method> method, Class<?> argType, Converter converter) throws TransformerException {
-        try {
-            converter.invoke(method.get(), context.getWorkItem(), field.getValue(), context.getMappedObjects(), argType);
-        } catch (IncapableToExecuteTypedConversionException e) {
-            converter.invoke(method.get(), context.getWorkItem(), field.getValue(), context.getMappedObjects(), Object.class);
-        }
-    }
-
-    private Optional<Field> getFieldByName(Object object, String fieldName) {
-        for (Field field : object.getClass().getFields()) {
-            if (field.getName().equals(fieldName)) {
-                return Optional.of(field);
-            }
-        }
-        return Optional.absent();
-    }
-
-    private Optional<Method> getSetterByName(Object object, String setterName) {
-        for (Method method : object.getClass().getMethods()) {
-            if (method.getName().equals(setterName) && method.getParameterTypes().length == 1) {
-                return Optional.of(method);
-            }
-        }
-        return Optional.absent();
-    }
-
-    private String getSetterForField(String fieldName) {
-        return "set" + fieldName.substring(0, 1).toUpperCase(Locale.getDefault()) + fieldName.substring(1); //NON-NLS
     }
 
 }

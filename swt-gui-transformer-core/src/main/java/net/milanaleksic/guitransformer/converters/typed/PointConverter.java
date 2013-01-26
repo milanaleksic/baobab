@@ -1,4 +1,4 @@
-package net.milanaleksic.guitransformer.typed;
+package net.milanaleksic.guitransformer.converters.typed;
 
 import org.codehaus.jackson.JsonNode;
 import org.eclipse.swt.graphics.Point;

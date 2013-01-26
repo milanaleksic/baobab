@@ -28,7 +28,7 @@
             "text" : "[delete.doYouReallyWishToDeleteMovie]",
             "foreground" : "#ff0000"
         },
-        "label(labFilmNaziv, {wrap}|{shadow_out}|{horizontal}|{center})" : {
+        "label(labFilmName, {wrap}|{shadow_out}|{horizontal}|{center})" : {
             "layoutData" : "[gridData](center,begin,true,false)"
         },
         "label(label2)" : {},
