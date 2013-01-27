@@ -59,9 +59,16 @@
     <p>If you wish to use resource bundle messages, images or beans injections into SWT (or your custom) beans you
         should definitely take a look at how to implement <a href="#providers">providers</a>.</p>
 
-    <p>Finally, after you have finished working with the user interface, you need to be able to use all those widgets
-        and to react on their events, right? Take a look how I implemented events and widgets annotation-driven <a
-                href="#embedding">embedding</a> and how to, finally, <a href="#wiring">transform the form</a>.</p>
+    <p>After you have finished working with the user interface, you need to be able to use all those widgets
+        and to react on their events, right? Take a look how I implemented events and widgets annotation-driven
+        <a href="#embedding">embedding</a>.</p>
+
+    <p>Finally, starting from version 0.3.0 Java controller part can be made simple even further if you choose
+    to utilize the <a href="#observed-model">Observed model approach</a> which eliminates need for embedded components
+    in most cases (still, you can continue to use embedded components in parallel if you wish to).</p>
+
+    <p>When the moment comes to combine all elements and run the application you need how to execute call to
+    transformer and <a href="#wiring">wiring it all together</a>.</p>
 
     <h2 id="creation-notations">Creation notations</h2>
 
@@ -95,7 +102,7 @@
     <p>If you wish to extend the list of the items to use some additional SWT classes or if you wish to
         use shortcuts for your own widgets, you can create properties file <code>/META-INF/guitransformer.shortcuts.properties</code>
         like I did it in <a
-                href="https://github.com/milanaleksic/MovieCatalogSystem/blob/master/source/java/META-INF/guitransformer.shortcuts.properties">MovieCatalogSystem</a>.
+                href="https://github.com/milanaleksic/MovieCatalogSystem/blob/develop/source/java-resources/META-INF/guitransformer.shortcuts.properties">MovieCatalogSystem</a>.
         If you use this approach and wish to use SGT's interactive editor for your project's GUI files,
         just include the compiled output to the editor's classpath.
     </p>
@@ -163,14 +170,23 @@
     <p>First, you need to make your own implementations of interface <code>net.milanaleksic.guitransformer.builders.Builder&lt;T&gt;</code>.
     </p>
 
-    <p>Second thing to do is to use DI and extend the <code>net.milanaleksic.guitransformer.guice.CoreModule</code>
-        and implement your own <code>prepareRegisteredBuildersForObjectConverter</code> method if you're using
-        Guice or just introduce more mappings in Spring configuration for field <code>registeredBuilders</code>
-        for bean of type <code>net.milanaleksic.guitransformer.converters.ObjectConverter</code>.</p>
+    <p>You need to add your mapping file <code>/META-INF/guitransformer.builders.properties</code> with following
+        form:</p>
+    <pre>  myBuilderName=com.foo.MyBuilder
+  myBuilderName2=com.foo.MyBuilder2
+  ...</pre>
+    <p>The previous mapping will allow you to register (e.g.) a builder with name <code>myBuilderName</code> which
+    is defined in the class <code>com.foo.MyBuilder</code>. This builder will receive all parameters sent to it in
+    the GUI file. The response must be instance of <code>net.milanaleksic.guitransformer.builders.BuilderContext&lt;T&gt;</code>
+    which describes the built SWT component and its name. If you choose to return <code>null</code>, it will not
+    be placed in the map on named components.</p>
+    <p>As you can see, extensibility of the builder notation allows you to create you own tiny DSL inside the GUI
+    files for easier creation of GUI interface files.</p>
 
     <h2 id="converters">Converters</h2>
 
-    <p>Converters are critical to the SGT application. JSON only recognizes Strings, booleans and number values.
+    <p>Converters are critical part of any SGT-driven application. JSON only recognizes Strings, booleans and number
+        values.
         How can you possibly map a <code>TabItem</code>? The trick is in converters - they are specialized
         for converting a JSON node (which can be text, number, boolean, array or object node) into a specific
         <strong>target type</strong>.</p>
@@ -179,8 +195,6 @@
         a field of type <code>int</code>, it will use <code>IntegerConverter</code> to convert the value
         on the right side of JSON property to appropriate type - int. IntegerConverter is, though, more
         powerful because it has magic value notation, which you can read in details later.</p>
-
-    <p>Using dependency injection you can extend the currently supported list to other items as well. </p>
 
     <p>Currently supported converters (most of them are in package <code>net.milanaleksic.guitransformer.converters.typed</code>)
         are:</p>
@@ -197,6 +211,18 @@
         <li>if none is appropriate - fallback to
             <a href="#object-converter"><code>net.milanaleksic.guitransformer.converters.ObjectConverter</code></a></li>
     </ol>
+
+    <h4>Wish to extend?</h4>
+    <p>You need to add your mapping file <code>/META-INF/guitransformer.converters.properties</code> with following
+        form:</p>
+    <pre>  com.foo.TargetType=com.foo.MyConverter
+  com.foo.TargetType2=com.foo.MyConverter2
+  ...</pre>
+    <p>The previous mapping will allow conversion of a JsonNode (<em>Jackson</em> is used for JSON processing)
+    to the type (e.g.) <code>com.foo.TargetType</code> using an implementation of interface
+    <code>net.milanaleksic.guitransformer.converters.Converter</code> or maybe (easier/cleaner for simple type
+    mapping) <code>net.milanaleksic.guitransformer.converters.typed.TypedConverter</code> defined with the right
+        side of the property - <code>com.foo.MyConverter</code> and so on.</p>
 
     <h4 id="boolean-converter">BooleanConverter</h4>
 
@@ -605,15 +631,149 @@
     dependency injection. Guice and Spring are the frameworks I used:</p>
 
     <ol>
-        <li>if you use Spring, take a look at <a href="https://github.com/milanaleksic/MovieCatalogSystem/blob/master/source/java/spring-beans-transformer.xml">
+        <li>if you use Spring, take a look at <a href="https://github.com/milanaleksic/MovieCatalogSystem/blob/develop/source/java-resources/spring-beans-transformer.xml">
             XML wiring used in the MovieCatalogSystem</a>,</li>
         <li>if you use Guice, there is already a <a href="https://github.com/milanaleksic/swt-gui-transformer/blob/master/swt-gui-transformer-core/src/main/java/net/milanaleksic/guitransformer/guice/CoreModule.java">
             basic module</a> defined in the SGT code.</li>
     </ol>
 
     <p>The code for wiring the form and GUI file uses the entry point to SGT - <code>Transformer</code>.</p>
-    <p>On the basics page you have <a href="index.html#wiring-example">entire example</a> how to use the
-        Transformer to transform one form file.</p>
+    <p>Calling the transformer is quite straight-forward:</p>
+    <pre>  @Inject private Transformer transformer;
+
+  public showForm() throws TransformerException {
+    net.milanaleksic.guitransformer.TransformationContext context = transformer.fillManagedForm(this);
+    org.eclipse.swt.widgets.Shell shell = context.getShell();
+    shell.open();
+  }</pre>
+    <p>Now, what the call to <code></code> will do is the following:</p>
+    <ol>
+        <li>it will search for a GUI file named identically to the
+    name of the class (and in the same package), just with extension <code>.gui</code>;</li>
+        <li>it will check the validity (JSON) of the GUI file, wire all of the injected named objects,
+        inject messages from resource bundle;</li>
+        <li>it will boot strap all of <code>@EmbeddedComponents</code> and <code>@TransformerModel</code> fields
+            (more in <a href="#observed-model">observed model</a> part for <code>@TransformerModel</code>) ;</li>
+        <li>wire all event handlers fields/methods marked with <code>@EmbeddedEventListener</code> annotations;</li>
+        <li>it will return a <code>TransformationContext</code> object which wraps the transformed shell and
+            all of the mapped objects and model binding metadata which is critical if you wish afterwards to
+            manually update SWT form based on current model state using call
+            <code>transformer.updateFormFromModel(form, context)</code>.</li>
+    </ol>
+
+
+    <h3 id="observed-model">Observed model approach</h3>
+    <p>Starting from SGT v0.3.0 and with help of Cglib magic it is possible to simplify further the usage of SGT using
+    embedded model which wraps the binding between a standard Java object expressing the current state and the view
+    presented to the user in the shape of SWT form. I believe the best way to show how to use it is via simple
+    example.</p>
+
+    <p>Let us imagine a situation where a form called MovieDetailsForm uses SGT for mapping the SWT form to a simple
+    model object. This MovieDetailsForm can look something like this:</p>
+    <pre>public class MovieDetailsForm {
+
+    @EmbeddedComponent
+    private Shell shell;
+
+    @TransformerModel(observe = true)
+    private MovieDetailsModel model;
+
+    public void showDataForMovie(Shell parent, Movie movie) {
+      model.fillFromMovie(movie);
+      shell.setVisible(true);
+    }
+}</pre>
+
+    <p>There should not be any surprises in the form controller object described above besides the
+        <code>@TransformerModel</code>. Let's see how this model looks like.</p>
+
+    <p>First of all, every model is a POJO which uses only annotations for customizations (if needed at all) and no
+    inheritance or interface implementation. Here is a little more elaborate model to show different aspects:</p>
+
+    <pre>package net.milanaleksic.mcs.application.gui.model;
+
+import com.google.common.collect.Sets;
+import net.milanaleksic.guitransformer.model.*;
+import net.milanaleksic.mcs.domain.model.*;
+
+import java.util.Set;
+
+public class MovieDetailsModel {
+
+    private String comment;
+
+    @TransformerProperty("selectedItems")
+    private Iterable&lt;String&gt; tags;
+
+    @TransformerProperty(component = "movieName", value = "text")
+    private String name;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Iterable&lt;String&gt; getTags() {
+        return tags;
+    }
+
+    public void setTags(Iterable&lt;String&gt; tags) {
+        this.tags = tags;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    @TransformerFireUpdate
+    public void fillFromMovie(Movie theMovie) {
+        final Set&lt;String&gt; tagNames = Sets.newLinkedHashSet();
+        for (Tag tag : theMovie.getTags()) {
+            tagNames.add(tag.toString());
+        }
+        tags = tagNames;
+        comment = theMovie.getComment();
+        name = theMovie.getTitle();
+    }
+
+}
+</pre>
+
+<p>So, what model wrapping does is following: it goes through all of the fields which <strong>don't have</strong> the
+annotation <code>@net.milanaleksic.guitransformer.model.TransformerIgnoredProperty</code>. It finds the
+<strong>named</strong> components for all of these fields and maps the <code>text</code> property of them
+to the value of the property in the model. This means that modifying the value in the model and then asking the
+SGT toolkit to update form based on model will force the value of the SWT component to be updated to this value.
+At the same time SGT will update the model field when SWT component's text value gets modified using dynamically
+created event listener for SWT.Modify event.</p>
+<p>Both default choices <code>SWT.Modify</code> trigger and the bound property <code>text</code> can be modified
+using customization annotation <code>@TransformerProperty</code>.</p>
+<p>The hardest part with working with object is to understand that there are different ways to update form when
+after updating the model:</p>
+<ol>
+    <li>If you have set (back in the form controller object) <code>@TransformerModel</code>'s attribute
+    <code>observe</code> to true - SGT will create Cglib-driven listeners for all setters of property-bound fields.
+    Property-bound fields are (again) all of the fields that don't have <code>@TransformerIgnoredProperty</code>.
+    This listener will execute immediately after the setter finishes with execution;</li>
+    <li>If you have set (back in the form controller object) <code>@TransformerModel</code>'s attribute
+    <code>observe</code> to true - SGT allows you to update more than one field in a single method to maintain
+    UX consistency, there is a solution for that - <code>@net.milanaleksic.guitransformer.model.TransformerFireUpdate</code>.
+    If SGT finds a method in the model object annotated with this annotation it will create additional Cglib-driven
+    listener which will execute the form update after this method has finished executing;</li>
+    <li>Third (and last) method of updating the component does not demand you to have the <code>observe</code> attribute
+    set to true - you can execute it whenever from the form controller. It is based on the Transformer's
+    call <code>transformer.updateFormFromModel(form, context)</code>. Please note that (to be able to use this call)
+    you need to maintain the model binding metadata by yourself (you receive it as part the context object which
+    is result of the SGT transformation call).</li>
+</ol>
+
 
 </section>
 </div>
