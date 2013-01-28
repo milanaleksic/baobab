@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <bean id="embeddingService" class="net.milanaleksic.guitransformer.converters.EmbeddingService">
+        <property name="methodEventListenerExceptionHandler">
+            <bean class="net.milanaleksic.mcs.infrastructure.swt.GuiExceptionHandler"/>
+        </property>
+    </bean>
+
+    <bean class="net.milanaleksic.guitransformer.providers.impl.ConfigurableBuilderProvider" />
+
+    <bean class="net.milanaleksic.guitransformer.providers.impl.ConfigurableConverterProvider"/>
+
+    <bean class="net.milanaleksic.guitransformer.providers.impl.ConfigurableShortcutsProvider"/>
+
+    <bean class="net.milanaleksic.guitransformer.loader.impl.SpringLoader" />
+
+    <bean class="net.milanaleksic.guitransformer.converters.ObjectConverter" />
+
+    <bean class="net.milanaleksic.guitransformer.converters.typed.IntegerConverter" />
+
+    <bean id="transformer" class="net.milanaleksic.guitransformer.Transformer" />
+
+</beans>

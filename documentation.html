@@ -6,17 +6,18 @@
     <title>Swt-gui-transformer by milanaleksic</title>
 
     <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/prettify.css">
     <link rel="stylesheet" href="stylesheets/lightbox.css">
     <script src="javascripts/jquery-1.7.2.min.js"></script>
     <script src="javascripts/scale.fix.js"></script>
-    <script src="javascripts/lightbox.js"></script>
+    <script src="javascripts/prettify.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 </head>
-<body>
+<body onload="prettyPrint()">
 <div class="wrapper">
 <header>
     <h1>swt-gui-transformer</h1>
@@ -77,7 +78,7 @@
     <p>To <strong>create</strong> beans using this approach, you should use the special tag <strong>_type</strong>
         to note exact class you wish to instantiate:</p>
 
-        <pre>    {
+        <pre class="prettyprint lang-js">    {
         "_type" : "org.eclipse.swt.widgets.Label",
         .....
     }</pre>
@@ -87,7 +88,7 @@
     <p>This approach is used to make definition writing faster since it allows you to use short type identifiers
         instead of full class names.</p>
 
-        <pre>    {
+        <pre class="prettyprint lang-js">    {
         "_type" : "label",
         .....
     }</pre>
@@ -101,8 +102,7 @@
 
     <p>If you wish to extend the list of the items to use some additional SWT classes or if you wish to
         use shortcuts for your own widgets, you can create properties file <code>/META-INF/guitransformer.shortcuts.properties</code>
-        like I did it in <a
-                href="https://github.com/milanaleksic/MovieCatalogSystem/blob/develop/source/java-resources/META-INF/guitransformer.shortcuts.properties">MovieCatalogSystem</a>.
+        like I did it in <a href="mcs/guitransformer.shortcuts.properties">MovieCatalogSystem</a>.
         If you use this approach and wish to use SGT's interactive editor for your project's GUI files,
         just include the compiled output to the editor's classpath.
     </p>
@@ -115,7 +115,7 @@
 
     <p>Notation is as follows:</p>
 
-    <pre>    [builderName](param1,param2...)</pre>
+    <pre class="prettyprint lang-js">    [builderName](param1,param2...)</pre>
 
     <p>The param count is generic. Implementation of <code>net.milanaleksic.guitransformer.builders.Builder&lt;T&gt;</code>
         has only one method <code>create</code> that gets List of all parameters.</p>
@@ -127,11 +127,11 @@
     </ol>
     <p>First approach is trivial - it lets builder do entire task for creating the object:</p>
 
-    <pre>    "someProperty" : "[myBuilder](param1,param2)"</pre>
+    <pre class="prettyprint lang-js">    "someProperty" : "[myBuilder](param1,param2)"</pre>
 
     <p>But, in case you need to further customize the object created by the builder, use second approach:</p>
 
-    <pre>    "someProperty" : {
+    <pre class="prettyprint lang-js">    "someProperty" : {
         "_type": "[myBuilder](param1,param2)",
         "param3" : "valueForParam3"
     }</pre>
@@ -142,7 +142,7 @@
         object which can be quite cumbersome if you base you layout on it a lot. Using <code>GridDataBuilder</code>
         you can replace following block of code:</p>
 
-        <pre>   "_type" : "composite",
+        <pre class="prettyprint lang-js">   "_type" : "composite",
     "layoutData" : {
         "_type" : "gridData",
         "horizontalAlignment" : "{center}", // what are these {???} things? Wait for Integer Converter part
@@ -153,14 +153,14 @@
 
     <p>with following shorter variant:</p>
 
-        <pre>    "_type" : "composite",
+        <pre class="prettyprint lang-js">    "_type" : "composite",
     "layoutData" : "[gridData](center,begin,true,false)"</pre>
 
     <p>This builder has variants of 4 and 6 parameters, where the 6-param version also accepts
     horizontalSpan and verticalSpan properties to be set. But what if you have to set some additional
     field for GridData, like <code>heightHint</code>? Easy, use the object + builder notation approach:</p>
 
-    <pre>    "layoutData" : {
+    <pre class="prettyprint lang-js">    "layoutData" : {
         "_type" : "[gridData](fill,fill,true,true,1,3)",
         "heightHint" : 180
     },</pre>
@@ -172,7 +172,7 @@
 
     <p>You need to add your mapping file <code>/META-INF/guitransformer.builders.properties</code> with following
         form:</p>
-    <pre>  myBuilderName=com.foo.MyBuilder
+    <pre class="prettyprint">  myBuilderName=com.foo.MyBuilder
   myBuilderName2=com.foo.MyBuilder2
   ...</pre>
     <p>The previous mapping will allow you to register (e.g.) a builder with name <code>myBuilderName</code> which
@@ -215,7 +215,7 @@
     <h4>Wish to extend?</h4>
     <p>You need to add your mapping file <code>/META-INF/guitransformer.converters.properties</code> with following
         form:</p>
-    <pre>  com.foo.TargetType=com.foo.MyConverter
+    <pre class="prettyprint">  com.foo.TargetType=com.foo.MyConverter
   com.foo.TargetType2=com.foo.MyConverter2
   ...</pre>
     <p>The previous mapping will allow conversion of a JsonNode (<em>Jackson</em> is used for JSON processing)
@@ -236,7 +236,7 @@
         <li>it allows you to use classic CSS color notation in GUI files (which is in my opinion cool),</li>
         <li>you can reference SWT system colors by using the name of the color in <em>lowercase</em>.</li>
     </ol>
-    <pre>    {
+    <pre class="prettyprint lang-js">    {
         "_type" : "label",
         "foreground" : "#0000ff",              // HTML/CSS color definition: r:0, g:0, b:255
         "background" : "color_list_foreground" // system color org.eclipse.swt.SWT.COLOR_LIST_FOREGROUND
@@ -252,7 +252,7 @@
     <p>Since it is quite often needed to use bitwise OR when declaring values (styles before all else),
         IntegerConverter also accepts OR operator:</p>
 
-    <pre>    {
+    <pre class="prettyprint lang-js">    {
         "_type" : "text",
         "_style" : "{multi}|{wrap}|{v_scroll}|{border}" // SWT.MULTI | SWT.WRAP | SWT.V_SCROLL | SWT.BORDER
     }</pre>
@@ -263,7 +263,7 @@
         integer values of.
     </p>
 
-    <pre>    {
+    <pre class="prettyprint lang-js">    {
         "__comment" : "to set sashForm's weights you need to wait until components have been added",
         "_type" : "sashForm",
         "_style" : "{smooth}",
@@ -292,7 +292,7 @@
         <li><code>style</code> - it can be set to text values <strong>bold</strong> or <strong>italic</strong></li>
     </ol>
     <p>For whatever is not set, FontConverter will use values from default system font.</p>
-    <pre>    {
+    <pre class="prettyprint lang-js">    {
         "_type" : "label",
         "font" : {
             "height" : 12,
@@ -306,14 +306,14 @@
     <p>For example, in MCS I have image provider implementation that uses the value as a full path
         to the location in application resources, from where it fetches it for SGT to embed.</p>
 
-    <pre>    {
+    <pre class="prettyprint lang-js">    {
         "_type" : "toolItem",
         "image" : "/net/milanaleksic/mcs/application/res/media.png"
     }</pre>
 
     <h4 id="point-converter">PointConverter</h4>
     <p>Very basic converter that uses simple string pattern <code>x,y</code> as the value definition.</p>
-    <pre>    {
+    <pre class="prettyprint lang-js">    {
         "_type" : "shell",
         "size" : "412,326"
     }</pre>
@@ -324,7 +324,7 @@
         behind it. That should be, most logically, a String from the resourceBundle for the current application
         locale, but doesn't have to be.</p>
 
-    <pre>    {
+    <pre class="prettyprint lang-js">    {
         "_type" : "label",
         "text" : "[delete.doYouReallyWishToDeleteMovie]"
     }</pre>
@@ -340,7 +340,7 @@
         notation, which means that instead of creating it it needs to <strong>provide</strong> it.
         The injected object notation is:</p>
 
-    <pre>    "(objectName)"</pre>
+    <pre class="prettyprint lang-js">    "(objectName)"</pre>
 
     <p>Providing the object is two-phase process: first the named objects in the current context are browsed.
         You can use the special tag <strong>_name</strong> to give name to any bean. This is extremely useful
@@ -348,7 +348,7 @@
         (Composite for example) and then create TabItem with the previously created widget as the <em>control</em>:
     </p>
 
-    <pre>    {
+    <pre class="prettyprint lang-js">    {
         "_type" : "composite",
         "_name" : "<em>settingsTab</em>"
     },
@@ -362,7 +362,7 @@
         If you implemented Object Provider to fetch the object from DI using the name, you can easily inject
         a bean in custom SWT widgets.</p>
 
-    <pre>    {
+    <pre class="prettyprint lang-js">    {
         "_type" : "myCustomComponent",
         "bundle" : "(resourceBundle)" // resourceBundle can be Spring bean for example!
     }</pre>
@@ -392,7 +392,7 @@
         while constructing the child. For example, if you wish to make shell with two labels you do it like this:
     </p>
 
-    <pre>    {
+    <pre class="prettyprint lang-js">    {
         "_type" : "shell",
         "size" : "150,150",
         "layout" : {
@@ -419,7 +419,7 @@
         <code>_name</code> and <code>_type</code> special tags and sets them all at once in the JSON key name.
         Following two examples are identical in what they are producing:</p>
 
-    <pre>
+    <pre class="prettyprint lang-js">
     {                                                               {
         "_type" : "shell",                                              "_type" : "shell",
         "layout" : {                                                    "layout" : {
@@ -491,7 +491,7 @@
         field which will be omitted by content parsers. So, just put it in any object definition and put in the
         value field whatever you wish - it will not be taken into consideration by SGT.</p>
 
-    <pre>    "label(myLabel)" : {
+    <pre class="prettyprint lang-js">    "label(myLabel)" : {
         "__comment" : "This is a comment in the GUI file!"
     }</pre>
 
@@ -512,7 +512,7 @@
         messages_en.properties (or default messages.properties if first does not exist) as the source for resource
         naming pattern for string properties. For example:</p>
 
-    <pre>    "label(myLabel)" : {
+    <pre class="prettyprint lang-js">    "label(myLabel)" : {
         "text" : "[string.from.bundle]"
     }</pre>
 
@@ -525,7 +525,7 @@
         You can though use <code>AlwaysReturnNullObjectProvider</code> to always embed null when named object
         is requested, for example:</p>
 
-    <pre>    "net.milanaleksic.application.MyCustomSWTComponent(coolName)" : {
+    <pre class="prettyprint lang-js">    "net.milanaleksic.application.MyCustomSWTComponent(coolName)" : {
         "someReallyCoolCustomObjectFromSpring" : "(customSpringObject)"
     }</pre>
 
@@ -551,9 +551,9 @@
     <h3>@EmbeddedComponent</h3>
     <p>This annotation can be used on fields (should be but don't <em>have to be</em> private) in the form file.</p>
     <p>So, if you have a field named "myLabel" in the GUI file:</p>
-    <pre>     "label(myLabel)" : { }</pre>
+    <pre class="prettyprint lang-js">     "label(myLabel)" : { }</pre>
     <p>in the managed form Java file you just mark the appropriate field with the annotation:</p>
-    <pre>    @EmbeddedComponent
+    <pre class="prettyprint lang-java">    @EmbeddedComponent
     private Label myLabel;</pre>
     <p>After transformation, you can just dereference the value in it - it will be injected by SGT before that
         time or it will fail early while trying to do so.</p>
@@ -562,7 +562,7 @@
     <p>To wire event listeners you also need just to reference the component with the name and
         then ask for a specific event to attach the listener to. Listener implementation fields
         can be <em>but don't have to be</em> static.</p>
-<pre>    @EmbeddedEventListener(component="myLabel", event= SWT.Selection)
+<pre class="prettyprint lang-java">    @EmbeddedEventListener(component="myLabel", event= SWT.Selection)
     private final Listener myLabelSelectionListener  = new Listener() {
         public void handleEvent(Event event) {
             // handle event
@@ -571,7 +571,7 @@
     <p>Latter annotation (<code>EmbeddedEventListeners)</code> is just a helper annotation in cases
         where you want to use same listener implementation for multiple event sources for one or more
         event sources:</p>
-    <pre>     @EmbeddedEventListeners({
+    <pre class="prettyprint lang-java">     @EmbeddedEventListeners({
             @EmbeddedEventListener(component = "comboMediumType", event = SWT.Selection),
             @EmbeddedEventListener(component = "comboMediumType", event = SWT.Modify),
             @EmbeddedEventListener(component = "comboGenre", event = SWT.Selection)
@@ -597,7 +597,7 @@
 
     <p>Here is the method-level implementation of previous two examples:</p>
 
-    <pre>    @EmbeddedEventListener(component="myLabel", event= SWT.Selection)
+    <pre class="prettyprint lang-java">    @EmbeddedEventListener(component="myLabel", event= SWT.Selection)
     private void myLabelSelectionListener(Event event) {
         // handle event
     }
@@ -631,7 +631,7 @@
     dependency injection. Guice and Spring are the frameworks I used:</p>
 
     <ol>
-        <li>if you use Spring, take a look at <a href="https://github.com/milanaleksic/MovieCatalogSystem/blob/develop/source/java-resources/spring-beans-transformer.xml">
+        <li>if you use Spring, take a look at <a href="mcs/spring-beans-transformer.xml">
             XML wiring used in the MovieCatalogSystem</a>,</li>
         <li>if you use Guice, there is already a <a href="https://github.com/milanaleksic/swt-gui-transformer/blob/master/swt-gui-transformer-core/src/main/java/net/milanaleksic/guitransformer/guice/CoreModule.java">
             basic module</a> defined in the SGT code.</li>
@@ -639,7 +639,7 @@
 
     <p>The code for wiring the form and GUI file uses the entry point to SGT - <code>Transformer</code>.</p>
     <p>Calling the transformer is quite straight-forward:</p>
-    <pre>  @Inject private Transformer transformer;
+    <pre class="prettyprint lang-java">  @Inject private Transformer transformer;
 
   public showForm() throws TransformerException {
     net.milanaleksic.guitransformer.TransformationContext context = transformer.fillManagedForm(this);
@@ -670,7 +670,7 @@
 
     <p>Let us imagine a situation where a form called MovieDetailsForm uses SGT for mapping the SWT form to a simple
     model object. This MovieDetailsForm can look something like this:</p>
-    <pre>public class MovieDetailsForm {
+    <pre class="prettyprint lang-java">public class MovieDetailsForm {
 
     @EmbeddedComponent
     private Shell shell;
@@ -690,7 +690,7 @@
     <p>First of all, every model is a POJO which uses only annotations for customizations (if needed at all) and no
     inheritance or interface implementation. Here is a little more elaborate model to show different aspects:</p>
 
-    <pre>package net.milanaleksic.mcs.application.gui.model;
+    <pre class="prettyprint lang-java">package net.milanaleksic.mcs.application.gui.model;
 
 import com.google.common.collect.Sets;
 import net.milanaleksic.guitransformer.model.*;
