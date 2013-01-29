@@ -759,17 +759,17 @@ using customization annotation <code>@TransformerProperty</code>.</p>
 after updating the model:</p>
 <ol>
     <li>If you have set (back in the form controller object) <code>@TransformerModel</code>'s attribute
-    <code>observe</code> to true - SGT will create Cglib-driven listeners for all setters of property-bound fields.
-    Property-bound fields are (again) all of the fields that don't have <code>@TransformerIgnoredProperty</code>.
+    <code>observe</code> to true, SGT will create Cglib-driven listeners for all setters of property-bound fields.
+    Property-bound fields are all the fields in model that don't have <code>@TransformerIgnoredProperty</code>.
     This listener will execute immediately after the setter finishes with execution;</li>
     <li>If you have set (back in the form controller object) <code>@TransformerModel</code>'s attribute
-    <code>observe</code> to true - SGT allows you to update more than one field in a single method to maintain
-    UX consistency, there is a solution for that - <code>@net.milanaleksic.guitransformer.model.TransformerFireUpdate</code>.
+    <code>observe</code> to true, SGT allows you to update more than one field in a single method to maintain
+    UX consistency using <code>@net.milanaleksic.guitransformer.model.TransformerFireUpdate</code>.
     If SGT finds a method in the model object annotated with this annotation it will create additional Cglib-driven
     listener which will execute the form update after this method has finished executing;</li>
     <li>Third (and last) method of updating the component does not demand you to have the <code>observe</code> attribute
     set to true - you can execute it whenever from the form controller. It is based on the Transformer's
-    call <code>transformer.updateFormFromModel(form, context)</code>. Please note that (to be able to use this call)
+    call <code>transformer.updateFormFromModel(form, context)</code>. Please note that to be able to use this call
     you need to maintain the model binding metadata by yourself (you receive it as part the context object which
     is result of the SGT transformation call).</li>
 </ol>
