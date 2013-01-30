@@ -36,111 +36,111 @@
     </ul>
 </header>
 <section>
-    <blockquote>Wish to see <a href="index.html">just the basics</a>?</blockquote>
+<blockquote>Wish to see <a href="index.html">just the basics</a>?</blockquote>
 
-    <h1>Documentation</h1>
+<h1>Documentation</h1>
 
-    <h2>Overview</h2>
+<h2>Overview</h2>
 
-    <p>You use SGT to convert JSON to create SWT beans using:</p>
-    <ol>
-        <li><a href="#explicit-notation">explicit class mention</a>,</li>
-        <li><a href="#shortcut-notation">shortcut notation</a> or</li>
-        <li><a href="#builder-notation">builder notation</a>.</li>
-    </ol>
-    <p>and then to configure them you use property setters. As usual, make sure the property
-        you are setting value to is exposed in the means of setter method or public field.</p>
+<p>You use SGT to convert JSON to create SWT beans using:</p>
+<ol>
+    <li><a href="#explicit-notation">explicit class mention</a>,</li>
+    <li><a href="#shortcut-notation">shortcut notation</a> or</li>
+    <li><a href="#builder-notation">builder notation</a>.</li>
+</ol>
+<p>and then to configure them you use property setters. As usual, make sure the property
+    you are setting value to is exposed in the means of setter method or public field.</p>
 
-    <p>SGT uses type information to find out which <a href="#converters">converter</a> to use to map the JSON node
-        value to the target object.</p>
+<p>SGT uses type information to find out which <a href="#converters">converter</a> to use to map the JSON node
+    value to the target object.</p>
 
-    <p>If you wish to add <em>children widgets</em> to the current widget, or to know how to <em>name the widget</em>,
-        or to define types you need to know everything about the <a href="#special-tags">special tags</a>.</p>
+<p>If you wish to add <em>children widgets</em> to the current widget, or to know how to <em>name the widget</em>,
+    or to define types you need to know everything about the <a href="#special-tags">special tags</a>.</p>
 
-    <p>If you wish to use resource bundle messages, images or beans injections into SWT (or your custom) beans you
-        should definitely take a look at how to implement <a href="#providers">providers</a>.</p>
+<p>If you wish to use resource bundle messages, images or beans injections into SWT (or your custom) beans you
+    should definitely take a look at how to implement <a href="#providers">providers</a>.</p>
 
-    <p>After you have finished working with the user interface, you need to be able to use all those widgets
-        and to react on their events, right? Take a look how I implemented events and widgets annotation-driven
-        <a href="#embedding">embedding</a>.</p>
+<p>After you have finished working with the user interface, you need to be able to use all those widgets
+    and to react on their events, right? Take a look how I implemented events and widgets annotation-driven
+    <a href="#embedding">embedding</a>.</p>
 
-    <p>Finally, starting from version 0.3.0 Java controller part can be made simple even further if you choose
+<p>Finally, starting from version 0.3.0 Java controller part can be made simple even further if you choose
     to utilize the <a href="#observed-model">Observed model approach</a> which eliminates need for embedded components
     in most cases (still, you can continue to use embedded components in parallel if you wish to).</p>
 
-    <p>When the moment comes to combine all elements and run the application you need how to execute call to
+<p>When the moment comes to combine all elements and run the application you need how to execute call to
     transformer and <a href="#wiring">wiring it all together</a>.</p>
 
-    <h2 id="creation-notations">Creation notations</h2>
+<h2 id="creation-notations">Creation notations</h2>
 
-    <h3 id="explicit-notation">Explicit class mention</h3>
+<h3 id="explicit-notation">Explicit class mention</h3>
 
-    <p>To <strong>create</strong> beans using this approach, you should use the special tag <strong>_type</strong>
-        to note exact class you wish to instantiate:</p>
+<p>To <strong>create</strong> beans using this approach, you should use the special tag <strong>_type</strong>
+    to note exact class you wish to instantiate:</p>
 
         <pre class="prettyprint lang-js">    {
         "_type" : "org.eclipse.swt.widgets.Label",
         .....
     }</pre>
 
-    <h3 id="shortcut-notation">Shortcut notation</h3>
+<h3 id="shortcut-notation">Shortcut notation</h3>
 
-    <p>This approach is used to make definition writing faster since it allows you to use short type identifiers
-        instead of full class names.</p>
+<p>This approach is used to make definition writing faster since it allows you to use short type identifiers
+    instead of full class names.</p>
 
         <pre class="prettyprint lang-js">    {
         "_type" : "label",
         .....
     }</pre>
 
-    <p>If you wish to see entire list of supported shortcuts out-of-the-box in SGT, take a look at the
-        current version's <code>knownShortcuts</code> field in
-        <a href="https://github.com/milanaleksic/swt-gui-transformer/blob/master/swt-gui-transformer-core/src/main/resources/META-INF/guitransformer.shortcuts-default.properties">properties
-            file</a>.</p>
+<p>If you wish to see entire list of supported shortcuts out-of-the-box in SGT, take a look at the
+    current version's <code>knownShortcuts</code> field in
+    <a href="https://github.com/milanaleksic/swt-gui-transformer/blob/master/swt-gui-transformer-core/src/main/resources/META-INF/guitransformer.shortcuts-default.properties">properties
+        file</a>.</p>
 
-    <h4>Wish to extend?</h4>
+<h4>Wish to extend?</h4>
 
-    <p>If you wish to extend the list of the items to use some additional SWT classes or if you wish to
-        use shortcuts for your own widgets, you can create properties file <code>/META-INF/guitransformer.shortcuts.properties</code>
-        like I did it in <a href="mcs/guitransformer.shortcuts.properties">MovieCatalogSystem</a>.
-        If you use this approach and wish to use SGT's interactive editor for your project's GUI files,
-        just include the compiled output to the editor's classpath.
-    </p>
+<p>If you wish to extend the list of the items to use some additional SWT classes or if you wish to
+    use shortcuts for your own widgets, you can create properties file <code>/META-INF/guitransformer.shortcuts.properties</code>
+    like I did it in <a href="mcs/guitransformer.shortcuts.properties">MovieCatalogSystem</a>.
+    If you use this approach and wish to use SGT's interactive editor for your project's GUI files,
+    just include the compiled output to the editor's classpath.
+</p>
 
-    <h3 id="builder-notation">Builder notation</h3>
+<h3 id="builder-notation">Builder notation</h3>
 
-    <p>For some complex cases it is too exhausting to set all properties manually, especially if the widget
-        appears too often. Builder pattern should help you with this problem by lowering the amount of text
-        you need to enter to get the same result.</p>
+<p>For some complex cases it is too exhausting to set all properties manually, especially if the widget
+    appears too often. Builder pattern should help you with this problem by lowering the amount of text
+    you need to enter to get the same result.</p>
 
-    <p>Notation is as follows:</p>
+<p>Notation is as follows:</p>
 
-    <pre class="prettyprint lang-js">    [builderName](param1,param2...)</pre>
+<pre class="prettyprint lang-js">    [builderName](param1,param2...)</pre>
 
-    <p>The param count is generic. Implementation of <code>net.milanaleksic.guitransformer.builders.Builder&lt;T&gt;</code>
-        has only one method <code>create</code> that gets List of all parameters.</p>
+<p>The param count is generic. Implementation of <code>net.milanaleksic.guitransformer.builders.Builder&lt;T&gt;</code>
+    has only one method <code>create</code> that gets List of all parameters.</p>
 
-    <p>You can use builder notation in 2 different ways:</p>
-    <ol>
-        <li>as a String value,</li>
-        <li>as the value for <strong>_type</strong> in the JSON object notation.</li>
-    </ol>
-    <p>First approach is trivial - it lets builder do entire task for creating the object:</p>
+<p>You can use builder notation in 2 different ways:</p>
+<ol>
+    <li>as a String value,</li>
+    <li>as the value for <strong>_type</strong> in the JSON object notation.</li>
+</ol>
+<p>First approach is trivial - it lets builder do entire task for creating the object:</p>
 
-    <pre class="prettyprint lang-js">    "someProperty" : "[myBuilder](param1,param2)"</pre>
+<pre class="prettyprint lang-js">    "someProperty" : "[myBuilder](param1,param2)"</pre>
 
-    <p>But, in case you need to further customize the object created by the builder, use second approach:</p>
+<p>But, in case you need to further customize the object created by the builder, use second approach:</p>
 
     <pre class="prettyprint lang-js">    "someProperty" : {
         "_type": "[myBuilder](param1,param2)",
         "param3" : "valueForParam3"
     }</pre>
 
-    <h4>Example: GridDataBuilder</h4>
+<h4>Example: GridDataBuilder</h4>
 
-    <p>Builder notation is used in SGT to replace creation of the <code>org.eclipse.swt.layout.GridData</code>
-        object which can be quite cumbersome if you base you layout on it a lot. Using <code>GridDataBuilder</code>
-        you can replace following block of code:</p>
+<p>Builder notation is used in SGT to replace creation of the <code>org.eclipse.swt.layout.GridData</code>
+    object which can be quite cumbersome if you base you layout on it a lot. Using <code>GridDataBuilder</code>
+    you can replace following block of code:</p>
 
         <pre class="prettyprint lang-js">   "_type" : "composite",
     "layoutData" : {
@@ -151,12 +151,12 @@
         "grabExcessVerticalSpace" : false
     },</pre>
 
-    <p>with following shorter variant:</p>
+<p>with following shorter variant:</p>
 
         <pre class="prettyprint lang-js">    "_type" : "composite",
     "layoutData" : "[gridData](center,begin,true,false)"</pre>
 
-    <p>This builder has variants of 4 and 6 parameters, where the 6-param version also accepts
+<p>This builder has variants of 4 and 6 parameters, where the 6-param version also accepts
     horizontalSpan and verticalSpan properties to be set. But what if you have to set some additional
     field for GridData, like <code>heightHint</code>? Easy, use the object + builder notation approach:</p>
 
@@ -165,103 +165,106 @@
         "heightHint" : 180
     },</pre>
 
-    <h4>Wish to extend?</h4>
+<h4>Wish to extend?</h4>
 
-    <p>First, you need to make your own implementations of interface <code>net.milanaleksic.guitransformer.builders.Builder&lt;T&gt;</code>.
-    </p>
+<p>First, you need to make your own implementations of interface <code>net.milanaleksic.guitransformer.builders.Builder&lt;T&gt;</code>.
+</p>
 
-    <p>You need to add your mapping file <code>/META-INF/guitransformer.builders.properties</code> with following
-        form:</p>
+<p>You need to add your mapping file <code>/META-INF/guitransformer.builders.properties</code> with following
+    form:</p>
     <pre class="prettyprint">  myBuilderName=com.foo.MyBuilder
   myBuilderName2=com.foo.MyBuilder2
   ...</pre>
-    <p>The previous mapping will allow you to register (e.g.) a builder with name <code>myBuilderName</code> which
+<p>The previous mapping will allow you to register (e.g.) a builder with name <code>myBuilderName</code> which
     is defined in the class <code>com.foo.MyBuilder</code>. This builder will receive all parameters sent to it in
     the GUI file. The response must be instance of <code>net.milanaleksic.guitransformer.builders.BuilderContext&lt;T&gt;</code>
     which describes the built SWT component and its name. If you choose to return <code>null</code>, it will not
     be placed in the map on named components.</p>
-    <p>As you can see, extensibility of the builder notation allows you to create you own tiny DSL inside the GUI
+
+<p>As you can see, extensibility of the builder notation allows you to create you own tiny DSL inside the GUI
     files for easier creation of GUI interface files.</p>
 
-    <h2 id="converters">Converters</h2>
+<h2 id="converters">Converters</h2>
 
-    <p>Converters are critical part of any SGT-driven application. JSON only recognizes Strings, booleans and number
-        values.
-        How can you possibly map a <code>TabItem</code>? The trick is in converters - they are specialized
-        for converting a JSON node (which can be text, number, boolean, array or object node) into a specific
-        <strong>target type</strong>.</p>
+<p>Converters are critical part of any SGT-driven application. JSON only recognizes Strings, booleans and number
+    values.
+    How can you possibly map a <code>TabItem</code>? The trick is in converters - they are specialized
+    for converting a JSON node (which can be text, number, boolean, array or object node) into a specific
+    <strong>target type</strong>.</p>
 
-    <p>To detect target type, SGT uses type introspection at runtime. For example, when it encounters
-        a field of type <code>int</code>, it will use <code>IntegerConverter</code> to convert the value
-        on the right side of JSON property to appropriate type - int. IntegerConverter is, though, more
-        powerful because it has magic value notation, which you can read in details later.</p>
+<p>To detect target type, SGT uses type introspection at runtime. For example, when it encounters
+    a field of type <code>int</code>, it will use <code>IntegerConverter</code> to convert the value
+    on the right side of JSON property to appropriate type - int. IntegerConverter is, though, more
+    powerful because it has magic value notation, which you can read in details later.</p>
 
-    <p>Currently supported converters (most of them are in package <code>net.milanaleksic.guitransformer.converters.typed</code>)
-        are:</p>
+<p>Currently supported converters (most of them are in package
+    <code>net.milanaleksic.guitransformer.converters.typed</code>)
+    are:</p>
 
-    <ol>
-        <li><a href="#boolean-converter"><code>BooleanConverter</code></a></li>
-        <li><a href="#color-converter"><code>ColorConverter</code></a></li>
-        <li><a href="#integer-converter"><code>IntegerConverter</code></a></li>
-        <li><a href="#integerarray-converter"><code>IntegerArrayConverter</code></a></li>
-        <li><a href="#font-converter"><code>FontConverter</code></a></li>
-        <li><a href="#image-converter"><code>ImageConverter</code></a></li>
-        <li><a href="#point-converter"><code>PointConverter</code></a></li>
-        <li><a href="#string-converter"><code>StringConverter</code></a></li>
-        <li>if none is appropriate - fallback to
-            <a href="#object-converter"><code>net.milanaleksic.guitransformer.converters.ObjectConverter</code></a></li>
-    </ol>
+<ol>
+    <li><a href="#boolean-converter"><code>BooleanConverter</code></a></li>
+    <li><a href="#color-converter"><code>ColorConverter</code></a></li>
+    <li><a href="#integer-converter"><code>IntegerConverter</code></a></li>
+    <li><a href="#integerarray-converter"><code>IntegerArrayConverter</code></a></li>
+    <li><a href="#font-converter"><code>FontConverter</code></a></li>
+    <li><a href="#image-converter"><code>ImageConverter</code></a></li>
+    <li><a href="#point-converter"><code>PointConverter</code></a></li>
+    <li><a href="#string-converter"><code>StringConverter</code></a></li>
+    <li>if none is appropriate - fallback to
+        <a href="#object-converter"><code>net.milanaleksic.guitransformer.converters.ObjectConverter</code></a></li>
+</ol>
 
-    <h4>Wish to extend?</h4>
-    <p>You need to add your mapping file <code>/META-INF/guitransformer.converters.properties</code> with following
-        form:</p>
+<h4>Wish to extend?</h4>
+
+<p>You need to add your mapping file <code>/META-INF/guitransformer.converters.properties</code> with following
+    form:</p>
     <pre class="prettyprint">  com.foo.TargetType=com.foo.MyConverter
   com.foo.TargetType2=com.foo.MyConverter2
   ...</pre>
-    <p>The previous mapping will allow conversion of a JsonNode (<em>Jackson</em> is used for JSON processing)
+<p>The previous mapping will allow conversion of a JsonNode (<em>Jackson</em> is used for JSON processing)
     to the type (e.g.) <code>com.foo.TargetType</code> using an implementation of interface
     <code>net.milanaleksic.guitransformer.converters.Converter</code> or maybe (easier/cleaner for simple type
     mapping) <code>net.milanaleksic.guitransformer.converters.typed.TypedConverter</code> defined with the right
-        side of the property - <code>com.foo.MyConverter</code> and so on.</p>
+    side of the property - <code>com.foo.MyConverter</code> and so on.</p>
 
-    <h4 id="boolean-converter">BooleanConverter</h4>
+<h4 id="boolean-converter">BooleanConverter</h4>
 
-    <p>This converter is the most basic one - it just converts the JSON native boolean value to Java's. Nothing else
-        to it.</p>
+<p>This converter is the most basic one - it just converts the JSON native boolean value to Java's. Nothing else
+    to it.</p>
 
-    <h4 id="color-converter">ColorConverter</h4>
+<h4 id="color-converter">ColorConverter</h4>
 
-    <p>This converter can be used in 2 different ways:</p>
-    <ol>
-        <li>it allows you to use classic CSS color notation in GUI files (which is in my opinion cool),</li>
-        <li>you can reference SWT system colors by using the name of the color in <em>lowercase</em>.</li>
-    </ol>
+<p>This converter can be used in 2 different ways:</p>
+<ol>
+    <li>it allows you to use classic CSS color notation in GUI files (which is in my opinion cool),</li>
+    <li>you can reference SWT system colors by using the name of the color in <em>lowercase</em>.</li>
+</ol>
     <pre class="prettyprint lang-js">    {
         "_type" : "label",
         "foreground" : "#0000ff",              // HTML/CSS color definition: r:0, g:0, b:255
         "background" : "color_list_foreground" // system color org.eclipse.swt.SWT.COLOR_LIST_FOREGROUND
     }</pre>
 
-    <h4 id="integer-converter">IntegerConverter</h4>
+<h4 id="integer-converter">IntegerConverter</h4>
 
-    <p>Allows not only exact integer value to be placed as property value, but also to use magic number notation
-        to reference the colors from the SWT class (but in lower case). This approach can be combined with
-        the special tag <strong>_style</strong> used to set the widget's style when creating instance.
-    </p>
+<p>Allows not only exact integer value to be placed as property value, but also to use magic number notation
+    to reference the colors from the SWT class (but in lower case). This approach can be combined with
+    the special tag <strong>_style</strong> used to set the widget's style when creating instance.
+</p>
 
-    <p>Since it is quite often needed to use bitwise OR when declaring values (styles before all else),
-        IntegerConverter also accepts OR operator:</p>
+<p>Since it is quite often needed to use bitwise OR when declaring values (styles before all else),
+    IntegerConverter also accepts OR operator:</p>
 
     <pre class="prettyprint lang-js">    {
         "_type" : "text",
         "_style" : "{multi}|{wrap}|{v_scroll}|{border}" // SWT.MULTI | SWT.WRAP | SWT.V_SCROLL | SWT.BORDER
     }</pre>
 
-    <h4 id="integerarray-converter">IntegerArrayConverter</h4>
+<h4 id="integerarray-converter">IntegerArrayConverter</h4>
 
-    <p>The reason why this converter was made was the SashForm's weight property which asked for numerical
-        integer values of.
-    </p>
+<p>The reason why this converter was made was the SashForm's weight property which asked for numerical
+    integer values of.
+</p>
 
     <pre class="prettyprint lang-js">    {
         "__comment" : "to set sashForm's weights you need to wait until components have been added",
@@ -280,18 +283,19 @@
         "weights" : [ 2, 1 ]
     }</pre>
 
-    <p>Since it uses (under the covers) the IntegerConverter, you can send magic constants, not only
-        explicit numerical values.</p>
+<p>Since it uses (under the covers) the IntegerConverter, you can send magic constants, not only
+    explicit numerical values.</p>
 
-    <h4 id="font-converter">FontConverter</h4>
-    <p>This converter expects an object notation on the right side of the property with one of following
-        properties:</p>
-    <ol>
-        <li><code>name</code> - font name face,</li>
-        <li><code>height</code> - height of the font</li>
-        <li><code>style</code> - it can be set to text values <strong>bold</strong> or <strong>italic</strong></li>
-    </ol>
-    <p>For whatever is not set, FontConverter will use values from default system font.</p>
+<h4 id="font-converter">FontConverter</h4>
+
+<p>This converter expects an object notation on the right side of the property with one of following
+    properties:</p>
+<ol>
+    <li><code>name</code> - font name face,</li>
+    <li><code>height</code> - height of the font</li>
+    <li><code>style</code> - it can be set to text values <strong>bold</strong> or <strong>italic</strong></li>
+</ol>
+<p>For whatever is not set, FontConverter will use values from default system font.</p>
     <pre class="prettyprint lang-js">    {
         "_type" : "label",
         "font" : {
@@ -301,52 +305,58 @@
         }
     }</pre>
 
-    <h4 id="image-converter">ImageConverter</h4>
-    <p>This converter just delegates the image name to image provider to do whatever it wants with it.</p>
-    <p>For example, in MCS I have image provider implementation that uses the value as a full path
-        to the location in application resources, from where it fetches it for SGT to embed.</p>
+<h4 id="image-converter">ImageConverter</h4>
+
+<p>This converter just delegates the image name to image provider to do whatever it wants with it.</p>
+
+<p>For example, in MCS I have image provider implementation that uses the value as a full path
+    to the location in application resources, from where it fetches it for SGT to embed.</p>
 
     <pre class="prettyprint lang-js">    {
         "_type" : "toolItem",
         "image" : "/net/milanaleksic/mcs/application/res/media.png"
     }</pre>
 
-    <h4 id="point-converter">PointConverter</h4>
-    <p>Very basic converter that uses simple string pattern <code>x,y</code> as the value definition.</p>
+<h4 id="point-converter">PointConverter</h4>
+
+<p>Very basic converter that uses simple string pattern <code>x,y</code> as the value definition.</p>
     <pre class="prettyprint lang-js">    {
         "_type" : "shell",
         "size" : "412,326"
     }</pre>
 
-    <h4 id="string-converter">StringConverter</h4>
-    <p>What ever string you enter on the right side of the property, it will be set in the bean's property.</p>
-    <p>If you put part of the text in the square brackets ([]), messageProvider will be asked for the value
-        behind it. That should be, most logically, a String from the resourceBundle for the current application
-        locale, but doesn't have to be.</p>
+<h4 id="string-converter">StringConverter</h4>
+
+<p>What ever string you enter on the right side of the property, it will be set in the bean's property.</p>
+
+<p>If you put part of the text in the square brackets ([]), messageProvider will be asked for the value
+    behind it. That should be, most logically, a String from the resourceBundle for the current application
+    locale, but doesn't have to be.</p>
 
     <pre class="prettyprint lang-js">    {
         "_type" : "label",
         "text" : "[delete.doYouReallyWishToDeleteMovie]"
     }</pre>
 
-    <h4 id="object-converter">ObjectConverter</h4>
-    <p>Object converter is the <strong>fallback converter</strong>. This means that when SGT finds a field
-        which type is not directly registered in the list of converters, it goes to <code>ObjectConverter</code>
-        and says "Help!".</p>
+<h4 id="object-converter">ObjectConverter</h4>
 
-    <h5>Providing objects using injection and providers</h5>
+<p>Object converter is the <strong>fallback converter</strong>. This means that when SGT finds a field
+    which type is not directly registered in the list of converters, it goes to <code>ObjectConverter</code>
+    and says "Help!".</p>
 
-    <p>First thing ObjectConverter tries to do is to check if the object is maybe in <strong>injected object</strong>
-        notation, which means that instead of creating it it needs to <strong>provide</strong> it.
-        The injected object notation is:</p>
+<h5>Providing objects using injection and providers</h5>
 
-    <pre class="prettyprint lang-js">    "(objectName)"</pre>
+<p>First thing ObjectConverter tries to do is to check if the object is maybe in <strong>injected object</strong>
+    notation, which means that instead of creating it it needs to <strong>provide</strong> it.
+    The injected object notation is:</p>
 
-    <p>Providing the object is two-phase process: first the named objects in the current context are browsed.
-        You can use the special tag <strong>_name</strong> to give name to any bean. This is extremely useful
-        when working on containers like TabFolder, where you first need to create container contents widget
-        (Composite for example) and then create TabItem with the previously created widget as the <em>control</em>:
-    </p>
+<pre class="prettyprint lang-js">    "(objectName)"</pre>
+
+<p>Providing the object is two-phase process: first the named objects in the current context are browsed.
+    You can use the special tag <strong>_name</strong> to give name to any bean. This is extremely useful
+    when working on containers like TabFolder, where you first need to create container contents widget
+    (Composite for example) and then create TabItem with the previously created widget as the <em>control</em>:
+</p>
 
     <pre class="prettyprint lang-js">    {
         "_type" : "composite",
@@ -358,39 +368,42 @@
         "control" : "<em>(settingsTab)</em>"
     }</pre>
 
-    <p>If none named bean is found <code>ObjectProvider</code> is asked for the object under the name used.
-        If you implemented Object Provider to fetch the object from DI using the name, you can easily inject
-        a bean in custom SWT widgets.</p>
+<p>If none named bean is found <code>ObjectProvider</code> is asked for the object under the name used.
+    If you implemented Object Provider to fetch the object from DI using the name, you can easily inject
+    a bean in custom SWT widgets.</p>
 
     <pre class="prettyprint lang-js">    {
         "_type" : "myCustomComponent",
         "bundle" : "(resourceBundle)" // resourceBundle can be Spring bean for example!
     }</pre>
 
-    <h5>Object creation</h5>
+<h5>Object creation</h5>
 
-    <p>If the injected object notation is <strong>not</strong> used, ObjectConverter tries to render the value of the
-        property setter as JSON object and finds in it the special tag <code>_type</code> to see which type of
-        object it needs to instantiate before proceeding with property setting (unless short children notation is used).
-        If you jumped over the first topic of the documentation - creation notations, now is a good time to
-        <a href="#creation-notations">read it</a>.</p>
+<p>If the injected object notation is <strong>not</strong> used, ObjectConverter tries to render the value of the
+    property setter as JSON object and finds in it the special tag <code>_type</code> to see which type of
+    object it needs to instantiate before proceeding with property setting (unless short children notation is used).
+    If you jumped over the first topic of the documentation - creation notations, now is a good time to
+    <a href="#creation-notations">read it</a>.</p>
 
-    <h2 id="special-tags">Special tags</h2>
-    <p>Special tags are used for situations when JSON limitations become apparent. In practice, special
+<h2 id="special-tags">Special tags</h2>
+
+<p>Special tags are used for situations when JSON limitations become apparent. In practice, special
     tags are <em>only JSON node names</em> which are not based on the property name in the target widget / bean.</p>
 
-    <h3>_type tag</h3>
-    <p>This tag is used in object nodes to say which class/builder/shortcut to use to create the object. More details
+<h3>_type tag</h3>
+
+<p>This tag is used in object nodes to say which class/builder/shortcut to use to create the object. More details
     in the <a href="#creation-notations">creation notations</a> part.</p>
 
-    <h3>_children tag</h3>
-    <p>What is quite specific for SWT widgets, controls etc. is that no-arg constructor does not exist.
-        If you wish to create a new widget, you have to explicitly say what is the parent
-        and what is the style (or style mix) you wish to enforce.</p>
+<h3>_children tag</h3>
 
-    <p>So, this tag was introduced to allow creation of "children" components by injecting the parent component
-        while constructing the child. For example, if you wish to make shell with two labels you do it like this:
-    </p>
+<p>What is quite specific for SWT widgets, controls etc. is that no-arg constructor does not exist.
+    If you wish to create a new widget, you have to explicitly say what is the parent
+    and what is the style (or style mix) you wish to enforce.</p>
+
+<p>So, this tag was introduced to allow creation of "children" components by injecting the parent component
+    while constructing the child. For example, if you wish to make shell with two labels you do it like this:
+</p>
 
     <pre class="prettyprint lang-js">    {
         "_type" : "shell",
@@ -410,14 +423,14 @@
         ]
     }</pre>
 
-    <h5 id="short-children-syntax">Short children notation</h5>
+<h5 id="short-children-syntax">Short children notation</h5>
 
-    <p>To ease the pain of too much text, there is a <strong>short children syntax</strong>
-        which replaces array with JSON object notation. This shorter notation improves readability and lowers the GUI
-        definition file size by 15-25% in number of lines. As a side effect definition file is by far more fluent to
-        "follow the GUI tree". In practice, short children syntax collects information from <code>_style</code>,
-        <code>_name</code> and <code>_type</code> special tags and sets them all at once in the JSON key name.
-        Following two examples are identical in what they are producing:</p>
+<p>To ease the pain of too much text, there is a <strong>short children syntax</strong>
+    which replaces array with JSON object notation. This shorter notation improves readability and lowers the GUI
+    definition file size by 15-25% in number of lines. As a side effect definition file is by far more fluent to
+    "follow the GUI tree". In practice, short children syntax collects information from <code>_style</code>,
+    <code>_name</code> and <code>_type</code> special tags and sets them all at once in the JSON key name.
+    Following two examples are identical in what they are producing:</p>
 
     <pre class="prettyprint lang-js">
     {                                                               {
@@ -443,11 +456,11 @@
         ]
     }</pre>
 
-    <p>As you can see, the syntax is <strong>type_syntax(object_name[,style_syntax])</strong>, which means that
+<p>As you can see, the syntax is <strong>type_syntax(object_name[,style_syntax])</strong>, which means that
     style parameter is not mandatory but name is. At the same time, any (valid) type node value is allowed to be
     placed in the type_syntax part (explicit class mention, shortcut notation and builder notation).</p>
 
-    <p>One <strong>bad</strong>thing with this approach is that you have to always give names to the components,
+<p>One <strong>bad</strong>thing with this approach is that you have to always give names to the components,
     otherwise (because of the nature of JSON), it will overwrite all previous nodes with the last one
     in case there is more than one node with the identical json key value (same combination
     type_syntax+object_name+style syntax) and thus create only one item. The <strong>good</strong> news is that
@@ -455,122 +468,142 @@
     pollute it). If you wish to use this approach you need to have unique names only in once children collection
     (they don't have to be unique throughout entire definition file).</p>
 
-    <p>From this point on examples will use short children syntax so you can get used to it (I believe it is
+<p>From this point on examples will use short children syntax so you can get used to it (I believe it is
     more human-friendly than the standard _type syntax).</p>
 
-    <h3>_style tag</h3>
-    <p>Since style is set during the creation of the SWT widgets, normal setter does not exist. That was the
-        reason for inclusion of this tag. Since style is of integer type, you are using <a href="#integer-converter">IntegerConverter</a>
-        when setting the value, which gives you the freedom of using SWT's magic constants.</p>
+<h3>_style tag</h3>
 
-    <h3>_name tag</h3>
-    <p>Name tag has a single usage - putting the widget in the TransformationContext. This context object
-        is the one you get after calling transformation on the GUI file from the Transformer (SGT entry point).</p>
+<p>Since style is set during the creation of the SWT widgets, normal setter does not exist. That was the
+    reason for inclusion of this tag. Since style is of integer type, you are using <a href="#integer-converter">IntegerConverter</a>
+    when setting the value, which gives you the freedom of using SWT's magic constants.</p>
 
-    <p>All possible names are allowed, as long as they don't take trailing spaces and comma. But, if you decide
-    to name your component with a leading "low line" symbol (e.g. _label1 or _comp etc.) the widget will <strong>not</strong>
+<h3>_name tag</h3>
+
+<p>Name tag has a single usage - putting the widget in the TransformationContext. This context object
+    is the one you get after calling transformation on the GUI file from the Transformer (SGT entry point).</p>
+
+<p>All possible names are allowed, as long as they don't take trailing spaces and comma. But, if you decide
+    to name your component with a leading "low line" symbol (e.g. _label1 or _comp etc.) the widget will
+    <strong>not</strong>
     be put in the output transformation context. This is done on purpose to allow <a href="#short-children-syntax">
-    "short children syntax"</a>.</p>
+        "short children syntax"</a>.</p>
 
-    <p>After you have named some widget, you will be able to reference that object inside:</p>
+<p>After you have named some widget, you will be able to reference that object inside:</p>
 
-    <ol>
-        <li>the same GUI file (you have the example for this in <a href="#object-converter">ObjectConverter part</a>)</li>
-        <li>you can attach event listeners in the Java code to it using the name of the reference
-            using <code>@EmbeddedEventListener</code>/<code>@EmbeddedEventListeners</code> annotations,</li>
-        <li>you can embed (inject) the widget reference in the code using <code>@EmbeddedComponent</code>,</li>
-        <li>you can dereference named widgets from the transformationContext using call
-            <code>net.milanaleksic.guitransformer.TransformationContext.getMappedObject(String name)</code>.</li>
-    </ol>
+<ol>
+    <li>the same GUI file (you have the example for this in <a href="#object-converter">ObjectConverter part</a>)</li>
+    <li>you can attach event listeners in the Java code to it using the name of the reference
+        using <code>@EmbeddedEventListener</code>/<code>@EmbeddedEventListeners</code> annotations,
+    </li>
+    <li>you can embed (inject) the widget reference in the code using <code>@EmbeddedComponent</code>,</li>
+    <li>you can dereference named widgets from the transformationContext using call
+        <code>net.milanaleksic.guitransformer.TransformationContext.getMappedObject(String name)</code>.
+    </li>
+</ol>
 
-    <p>Examples for the reference and event embedding are given in the <a href="#embedding">embedding part</a>.</p>
+<p>Examples for the reference and event embedding are given in the <a href="#embedding">embedding part</a>.</p>
 
-    <h3>__comment tag</h3>
-    <p>This is trivial special tag to be used if you have need to comment something in the GUI code. Proper JSON
-        should not have JavaScript-styled comments so the only way to have a proper JSON is to use a custom JSON
-        field which will be omitted by content parsers. So, just put it in any object definition and put in the
-        value field whatever you wish - it will not be taken into consideration by SGT.</p>
+<h3>__comment tag</h3>
+
+<p>This is trivial special tag to be used if you have need to comment something in the GUI code. Proper JSON
+    should not have JavaScript-styled comments so the only way to have a proper JSON is to use a custom JSON
+    field which will be omitted by content parsers. So, just put it in any object definition and put in the
+    value field whatever you wish - it will not be taken into consideration by SGT.</p>
 
     <pre class="prettyprint lang-js">    "label(myLabel)" : {
         "__comment" : "This is a comment in the GUI file!"
     }</pre>
 
 
-    <h2 id="providers">Providers</h2>
+<h2 id="providers">Providers</h2>
 
-    <p>If I believe there is an extension point that you will really really like to use, there is a provider
-        interface for it. You use your dependency injection framework to say "here is the implementor for the
-        provider", and like magic you'll see our application messages, images from your resources or external
-        location or even <strong>other beans</strong> from your DI framework showing up as possible candidates
-        for wiring into SGT definition JSONs.</p>
+<p>If I believe there is an extension point that you will really really like to use, there is a provider
+    interface for it. You use your dependency injection framework to say "here is the implementor for the
+    provider", and like magic you'll see our application messages, images from your resources or external
+    location or even <strong>other beans</strong> from your DI framework showing up as possible candidates
+    for wiring into SGT definition JSONs.</p>
 
-    <h3>Messages string provider</h3>
+<h3>Messages string provider</h3>
 
-    <p>Use your DI container to override
-        <code>net.milanaleksic.guitransformer.providers.ResourceBundleProvider</code>
-        with your implementation or just route it to <code>SimpleResourceBundleProvider</code> to always use
-        messages_en.properties (or default messages.properties if first does not exist) as the source for resource
-        naming pattern for string properties. For example:</p>
+<p>Use your DI container to override
+    <code>net.milanaleksic.guitransformer.providers.ResourceBundleProvider</code>
+    with your implementation or just route it to <code>SimpleResourceBundleProvider</code> to always use
+    messages_en.properties (or default messages.properties if first does not exist) as the source for resource
+    naming pattern for string properties. For example:</p>
 
     <pre class="prettyprint lang-js">    "label(myLabel)" : {
         "text" : "[string.from.bundle]"
     }</pre>
 
-    <h3>Object provider</h3>
+<h3>Object provider</h3>
 
-    <p>When you use named object syntax to ask from the DI for a named object in JSON definition,
-        you basically ask it from implementation of
-        <code>net.milanaleksic.guitransformer.providers.ObjectProvider</code>
-        you registered in the DI container.
-        You can though use <code>AlwaysReturnNullObjectProvider</code> to always embed null when named object
-        is requested, for example:</p>
+<p>When you use named object syntax to ask from the DI for a named object in JSON definition,
+    you basically ask it from implementation of
+    <code>net.milanaleksic.guitransformer.providers.ObjectProvider</code>
+    you registered in the DI container.
+    You can though use <code>AlwaysReturnNullObjectProvider</code> to always embed null when named object
+    is requested, for example:</p>
 
     <pre class="prettyprint lang-js">    "net.milanaleksic.application.MyCustomSWTComponent(coolName)" : {
         "someReallyCoolCustomObjectFromSpring" : "(customSpringObject)"
     }</pre>
 
-    <h3>Images provider</h3>
+<h3>Images provider</h3>
 
-    <p>Use your DI container to override <code>net.milanaleksic.guitransformer.providers.ImageProvider</code>
-        with your implementation or just route it to AlwaysReturnEmptyImageProvider to always embed dummy image
-        with the value of the JSON value node for the image setter.</p>
+<p>Use your DI container to override <code>net.milanaleksic.guitransformer.providers.ImageProvider</code>
+    with your implementation or just route it to AlwaysReturnEmptyImageProvider to always embed dummy image
+    with the value of the JSON value node for the image setter.</p>
 
-    <h2 id="embedding">Embedding</h2>
-    <p>Embedding is the process of wiring back with code all that you created in the interface GUI files.
+<h2 id="embedding">Embedding</h2>
+
+<p>Embedding is the process of wiring back all the components you created in the interface GUI files to the Java code.
     To be able to reference widgets (or other beans) you created in the GUI file they have to be named
     using special tag <strong>_name</strong>.</p>
 
-    <p>Java files that have identical name and package position as the GUI file are called <strong>managed forms</strong>
-        since you can embed components and event listeners directly using the
-        <code>net.milanaleksic.guitransformer.Transformer.fillManagedForm(Shell parent, Object managedFormObject)</code>.
-        When Transformer analyzes the managedFormObject it will find all the fields with embedding annotations
-        and either inject values into them or attach listeners, depending on the annotation. It is
-        important to remember that SGT expects the GUI file to be named exactly like the Java managedFormObject
-        from the call, just having <strong>.gui</strong> instead of java/class.</p>
+<p>Java files that have identical name and package position as the GUI file are called <strong>managed forms</strong>
+    since you can embed components and event listeners directly using the
+    <code>net.milanaleksic.guitransformer.Transformer.fillManagedForm(Shell parent, Object managedFormObject)</code>.
+    When Transformer analyzes the managedFormObject it will find all the fields with embedding annotations
+    and either inject values into them or attach listeners, depending on the annotation. It is
+    important to remember that SGT <em>expects the GUI file to be named exactly like the Java managedFormObject</em>
+    from the call, just having <strong>.gui</strong> instead of java/class.</p>
 
-    <h3>@EmbeddedComponent</h3>
-    <p>This annotation can be used on fields (should be but don't <em>have to be</em> private) in the form file.</p>
-    <p>So, if you have a field named "myLabel" in the GUI file:</p>
-    <pre class="prettyprint lang-js">     "label(myLabel)" : { }</pre>
-    <p>in the managed form Java file you just mark the appropriate field with the annotation:</p>
+<p>If you give your widget a name then you can include a field of type <code>org.eclipse.swt.widgets.Listener</code>
+    and annotate it with <code>net.milanaleksic.guitransformer.EmbeddedEventListener</code>.
+    This annotation specializes the binding to make sure proper named component and event is listened to via
+    this field listener. There is even a shorter way, called "method level listeners", where you put the annotation
+    not on the field of type Listener but on a method, which removes a lot of clutter.</p>
+
+<h3>@EmbeddedComponent</h3>
+
+<p>This annotation can be used on fields (should be but don't <em>have to be</em> private) in the form file.</p>
+
+<p>If you wish to reuse a event listener method or field for diferent events, you can use
+    <code>net.milanaleksic.guitransformer.EmbeddedEventListeners</code> to group more than one annotation
+    on a single listener.</p>
+
+<p>So, if you have a field named "myLabel" in the GUI file:</p>
+<pre class="prettyprint lang-js">     "label(myLabel)" : { }</pre>
+<p>in the managed form Java file you just mark the appropriate field with the annotation:</p>
     <pre class="prettyprint lang-java">    @EmbeddedComponent
     private Label myLabel;</pre>
-    <p>After transformation, you can just dereference the value in it - it will be injected by SGT before that
-        time or it will fail early while trying to do so.</p>
+<p>After transformation, you can just dereference the value in it - it will be injected by SGT before that
+    time or it will fail early while trying to do so.</p>
 
-    <h3>@EmbeddedEventListener and @EmbeddedEventListeners</h3>
-    <p>To wire event listeners you also need just to reference the component with the name and
-        then ask for a specific event to attach the listener to. Listener implementation fields
-        can be <em>but don't have to be</em> static.</p>
+<h3>@EmbeddedEventListener and @EmbeddedEventListeners</h3>
+
+<p>To wire event listeners you also need just to reference the component with the name and
+    then ask for a specific event to attach the listener to. Listener implementation fields
+    can be <em>but don't have to be</em> static.</p>
 <pre class="prettyprint lang-java">    @EmbeddedEventListener(component="myLabel", event= SWT.Selection)
     private final Listener myLabelSelectionListener  = new Listener() {
         public void handleEvent(Event event) {
             // handle event
         }
     }</pre>
-    <p>Latter annotation (<code>EmbeddedEventListeners)</code> is just a helper annotation in cases
-        where you want to use same listener implementation for multiple event sources for one or more
-        event sources:</p>
+<p>Latter annotation (<code>EmbeddedEventListeners)</code> is just a helper annotation in cases
+    where you want to use same listener implementation for multiple event sources for one or more
+    event sources:</p>
     <pre class="prettyprint lang-java">     @EmbeddedEventListeners({
             @EmbeddedEventListener(component = "comboMediumType", event = SWT.Selection),
             @EmbeddedEventListener(component = "comboMediumType", event = SWT.Modify),
@@ -582,20 +615,21 @@
         }
     }</pre>
 
-    <h4 id="method-level-listeners">Method-level listeners</h4>
+<h4 id="method-level-listeners">Method-level listeners</h4>
 
-    <p>In case you think the creation of event listener objects is cumbersome - you are right. That is why
+<p>In case you think the creation of event listener objects is cumbersome - you are right. That is why
     starting from version 0.1.7 method-level listeners are allowed.</p>
 
-    <p>Candidates for method level listeners must fulfill following requirements:</p>
-    <ol>
-        <li>They must be marked with <code>@EmbeddedEventListener</code> or <code>@EmbeddedEventListeners</code>,</li>
-        <li>they must have <code>void</code> return type,</li>
-        <li>they can have either one argument of type <code>org.eclipse.swt.widgets.Event</code>, or none
-            (the latter when you just don't need the event details).</li>
-    </ol>
+<p>Candidates for method level listeners must fulfill following requirements:</p>
+<ol>
+    <li>They must be marked with <code>@EmbeddedEventListener</code> or <code>@EmbeddedEventListeners</code>,</li>
+    <li>they must have <code>void</code> return type,</li>
+    <li>they can have either one argument of type <code>org.eclipse.swt.widgets.Event</code>, or none
+        (the latter when you just don't need the event details).
+    </li>
+</ol>
 
-    <p>Here is the method-level implementation of previous two examples:</p>
+<p>Here is the method-level implementation of previous two examples:</p>
 
     <pre class="prettyprint lang-java">    @EmbeddedEventListener(component="myLabel", event= SWT.Selection)
     private void myLabelSelectionListener(Event event) {
@@ -611,34 +645,39 @@
         // handle event
     }</pre>
 
-    <h5>Handling runtime exceptions in method-level listeners</h5>
+<h5>Handling runtime exceptions in method-level listeners</h5>
 
-    <p>If a runtime exception is thrown in code executed by your listeners (SWTException is one of them),
+<p>If a runtime exception is thrown in code executed by your listeners (SWTException is one of them),
     your main SWT dispatch loop will either be prepared for it or face the consequences - immediate
     program shutdown. How to deal with this issue and still avoid using try/catch in <strong>all</strong>
     of your listener methods? By registering
     <code>net.milanaleksic.guitransformer.converters.MethodEventListenerExceptionHandler</code> in the Transformer
     configuration.</p>
 
-    <p>If you do so, the exception will be caught in Transformer and delegated to this exception handler
+<p>If you do so, the exception will be caught in Transformer and delegated to this exception handler
     so your app does not face the problem in runtime. You are free to use appropriate mechanisms to
     handle the exception situation (message box / log / send email...). The fact to remember is:
     if you do not register a handler for exceptions Transformer will rethrow the exception and
     probably cause undesirable effects for your application UX.</p>
 
-    <h3 id="wiring">Wiring it all up</h3>
-    <p>Transformer should already have all of its dependencies wired before calling it using your
+<h3 id="wiring">Wiring it all up</h3>
+
+<p>Transformer should already have all of its dependencies wired before calling it using your
     dependency injection. Guice and Spring are the frameworks I used:</p>
 
-    <ol>
-        <li>if you use Spring, take a look at <a href="mcs/spring-beans-transformer.xml">
-            XML wiring used in the MovieCatalogSystem</a>,</li>
-        <li>if you use Guice, there is already a <a href="https://github.com/milanaleksic/swt-gui-transformer/blob/master/swt-gui-transformer-core/src/main/java/net/milanaleksic/guitransformer/guice/CoreModule.java">
-            basic module</a> defined in the SGT code.</li>
-    </ol>
+<ol>
+    <li>if you use Spring, take a look at <a href="mcs/spring-beans-transformer.xml">
+        XML wiring used in the MovieCatalogSystem</a>,
+    </li>
+    <li>if you use Guice, there is already a <a
+            href="https://github.com/milanaleksic/swt-gui-transformer/blob/master/swt-gui-transformer-core/src/main/java/net/milanaleksic/guitransformer/guice/CoreModule.java">
+        basic module</a> defined in the SGT code.
+    </li>
+</ol>
 
-    <p>The code for wiring the form and GUI file uses the entry point to SGT - <code>Transformer</code>.</p>
-    <p>Calling the transformer is quite straight-forward:</p>
+<p>The code for wiring the form and GUI file uses the entry point to SGT - <code>Transformer</code>.</p>
+
+<p>Calling the transformer is quite straight-forward:</p>
     <pre class="prettyprint lang-java">  @Inject private Transformer transformer;
 
   public showForm() throws TransformerException {
@@ -646,29 +685,49 @@
     org.eclipse.swt.widgets.Shell shell = context.getShell();
     shell.open();
   }</pre>
-    <p>Now, what the call to <code></code> will do is the following:</p>
-    <ol>
-        <li>it will search for a GUI file named identically to the
-    name of the class (and in the same package), just with extension <code>.gui</code>;</li>
-        <li>it will check the validity (JSON) of the GUI file, wire all of the injected named objects,
-        inject messages from resource bundle;</li>
-        <li>it will boot strap all of <code>@EmbeddedComponents</code> and <code>@TransformerModel</code> fields
-            (more in <a href="#observed-model">observed model</a> part for <code>@TransformerModel</code>) ;</li>
-        <li>wire all event handlers fields/methods marked with <code>@EmbeddedEventListener</code> annotations;</li>
-        <li>it will return a <code>TransformationContext</code> object which wraps the transformed shell and
-            all of the mapped objects and model binding metadata which is critical if you wish afterwards to
-            manually update SWT form based on current model state using call
-            <code>transformer.updateFormFromModel(form, context)</code>.</li>
-    </ol>
+<p>Now, what the call to <code></code> will do is the following:</p>
+<ol>
+    <li>it will search for a GUI file named identically to the
+        name of the class (and in the same package), just with extension <code>.gui</code>;
+    </li>
+    <li>it will check the validity (JSON) of the GUI file, wire all of the injected named objects,
+        inject messages from resource bundle;
+    </li>
+    <li>it will boot strap all of <code>@EmbeddedComponents</code> and <code>@TransformerModel</code> fields
+        (more in <a href="#observed-model">observed model</a> part for <code>@TransformerModel</code>) ;
+    </li>
+    <li>wire all event handlers fields/methods marked with <code>@EmbeddedEventListener</code> annotations;</li>
+    <li>it will return a <code>TransformationContext</code> object which wraps the transformed shell and
+        all of the mapped objects and model binding metadata which is critical if you wish afterwards to
+        manually update SWT form based on current model state using call
+        <code>transformer.updateFormFromModel(form, context)</code>.
+    </li>
+</ol>
 
+<h4>Accessing widgets</h4>
 
-    <h3 id="observed-model">Observed model approach</h3>
-    <p>Starting from SGT v0.3.0 and with help of Cglib magic it is possible to simplify further the usage of SGT using
+<p>You can access all the components in the UI either</p>
+
+<ol>
+    <li><p>by asking for them using their name (something similar to the Servlet getAttribute/getParameter approach)
+        using <code>net.milanaleksic.guitransformer.TransformationContext.&lt;*widgetClass*&gt;getMappedObject(*widgetName*)</code>
+    </p></li>
+    <li><p>or using annotation <code>net.milanaleksic.guitransformer.EmbeddedComponent</code> in your form class
+        to have the component injected for you (approach based on dependency injection pattern)</p></li>
+</ol>
+<p>In my opinion, first approach is useful for the cases when you wish to execute a simple and small action,
+    like setting a <em>dynamic</em> text in some component (e.g. web service version fetched from far away).
+    Second approach is useful when you wish to maintain reference to the widget throughout the life of the form
+    (e.g. you need to keep reference to username/password text widgets until the user clicks on OK).</p>
+
+<h3 id="observed-model">Observed model approach</h3>
+
+<p>Starting from SGT v0.3.0 and with help of Cglib magic it is possible to simplify further the usage of SGT using
     embedded model which wraps the binding between a standard Java object expressing the current state and the view
     presented to the user in the shape of SWT form. I believe the best way to show how to use it is via simple
     example.</p>
 
-    <p>Let us imagine a situation where a form called MovieDetailsForm uses SGT for mapping the SWT form to a simple
+<p>Let us imagine a situation where a form called MovieDetailsForm uses SGT for mapping the SWT form to a simple
     model object. This MovieDetailsForm can look something like this:</p>
     <pre class="prettyprint lang-java">public class MovieDetailsForm {
 
@@ -684,10 +743,10 @@
     }
 }</pre>
 
-    <p>There should not be any surprises in the form controller object described above besides the
-        <code>@TransformerModel</code>. Let's see how this model looks like.</p>
+<p>There should not be any surprises in the form controller object described above besides the
+    <code>@TransformerModel</code>. Let's see how this model looks like.</p>
 
-    <p>First of all, every model is a POJO which uses only annotations for customizations (if needed at all) and no
+<p>First of all, every model is a POJO which uses only annotations for customizations (if needed at all) and no
     inheritance or interface implementation. Here is a little more elaborate model to show different aspects:</p>
 
     <pre class="prettyprint lang-java">package net.milanaleksic.mcs.application.gui.model;
@@ -747,31 +806,36 @@ public class MovieDetailsModel {
 </pre>
 
 <p>So, what model wrapping does is following: it goes through all of the fields which <strong>don't have</strong> the
-annotation <code>@net.milanaleksic.guitransformer.model.TransformerIgnoredProperty</code>. It finds the
-<strong>named</strong> components for all of these fields and maps the <code>text</code> property of them
-to the value of the property in the model. This means that modifying the value in the model and then asking the
-SGT toolkit to update form based on model will force the value of the SWT component to be updated to this value.
-At the same time SGT will update the model field when SWT component's text value gets modified using dynamically
-created event listener for SWT.Modify event.</p>
+    annotation <code>@net.milanaleksic.guitransformer.model.TransformerIgnoredProperty</code>. It finds the
+    <strong>named</strong> components for all of these fields and maps the <code>text</code> property of them
+    to the value of the property in the model. This means that modifying the value in the model and then asking the
+    SGT toolkit to update form based on model will force the value of the SWT component to be updated to this value.
+    At the same time SGT will update the model field when SWT component's text value gets modified using dynamically
+    created event listener for SWT.Modify event.</p>
+
 <p>Both default choices <code>SWT.Modify</code> trigger and the bound property <code>text</code> can be modified
-using customization annotation <code>@TransformerProperty</code>.</p>
+    using customization annotation <code>@TransformerProperty</code>.</p>
+
 <p>The hardest part with working with object is to understand that there are different ways to update form when
-after updating the model:</p>
+    after updating the model:</p>
 <ol>
     <li>If you have set (back in the form controller object) <code>@TransformerModel</code>'s attribute
-    <code>observe</code> to true, SGT will create Cglib-driven listeners for all setters of property-bound fields.
-    Property-bound fields are all the fields in model that don't have <code>@TransformerIgnoredProperty</code>.
-    This listener will execute immediately after the setter finishes with execution;</li>
+        <code>observe</code> to true, SGT will create Cglib-driven listeners for all setters of property-bound fields.
+        Property-bound fields are all the fields in model that don't have <code>@TransformerIgnoredProperty</code>.
+        This listener will execute immediately after the setter finishes with execution;
+    </li>
     <li>If you have set (back in the form controller object) <code>@TransformerModel</code>'s attribute
-    <code>observe</code> to true, SGT allows you to update more than one field in a single method to maintain
-    UX consistency using <code>@net.milanaleksic.guitransformer.model.TransformerFireUpdate</code>.
-    If SGT finds a method in the model object annotated with this annotation it will create additional Cglib-driven
-    listener which will execute the form update after this method has finished executing;</li>
+        <code>observe</code> to true, SGT allows you to update more than one field in a single method to maintain
+        UX consistency using <code>@net.milanaleksic.guitransformer.model.TransformerFireUpdate</code>.
+        If SGT finds a method in the model object annotated with this annotation it will create additional Cglib-driven
+        listener which will execute the form update after this method has finished executing;
+    </li>
     <li>Third (and last) method of updating the component does not demand you to have the <code>observe</code> attribute
-    set to true - you can execute it whenever from the form controller. It is based on the Transformer's
-    call <code>transformer.updateFormFromModel(form, context)</code>. Please note that to be able to use this call
-    you need to maintain the model binding metadata by yourself (you receive it as part the context object which
-    is result of the SGT transformation call).</li>
+        set to true - you can execute it whenever from the form controller. It is based on the Transformer's
+        call <code>transformer.updateFormFromModel(form, context)</code>. Please note that to be able to use this call
+        you need to maintain the model binding metadata by yourself (you receive it as part the context object which
+        is result of the SGT transformation call).
+    </li>
 </ol>
 
 
@@ -793,7 +857,7 @@ after updating the model:</p>
     try {
         var pageTracker = _gat._getTracker("UA-31731496-1");
         pageTracker._trackPageview();
-    } catch(err) {
+    } catch (err) {
     }
 </script>
 

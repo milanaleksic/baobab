@@ -185,41 +185,6 @@
     in your IDE. Of course, in production mode better pack the non-debug version
     besides the jar of GUI Transformer.</p>
 
-<h2>Little more details</h2>
-
-<p>As you have already maybe seen, SGT fact uses JSON input files as definition of the UI Shell and generates
-    all of the components for you.</p>
-
-<h3>Accessing widgets</h3>
-
-<p>You can access all the components in the UI either</p>
-
-<ol>
-    <li><p>by asking for them using their name (something similar to the Servlet getAttribute/getParameter approach)
-        using <code>net.milanaleksic.guitransformer.TransformationContext.&lt;*widgetClass*&gt;getMappedObject(*widgetName*)</code>
-    </p></li>
-    <li><p>or using annotation <code>net.milanaleksic.guitransformer.EmbeddedComponent</code> in your form class
-        to have the component injected for you (approach based on dependency injection pattern)</p></li>
-</ol>
-<p>In my opinion, first approach is useful for the cases when you wish to execute a simple and small action,
-    like setting a <em>dynamic</em> text in some component (e.g. web service version fetched from far away).
-    Second approach is useful when you wish to maintain reference to the widget throughout the life of the form
-    (e.g. you need to keep reference to username/password text widgets until the user clicks on OK).</p>
-
-<h3>Event handling</h3>
-
-<p>No, you don't need to attach event listeners by yourself, SGT takes care of that.</p>
-
-<p>The way to handle automatic event listeners is based on injection and widget naming. If you give your widget
-    a name then you can include a field of type <code>org.eclipse.swt.widgets.Listener</code> and annotate it with
-    <code>net.milanaleksic.guitransformer.EmbeddedEventListener</code>. There is even a shorter way, used in the
-    example above called "method level listeners", where you put the annotation not on the field of type
-    Listener but on a method.</p>
-
-<p>If you wish to reuse a event listener method or field for diferent events, you can use
-    <code>net.milanaleksic.guitransformer.EmbeddedEventListeners</code> to group more than one annotation
-    on a single listener.</p>
-
 <h2>Project dependencies</h2>
 
 <p>SWT GUI Transformer depends on following frameworks/libraries:</p>
