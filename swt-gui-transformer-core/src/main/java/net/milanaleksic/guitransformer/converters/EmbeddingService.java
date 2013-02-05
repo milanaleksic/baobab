@@ -4,7 +4,6 @@ import com.google.common.base.*;
 import com.google.common.collect.*;
 import net.milanaleksic.guitransformer.*;
 import net.milanaleksic.guitransformer.model.*;
-import net.milanaleksic.guitransformer.util.ObjectUtil;
 import net.milanaleksic.guitransformer.util.ObjectUtil.*;
 import net.sf.cglib.proxy.*;
 import org.eclipse.swt.widgets.*;
@@ -196,12 +195,12 @@ class EmbeddingService {
             @Override
             public boolean apply(Field input) {
                 return input.getAnnotation(TransformerIgnoredProperty.class) == null &&
-                        methods.keySet().contains(ObjectUtil.getSetterForField(input.getName()));
+                        methods.keySet().contains(getSetterForField(input.getName()));
             }
         }), new Function<Field, Method>() {
             @Override
             public Method apply(Field input) {
-                ImmutableList<Method> matchedMethods = methods.get(ObjectUtil.getSetterForField(input.getName()));
+                ImmutableList<Method> matchedMethods = methods.get(getSetterForField(input.getName()));
                 Preconditions.checkState(matchedMethods.size() == 1, "could not make an unique match for setter method");
                 return matchedMethods.get(0);
             }
