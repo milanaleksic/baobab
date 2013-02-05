@@ -18,6 +18,7 @@ class EmbeddingService {
 
     private MethodEventListenerExceptionHandler methodEventListenerExceptionHandler;
 
+    @SuppressWarnings("UnusedDeclaration")
     public void setMethodEventListenerExceptionHandler(MethodEventListenerExceptionHandler methodEventListenerExceptionHandler) {
         this.methodEventListenerExceptionHandler = methodEventListenerExceptionHandler;
     }
@@ -75,7 +76,7 @@ class EmbeddingService {
     }
 
     private void embedEventListenersAsMethods(Object targetObject, TransformationWorkingContext transformationContext) {
-        Method[] methods = targetObject.getClass().getDeclaredMethods();
+        Method[] methods = getAllAvailableDeclaredMethodsForClass(targetObject.getClass());
         for (Method method : methods) {
             List<EmbeddedEventListener> allListeners = Lists.newArrayList();
             EmbeddedEventListeners annotations = method.getAnnotation(EmbeddedEventListeners.class);
@@ -186,7 +187,7 @@ class EmbeddingService {
     }
 
     private ImmutableSet<Method> getObservableMethods(final Class<?> type, ModelBindingMetaData bindingMetaData) {
-        final ImmutableListMultimap<String, Method> methods = Multimaps.index(Arrays.asList(type.getDeclaredMethods()), new Function<Method, String>() {
+        final ImmutableListMultimap<String, Method> methods = Multimaps.index(Arrays.asList(getAllAvailableDeclaredMethodsForClass(type)), new Function<Method, String>() {
             public String apply(Method input) {
                 return input.getName();
             }

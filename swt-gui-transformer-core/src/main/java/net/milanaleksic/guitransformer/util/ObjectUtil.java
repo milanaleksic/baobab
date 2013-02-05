@@ -1,13 +1,14 @@
 package net.milanaleksic.guitransformer.util;
 
 import com.google.common.base.*;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.*;
 import net.milanaleksic.guitransformer.TransformerException;
 
 import javax.annotation.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * User: Milan Aleksic
@@ -53,12 +54,30 @@ public class ObjectUtil {
     }
 
     public static Optional<Method> getSetterByName(Object object, String setterName) {
-        for (Method method : object.getClass().getMethods()) {
+        for (Method method : getAllAvailablePublicAndInheritedMethodsForClass(object.getClass())) {
             if (method.getName().equals(setterName) && method.getParameterTypes().length == 1) {
                 return Optional.of(method);
             }
         }
         return Optional.absent();
+    }
+
+    private static ConcurrentMap<Class<?>, Method[]> availablePublicAndInheritedMethodsForClass = Maps.newConcurrentMap();
+    public static Method[] getAllAvailablePublicAndInheritedMethodsForClass(Class<?> clazz) {
+        if (availablePublicAndInheritedMethodsForClass.containsKey(clazz))
+            return availablePublicAndInheritedMethodsForClass.get(clazz);
+        Method[] newValue = clazz.getMethods();
+        availablePublicAndInheritedMethodsForClass.putIfAbsent(clazz, newValue);
+        return newValue;
+    }
+
+    private static ConcurrentMap<Class<?>, Method[]> availableDeclaredMethodsForClass = Maps.newConcurrentMap();
+    public static Method[] getAllAvailableDeclaredMethodsForClass(Class<?> clazz) {
+        if (availableDeclaredMethodsForClass.containsKey(clazz))
+            return availableDeclaredMethodsForClass.get(clazz);
+        Method[] newValue = clazz.getDeclaredMethods();
+        availableDeclaredMethodsForClass.putIfAbsent(clazz, newValue);
+        return newValue;
     }
 
     public static String getSetterForField(String fieldName) {
