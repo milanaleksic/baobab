@@ -37,7 +37,7 @@ public class PropertiesMapper {
             final Properties properties = new Properties();
             properties.load(additionalShortcutsStream);
             for (Map.Entry entry : properties.entrySet()) {
-                T raw = (T) Class.forName(entry.getValue().toString()).newInstance();
+                T raw = (T) ObjectUtil.createInstanceForType(Class.forName(entry.getValue().toString()));
                 if (loader.isPresent())
                     loader.get().load(raw);
                 ofTheJedi.put(entry.getKey().toString(), raw);
@@ -68,7 +68,7 @@ public class PropertiesMapper {
                 // thus, it is not allowed to use constructor injection, only property injection
                 if (clazz.getConstructor() == null)
                     throw new RuntimeException("Transformer supports only extension classes with default constructor");
-                T raw = (T) clazz.newInstance();
+                T raw = (T) ObjectUtil.createInstanceForType(clazz);
                 if (loader.isPresent())
                     loader.get().load(raw);
                 try {

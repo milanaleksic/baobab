@@ -148,7 +148,7 @@ class EmbeddingService {
                 if (annotation.observe())
                     model = createObservableModel(field.getType(), bindingMetaData);
                 else
-                    model = field.getType().newInstance();
+                    model = createInstanceForType(field.getType());
             } catch (ReflectiveOperationException e1) {
                 throw new TransformerException("Reflection problem while binding model", e1);
             } catch (Exception e) {

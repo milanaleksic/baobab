@@ -5,6 +5,7 @@ import com.google.common.collect.*;
 import net.milanaleksic.guitransformer.TransformerException;
 import net.milanaleksic.guitransformer.builders.*;
 import net.milanaleksic.guitransformer.providers.*;
+import net.milanaleksic.guitransformer.util.WidgetCreator;
 import org.codehaus.jackson.*;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.swt.graphics.Device;
@@ -151,47 +152,14 @@ public class ObjectConverter implements Converter {
         return mappedObject;
     }
 
-    Object createInstanceOfSWTWidget(Object parent, Class<?> widgetClass, int style) throws TransformerException, InstantiationException, IllegalAccessException, InvocationTargetException {
-        Constructor<?> chosenConstructor = findAppropriateSWTStyledConstructor(widgetClass);
-        if (chosenConstructor.getParameterTypes().length == 0)
-            return chosenConstructor.newInstance();
-        if (Device.class.isAssignableFrom(chosenConstructor.getParameterTypes()[0])) {
-            if (parent == null)
-                throw new TransformerException("Null parent widget detected! widgetClass=" + widgetClass);
-            final Widget parentAsWidget = (Widget) parent;
-            return chosenConstructor.newInstance(parentAsWidget.getDisplay(), style);
-        } else
-            return chosenConstructor.newInstance(parent, style);
-    }
-
-    private Constructor<?> findAppropriateSWTStyledConstructor(Class<?> widgetClass) throws TransformerException {
-        Constructor<?> defaultConstructor = null;
-        Constructor<?>[] constructors = widgetClass.getConstructors();
-        for (Constructor<?> constructor : constructors) {
-            Class<?>[] parameterTypes = constructor.getParameterTypes();
-            if (parameterTypes.length == 2) {
-                if ((Composite.class.isAssignableFrom(parameterTypes[0]) ||   // most cases
-                        Menu.class.isAssignableFrom(parameterTypes[0]) ||        // in case MenuItems
-                        Control.class.isAssignableFrom(parameterTypes[0])) &&   // in case of DropTarget
-                        parameterTypes[1].equals(int.class)) {
-                    return constructor;
-                }
-            } else if (parameterTypes.length == 0)
-                defaultConstructor = constructor;
+    Object createInstanceOfSWTWidget(Class<?> widgetClass, Object parent, int style) throws TransformerException {
+        try {
+            return WidgetCreator.get(widgetClass).newInstance(parent, style);
+        } catch (Exception e) {
+            throw new TransformerException("Unexpected exception encountered while processing widget creation, widgetClass="+widgetClass.getName()+", parent="+parent+", style="+style, e);
+        } catch (VerifyError error) {
+            throw new TransformerException("Code generation verify error encountered while processing widget creation, widgetClass="+widgetClass.getName()+", parent="+parent+", style="+style, error);
         }
-        for (Constructor<?> constructor : constructors) {
-            Class<?>[] parameterTypes = constructor.getParameterTypes();
-            if (parameterTypes.length == 2) {
-                if (Device.class.isAssignableFrom(parameterTypes[0])   // in case of Cursor
-                        && parameterTypes[1].equals(int.class)) {
-                    return constructor;
-                }
-            }
-        }
-        if (defaultConstructor != null)
-            return defaultConstructor;
-        throw new TransformerException("Could not find adequate default constructor or constructor of type " +
-                "(? extends {Device,Composite,Menu,Control}, int) in class " + widgetClass.getName());
     }
 
     void transformChildren(TransformationWorkingContext context, JsonNode childrenNodes) throws TransformerException {

@@ -50,7 +50,7 @@ class OldSchoolObjectCreator extends ObjectCreator {
         }
 
         style = fixStyleIfNoModalDialogs(context, style);
-        final Object instanceOfSWTWidget = objectConverter.createInstanceOfSWTWidget(context.getWorkItem(), widgetClass, style);
+        final Object instanceOfSWTWidget = objectConverter.createInstanceOfSWTWidget(widgetClass, context.getWorkItem(), style);
         final TransformationWorkingContext ofTheJedi = new TransformationWorkingContext(context);
         ofTheJedi.setWorkItem(instanceOfSWTWidget);
         if (objectDefinition.has(ObjectConverter.KEY_SPECIAL_NAME)) {

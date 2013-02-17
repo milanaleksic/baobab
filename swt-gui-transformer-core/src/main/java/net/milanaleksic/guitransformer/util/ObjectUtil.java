@@ -1,5 +1,6 @@
 package net.milanaleksic.guitransformer.util;
 
+import com.esotericsoftware.reflectasm.ConstructorAccess;
 import com.google.common.base.*;
 import com.google.common.collect.*;
 import net.milanaleksic.guitransformer.TransformerException;
@@ -63,6 +64,7 @@ public class ObjectUtil {
     }
 
     private static ConcurrentMap<Class<?>, Method[]> availablePublicAndInheritedMethodsForClass = Maps.newConcurrentMap();
+
     public static Method[] getAllAvailablePublicAndInheritedMethodsForClass(Class<?> clazz) {
         if (availablePublicAndInheritedMethodsForClass.containsKey(clazz))
             return availablePublicAndInheritedMethodsForClass.get(clazz);
@@ -93,6 +95,10 @@ public class ObjectUtil {
                 return field.getAnnotation(annotation) != null;
             }
         });
+    }
+
+    public static <T> T createInstanceForType(Class<T> type) throws ReflectiveOperationException {
+        return ConstructorAccess.get(type).newInstance();
     }
 
 }
