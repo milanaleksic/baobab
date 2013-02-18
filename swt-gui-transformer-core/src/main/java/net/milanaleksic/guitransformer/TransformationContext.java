@@ -16,7 +16,7 @@ public class TransformationContext {
 
     private final ModelBindingMetaData modelBindingMetaData;
 
-    private final Map<String, Object> mappedObjects;
+    private final ImmutableMap<String, Object> mappedObjects;
 
     private final Shell shell;
 
@@ -40,7 +40,7 @@ public class TransformationContext {
     }
 
     public Map<String, Object> getMappedObjects() {
-        return ImmutableMap.copyOf(mappedObjects);
+        return mappedObjects;
     }
 
     ModelBindingMetaData getModelBindingMetaData() {

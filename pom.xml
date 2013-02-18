@@ -4,7 +4,7 @@
     <groupId>net.milanaleksic</groupId>
     <artifactId>swt-gui-transformer</artifactId>
     <name>SWT GUI Transformer</name>
-    <version>0.3.0</version>
+    <version>0.3.1</version>
     <packaging>pom</packaging>
 
     <description>SWT GUI Transformer toolkit for building interfaces in SWT interactively</description>
@@ -93,9 +93,9 @@
 
     <repositories>
         <repository>
-            <id>maven2-repository.dev.java.net</id>
-            <name>Eclipse.Org Repository for Maven</name>
-            <url>http://maven.eclipse.org/nexus/content/repositories/testing/</url>
+            <id>external@maven.milanaleksic.net</id>
+            <name>external artifacts @ maven.milanaleksic.net</name>
+            <url>http://maven.milanaleksic.net/external/</url>
             <layout>default</layout>
         </repository>
     </repositories>

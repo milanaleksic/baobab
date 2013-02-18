@@ -4,7 +4,6 @@ import com.google.common.base.*;
 import com.google.common.collect.*;
 import net.milanaleksic.guitransformer.*;
 import net.milanaleksic.guitransformer.model.*;
-import net.milanaleksic.guitransformer.util.ObjectUtil;
 import net.milanaleksic.guitransformer.util.ObjectUtil.*;
 import net.sf.cglib.proxy.*;
 import org.eclipse.swt.widgets.*;
@@ -19,6 +18,7 @@ class EmbeddingService {
 
     private MethodEventListenerExceptionHandler methodEventListenerExceptionHandler;
 
+    @SuppressWarnings("UnusedDeclaration")
     public void setMethodEventListenerExceptionHandler(MethodEventListenerExceptionHandler methodEventListenerExceptionHandler) {
         this.methodEventListenerExceptionHandler = methodEventListenerExceptionHandler;
     }
@@ -76,7 +76,7 @@ class EmbeddingService {
     }
 
     private void embedEventListenersAsMethods(Object targetObject, TransformationWorkingContext transformationContext) {
-        Method[] methods = targetObject.getClass().getDeclaredMethods();
+        Method[] methods = getAllAvailableDeclaredMethodsForClass(targetObject.getClass());
         for (Method method : methods) {
             List<EmbeddedEventListener> allListeners = Lists.newArrayList();
             EmbeddedEventListeners annotations = method.getAnnotation(EmbeddedEventListeners.class);
@@ -148,7 +148,7 @@ class EmbeddingService {
                 if (annotation.observe())
                     model = createObservableModel(field.getType(), bindingMetaData);
                 else
-                    model = field.getType().newInstance();
+                    model = createInstanceForType(field.getType());
             } catch (ReflectiveOperationException e1) {
                 throw new TransformerException("Reflection problem while binding model", e1);
             } catch (Exception e) {
@@ -187,7 +187,7 @@ class EmbeddingService {
     }
 
     private ImmutableSet<Method> getObservableMethods(final Class<?> type, ModelBindingMetaData bindingMetaData) {
-        final ImmutableListMultimap<String, Method> methods = Multimaps.index(Arrays.asList(type.getDeclaredMethods()), new Function<Method, String>() {
+        final ImmutableListMultimap<String, Method> methods = Multimaps.index(Arrays.asList(getAllAvailableDeclaredMethodsForClass(type)), new Function<Method, String>() {
             public String apply(Method input) {
                 return input.getName();
             }
@@ -196,12 +196,12 @@ class EmbeddingService {
             @Override
             public boolean apply(Field input) {
                 return input.getAnnotation(TransformerIgnoredProperty.class) == null &&
-                        methods.keySet().contains(ObjectUtil.getSetterForField(input.getName()));
+                        methods.keySet().contains(getSetterForField(input.getName()));
             }
         }), new Function<Field, Method>() {
             @Override
             public Method apply(Field input) {
-                ImmutableList<Method> matchedMethods = methods.get(ObjectUtil.getSetterForField(input.getName()));
+                ImmutableList<Method> matchedMethods = methods.get(getSetterForField(input.getName()));
                 Preconditions.checkState(matchedMethods.size() == 1, "could not make an unique match for setter method");
                 return matchedMethods.get(0);
             }

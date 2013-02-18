@@ -6,17 +6,18 @@ import net.milanaleksic.guitransformer.TransformationContext;
 import net.milanaleksic.guitransformer.model.ModelBindingMetaData;
 import org.eclipse.swt.widgets.Shell;
 
-import javax.annotation.*;
+import javax.annotation.Nullable;
 import java.util.Map;
 
 /**
  * User: Milan Aleksic
  * Date: 6/25/12
  * Time: 1:31 PM
- *
+ * <p>
  * Adding is always delegated to hierarchy root context. Fetching all mapped objects
  * involves aggregating all tree elements up to current context (to cover independent
  * trees).
+ * </p>
  */
 public class TransformationWorkingContext {
 
@@ -63,8 +64,8 @@ public class TransformationWorkingContext {
     }
 
     public TransformationContext createTransformationContext() {
-        Preconditions.checkArgument(workItem instanceof Shell, "You can't create TransformationContext for a non-Shell hierarchy root, class="+workItem.getClass().getName());
-        return new TransformationContext((Shell) workItem, getMappedObjects(), modelBindingMetaData);
+        Preconditions.checkArgument(workItem instanceof Shell, "You can't create TransformationContext for a non-Shell hierarchy root, class=" + workItem.getClass().getName());
+        return new TransformationContext((Shell) workItem, getMutableRootMappedObjects(), modelBindingMetaData);
     }
 
     public ModelBindingMetaData getModelBindingMetaData() {
@@ -76,36 +77,25 @@ public class TransformationWorkingContext {
     }
 
     public Object getMappedObject(String key) {
-        return getRootMappedObjects().get(key);
+        return getMutableRootMappedObjects().get(key);
     }
 
     public void mapAll(Map<String, Object> mappedObjects) {
-        getRootMappedObjects().putAll(mappedObjects);
+        getMutableRootMappedObjects().putAll(mappedObjects);
     }
 
     public void mapObject(String key, Object object) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(key), "Object is not named");
         if (key.startsWith("_"))
             return;
-        getRootMappedObjects().put(key, object);
+        getMutableRootMappedObjects().put(key, object);
     }
 
-    private Map<String, Object> getRootMappedObjects() {
+    Map<String, Object> getMutableRootMappedObjects() {
         TransformationWorkingContext iterator = this;
         while (iterator != null && iterator.getParentContext() != null)
             iterator = iterator.getParentContext();
         return iterator == null ? null : iterator.mappedObjects;
-    }
-
-    public Map<String, Object> getMappedObjects() {
-        final Map<String, Object> temp = Maps.newHashMap();
-        temp.putAll(mappedObjects);
-        TransformationWorkingContext iterator = getParentContext();
-        while (iterator != null) {
-            temp.putAll(iterator.getMappedObjects());
-            iterator = iterator.getParentContext();
-        }
-        return ImmutableMap.copyOf(temp);
     }
 
     public void setWorkItem(Object workItem) {

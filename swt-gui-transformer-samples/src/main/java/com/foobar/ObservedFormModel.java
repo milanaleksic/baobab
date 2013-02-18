@@ -16,7 +16,7 @@ public class ObservedFormModel {
     }
 
     // will fire update of SWT component "text2" because it is a
-    // properly named setter for a field with
+    // properly named setter for a field without @TransformerIgnoredProperty
     public void setText2(String text2) {
         this.text2 = text2;
     }
