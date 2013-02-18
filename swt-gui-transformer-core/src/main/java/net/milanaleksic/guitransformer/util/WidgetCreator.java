@@ -33,7 +33,7 @@ public abstract class WidgetCreator<T> {
         String creatorClassName = className + "Creator";
         String creatorClassNameInternal = getInternalName(creatorClassName);
 
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        ClassWriter cw = new ClassWriter(0);
         cw.visit(V1_7, ACC_PUBLIC + ACC_SUPER, creatorClassNameInternal, null,
                 "net/milanaleksic/guitransformer/util/WidgetCreator", null);
         insertConstructor(cw);
@@ -106,7 +106,7 @@ public abstract class WidgetCreator<T> {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESPECIAL, "net/milanaleksic/guitransformer/util/WidgetCreator", "<init>", "()V");
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
+        mv.visitMaxs(1, 1);
         mv.visitEnd();
     }
 
@@ -130,7 +130,7 @@ public abstract class WidgetCreator<T> {
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, classNameInternal, "<init>", "()V");
         mv.visitInsn(ARETURN);
-        mv.visitMaxs(0, 0);
+        mv.visitMaxs(2, 3);
         mv.visitEnd();
     }
 
