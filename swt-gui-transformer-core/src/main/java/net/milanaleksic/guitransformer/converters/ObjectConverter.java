@@ -152,7 +152,7 @@ public class ObjectConverter implements Converter {
         return mappedObject;
     }
 
-    Object createInstanceOfSWTWidget(Class<?> widgetClass, Object parent, int style) throws TransformerException {
+    <T> T createInstanceOfSWTWidget(Class<T> widgetClass, Object parent, int style) throws TransformerException {
         try {
             return WidgetCreator.get(widgetClass).newInstance(parent, style);
         } catch (Exception e) {

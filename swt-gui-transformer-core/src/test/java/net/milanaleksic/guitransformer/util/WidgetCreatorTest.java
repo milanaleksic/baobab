@@ -69,7 +69,7 @@ public class WidgetCreatorTest {
     public void non_reflective_creation_of_widget_zero_constructor() throws TransformerException {
         Control parent = new Shell();
         int style = SWT.BORDER;
-        GridLayout instance = (GridLayout) WidgetCreator
+        GridLayout instance = WidgetCreator
                 .get(GridLayout.class)
                 .newInstance(parent, style);
         assertThat(instance, is(not(nullValue())));
@@ -79,7 +79,7 @@ public class WidgetCreatorTest {
     public void non_reflective_creation_of_widget() throws TransformerException {
         Control parent = new Shell();
         int style = SWT.BORDER;
-        ComponentWithConstructorAsSWTWidget instance = (ComponentWithConstructorAsSWTWidget) WidgetCreator
+        ComponentWithConstructorAsSWTWidget instance = WidgetCreator
                 .get(ComponentWithConstructorAsSWTWidget.class)
                 .newInstance(parent, style);
         assertThat(instance, is(not(nullValue())));
@@ -93,7 +93,7 @@ public class WidgetCreatorTest {
     public void non_reflective_creation_of_widget_with_display() throws TransformerException {
         Control parent = new Shell();
         int style = SWT.BORDER;
-        ComponentWithConstructorAsSWTWidgetWithDisplay instance = (ComponentWithConstructorAsSWTWidgetWithDisplay) WidgetCreator
+        ComponentWithConstructorAsSWTWidgetWithDisplay instance = WidgetCreator
                 .get(ComponentWithConstructorAsSWTWidgetWithDisplay.class)
                 .newInstance(parent, style);
         assertThat(instance, is(not(nullValue())));

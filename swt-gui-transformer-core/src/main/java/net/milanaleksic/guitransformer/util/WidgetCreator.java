@@ -19,7 +19,7 @@ public abstract class WidgetCreator<T> {
 
     private static ConcurrentMap<Class<?>, WidgetCreator<?>> cachedCreatorMap = new ConcurrentHashMap<>();
 
-    public abstract Object newInstance(Object parent, int style);
+    public abstract T newInstance(Object parent, int style);
 
     @SuppressWarnings("unchecked")
     public static <T> WidgetCreator<T> get(Class<T> type) throws TransformerException {
