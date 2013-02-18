@@ -2,7 +2,7 @@ package net.milanaleksic.guitransformer.editor;
 
 import com.google.inject.*;
 import net.milanaleksic.guitransformer.editor.guice.EditorModule;
-import net.milanaleksic.guitransformer.guice.CoreModule;
+import net.milanaleksic.guitransformer.integration.CoreModule;
 import org.eclipse.swt.widgets.Display;
 
 import javax.inject.Inject;

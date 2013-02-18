@@ -1,4 +1,4 @@
-package net.milanaleksic.guitransformer.guice;
+package net.milanaleksic.guitransformer.integration;
 
 import com.google.inject.*;
 import net.milanaleksic.guitransformer.loader.Loader;
