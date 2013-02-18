@@ -2,7 +2,7 @@ package com.foobar;
 
 import com.google.inject.*;
 import net.milanaleksic.guitransformer.*;
-import net.milanaleksic.guitransformer.guice.CoreModule;
+import net.milanaleksic.guitransformer.integration.CoreModule;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.*;
 

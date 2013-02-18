@@ -5,7 +5,7 @@ import com.google.inject.Injector;
 
 import java.util.List;
 
-import net.milanaleksic.guitransformer.guice.CoreModule;
+import net.milanaleksic.guitransformer.integration.CoreModule;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
 
