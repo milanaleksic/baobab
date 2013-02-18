@@ -1,7 +1,7 @@
 package net.milanaleksic.guitransformer.util;
 
 import com.google.common.base.Optional;
-import net.milanaleksic.guitransformer.loader.Loader;
+import net.milanaleksic.guitransformer.integration.loader.Loader;
 
 import java.io.InputStream;
 import java.util.*;

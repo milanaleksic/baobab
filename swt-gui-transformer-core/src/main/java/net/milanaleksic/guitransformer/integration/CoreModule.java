@@ -1,8 +1,8 @@
 package net.milanaleksic.guitransformer.integration;
 
 import com.google.inject.*;
-import net.milanaleksic.guitransformer.loader.Loader;
-import net.milanaleksic.guitransformer.loader.impl.GuiceLoader;
+import net.milanaleksic.guitransformer.integration.loader.Loader;
+import net.milanaleksic.guitransformer.integration.loader.impl.GuiceLoader;
 import net.milanaleksic.guitransformer.providers.*;
 import net.milanaleksic.guitransformer.providers.impl.*;
 
