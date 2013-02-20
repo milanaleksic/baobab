@@ -79,7 +79,7 @@ public class ProxyFactoryForPostProcessingOfObservableMethods {
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
         for (Class<?> parameterType : method.getParameterTypes()) {
-            if (parameterType == int.class)
+            if (parameterType == int.class || parameterType == boolean.class)
                 mv.visitVarInsn(ILOAD, noOfParams++);
             else if (parameterType == float.class)
                 mv.visitVarInsn(FLOAD, noOfParams++);

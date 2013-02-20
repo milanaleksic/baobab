@@ -62,7 +62,7 @@ public class ObserverModelAcceptanceTest {
         assertThat(text1.getData().toString(), equalTo("123"));
         model.setWithSideEffectValueOfData("456");
         assertThat(text1.getData().toString(), equalTo("456"));
-        model.setWithSideEffectValueOfData("data", 1, 2, 3, 4, 5D);
+        model.setWithSideEffectValueOfData("data", 1, 2, 3, 4, 5D, false);
         assertThat(text1.getData().toString(), equalTo("data"));
     }
 

@@ -27,6 +27,9 @@ public class ModelAcceptanceTestModel {
     @TransformerIgnoredProperty
     private Double data5;
 
+    @TransformerIgnoredProperty
+    private boolean data6;
+
     @TransformerProperty("items")
     private String[] aList;
 
@@ -84,13 +87,14 @@ public class ModelAcceptanceTestModel {
     }
 
     @TransformerFireUpdate
-    public void setWithSideEffectValueOfData(Object data, int data1, long data2, double data3, float data4, Double data5) {
+    public void setWithSideEffectValueOfData(Object data, int data1, long data2, double data3, float data4, Double data5, boolean data6) {
         this.data = data;
         this.data1 = data1;
         this.data2 = data2;
         this.data3 = data3;
         this.data4 = data4;
         this.data5 = data5;
+        this.data6 = data6;
     }
 
     public int getData1() {
