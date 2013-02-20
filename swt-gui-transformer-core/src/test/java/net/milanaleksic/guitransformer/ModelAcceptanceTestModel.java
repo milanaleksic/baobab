@@ -12,6 +12,21 @@ public class ModelAcceptanceTestModel {
     @TransformerProperty(component = "text1", value = "data")
     private Object data;
 
+    @TransformerIgnoredProperty
+    private int data1;
+
+    @TransformerIgnoredProperty
+    private long data2;
+
+    @TransformerIgnoredProperty
+    private double data3;
+
+    @TransformerIgnoredProperty
+    private float data4;
+
+    @TransformerIgnoredProperty
+    private Double data5;
+
     @TransformerProperty("items")
     private String[] aList;
 
@@ -66,5 +81,35 @@ public class ModelAcceptanceTestModel {
     @TransformerFireUpdate
     public void setWithSideEffectValueOfData(Object data) {
         this.data = data;
+    }
+
+    @TransformerFireUpdate
+    public void setWithSideEffectValueOfData(Object data, int data1, long data2, double data3, float data4, Double data5) {
+        this.data = data;
+        this.data1 = data1;
+        this.data2 = data2;
+        this.data3 = data3;
+        this.data4 = data4;
+        this.data5 = data5;
+    }
+
+    public int getData1() {
+        return data1;
+    }
+
+    public long getData2() {
+        return data2;
+    }
+
+    public double getData3() {
+        return data3;
+    }
+
+    public float getData4() {
+        return data4;
+    }
+
+    public Double getData5() {
+        return data5;
     }
 }

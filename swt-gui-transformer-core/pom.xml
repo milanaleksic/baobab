@@ -40,11 +40,6 @@
             <version>1</version>
         </dependency>
         <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib</artifactId>
-            <version>3.0</version>
-        </dependency>
-        <dependency>
             <groupId>com.esotericsoftware.reflectasm</groupId>
             <artifactId>reflectasm</artifactId>
             <version>1.07</version>
@@ -52,11 +47,6 @@
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
-            <version>4.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-util</artifactId>
             <version>4.0</version>
         </dependency>
 

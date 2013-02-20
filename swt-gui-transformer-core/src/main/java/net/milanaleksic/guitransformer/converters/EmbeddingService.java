@@ -5,7 +5,8 @@ import com.google.common.collect.*;
 import net.milanaleksic.guitransformer.*;
 import net.milanaleksic.guitransformer.model.*;
 import net.milanaleksic.guitransformer.util.ObjectUtil.*;
-import net.sf.cglib.proxy.*;
+import net.milanaleksic.guitransformer.util.ProxyFactoryForPostProcessingOfObservableMethods;
+import static net.milanaleksic.guitransformer.util.ProxyFactoryForPostProcessingOfObservableMethods.MethodPostProcessor;
 import org.eclipse.swt.widgets.*;
 
 import java.lang.reflect.*;
@@ -169,21 +170,15 @@ class EmbeddingService {
         }
     }
 
-    private Object createObservableModel(final Class<?> modelType, final ModelBindingMetaData bindingMetaData) {
-        final ImmutableSet<Method> observableMethods = getObservableMethods(modelType, bindingMetaData);
-        Enhancer e = new Enhancer();
-        e.setSuperclass(modelType);
-        e.setCallback(new MethodInterceptor() {
-            @Override
-            public Object intercept(Object target, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
-                final Object returnValue = methodProxy.invokeSuper(target, args);
-                if (!observableMethods.contains(method))
-                    return returnValue;
-                FormUpdater.updateFormFromModel(target, bindingMetaData);
-                return returnValue;
-            }
-        });
-        return e.create();
+    private <T> T createObservableModel(final Class<T> modelType, final ModelBindingMetaData bindingMetaData) {
+        return ProxyFactoryForPostProcessingOfObservableMethods.wrapMethodCalls(
+                modelType, getObservableMethods(modelType, bindingMetaData),
+                new MethodPostProcessor<T>() {
+                    public void postProcess(T target) {
+                        FormUpdater.updateFormFromModel(target, bindingMetaData);
+                    }
+                }
+        );
     }
 
     private ImmutableSet<Method> getObservableMethods(final Class<?> type, ModelBindingMetaData bindingMetaData) {
@@ -357,5 +352,6 @@ class EmbeddingService {
             return -1;
         }
     }
+
 
 }

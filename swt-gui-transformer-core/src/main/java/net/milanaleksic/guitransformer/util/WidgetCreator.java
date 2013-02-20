@@ -5,6 +5,7 @@ import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.widgets.*;
 import org.objectweb.asm.*;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.Type;
 
 import java.lang.reflect.*;
 import java.util.concurrent.*;
@@ -27,17 +28,15 @@ public abstract class WidgetCreator<T> {
         if (widgetCreator != null)
             return (WidgetCreator<T>) widgetCreator;
 
-        String className = type.getName();
-        String classNameInternal = getInternalName(className);
-
-        String creatorClassName = className + "Creator";
-        String creatorClassNameInternal = getInternalName(creatorClassName);
+        final Type targetType = Type.getType(type);
+        final Type targetCreatorType = Type.getType("L" + targetType.getInternalName() + "Creator;");
+        final Type thisType = Type.getType(WidgetCreator.class);
 
         ClassWriter cw = new ClassWriter(0);
-        cw.visit(V1_7, ACC_PUBLIC + ACC_SUPER, creatorClassNameInternal, null,
-                "net/milanaleksic/guitransformer/util/WidgetCreator", null);
-        insertConstructor(cw);
-        insertNewInstance(cw, classNameInternal, findAppropriateSWTStyledConstructor(type));
+        cw.visit(V1_7, ACC_PUBLIC + ACC_SUPER, targetCreatorType.getInternalName(), null,
+                thisType.getInternalName(), null);
+        insertConstructor(cw, thisType);
+        insertNewInstance(cw, targetType, findAppropriateSWTStyledConstructor(type));
         cw.visitEnd();
 
 //        debug-start
@@ -48,25 +47,13 @@ public abstract class WidgetCreator<T> {
 //        }
 //        debug-end
 
-        Class<?> classDefinition = defineClass(creatorClassName, cw.toByteArray());
+        Class<?> classDefinition = ObjectUtil.defineClass(targetCreatorType.getClassName(), cw.toByteArray());
         try {
             WidgetCreator<T> creator = (WidgetCreator<T>) classDefinition.newInstance();
             WidgetCreator<T> previousCreator = (WidgetCreator<T>) cachedCreatorMap.putIfAbsent(type, creator);
             return previousCreator == null ? creator : previousCreator;
         } catch (Exception ex) {
-            throw new RuntimeException("Error constructing constructor access class: " + creatorClassName, ex);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private static Class<Object> defineClass(String className, byte[] bytes) {
-        try {
-            Method method = ClassLoader.class.getDeclaredMethod("defineClass",
-                    new Class[]{String.class, byte[].class, int.class, int.class});
-            method.setAccessible(true);
-            return (Class) method.invoke(WidgetCreator.class.getClassLoader(), className, bytes, 0, bytes.length);
-        } catch (Exception e) {
-            throw new RuntimeException("Failure while defining widget creator class", e);
+            throw new RuntimeException("Error constructing constructor access class: " + targetCreatorType.getClassName(), ex);
         }
     }
 
@@ -100,27 +87,27 @@ public abstract class WidgetCreator<T> {
                 "(? extends {Device,Composite,Menu,Control}, int) in class " + widgetClass.getName());
     }
 
-    private static void insertConstructor(ClassWriter cw) {
+    private static void insertConstructor(ClassWriter cw, Type thisType) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, "net/milanaleksic/guitransformer/util/WidgetCreator", "<init>", "()V");
+        mv.visitMethodInsn(INVOKESPECIAL, thisType.getInternalName(), "<init>", "()V");
         mv.visitInsn(RETURN);
         mv.visitMaxs(1, 1);
         mv.visitEnd();
     }
 
-    private static void insertNewInstance(ClassWriter cw, String classNameInternal, Constructor<?> chosenConstructor) {
+    private static void insertNewInstance(ClassWriter cw, Type targetType, Constructor<?> chosenConstructor) {
         final Class<?>[] parameterTypes = chosenConstructor.getParameterTypes();
         if (parameterTypes.length == 0) {
-            insertZeroParameterConstructor(cw, classNameInternal);
+            insertZeroParameterConstructor(cw, targetType.getInternalName());
             return;
         }
-        final String firstParameterInternal = getInternalName(parameterTypes[0].getName());
+        final String firstParameterInternal = ObjectUtil.getInternalNameForClass(parameterTypes[0].getName());
         if (Device.class.isAssignableFrom(parameterTypes[0]))
-            insertTwoParameterConstructorWithDisplay(cw, classNameInternal, firstParameterInternal);
+            insertTwoParameterConstructorWithDisplay(cw, targetType.getInternalName(), firstParameterInternal);
         else
-            insertTwoParameterConstructor(cw, classNameInternal, firstParameterInternal);
+            insertTwoParameterConstructor(cw, targetType.getInternalName(), firstParameterInternal);
     }
 
     private static void insertZeroParameterConstructor(ClassWriter cw, String classNameInternal) {
@@ -174,10 +161,6 @@ public abstract class WidgetCreator<T> {
         mv.visitMethodInsn(INVOKESPECIAL, classNameInternal, "<init>", "(L" + firstParameterInternal + ";I)V");
         mv.visitInsn(ARETURN);
         mv.visitMaxs(4, 4);
-    }
-
-    private static String getInternalName(String className) {
-        return className.replace('.', '/');
     }
 
 }
