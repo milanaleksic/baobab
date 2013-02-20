@@ -16,7 +16,7 @@
 
     <bean class="net.milanaleksic.guitransformer.providers.impl.ConfigurableShortcutsProvider"/>
 
-    <bean class="net.milanaleksic.guitransformer.loader.impl.SpringLoader" />
+    <bean class="net.milanaleksic.guitransformer.integration.loader.impl.SpringLoader" />
 
     <bean class="net.milanaleksic.guitransformer.converters.OldSchoolObjectCreator" />
 

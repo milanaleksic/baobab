@@ -4,7 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import net.milanaleksic.guitransformer.converters.Converter;
 import net.milanaleksic.guitransformer.converters.typed.TypedConverter;
-import net.milanaleksic.guitransformer.loader.Loader;
+import net.milanaleksic.guitransformer.integration.loader.Loader;
 import net.milanaleksic.guitransformer.providers.ConverterProvider;
 import net.milanaleksic.guitransformer.util.PropertiesMapper;
 

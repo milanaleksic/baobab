@@ -27,6 +27,22 @@ public class ObjectUtil {
         });
     }
 
+    public static String getInternalNameForClass(String className) {
+        return className.replace('.', '/');
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Class<Object> defineClass(String className, byte[] bytes) {
+        try {
+            Method method = ClassLoader.class.getDeclaredMethod("defineClass",
+                    new Class[]{String.class, byte[].class, int.class, int.class});
+            method.setAccessible(true);
+            return (Class) method.invoke(WidgetCreator.class.getClassLoader(), className, bytes, 0, bytes.length);
+        } catch (Exception e) {
+            throw new RuntimeException("Failure while defining widget creator class", e);
+        }
+    }
+
     public interface OperationOnField {
         void operate(Field field) throws ReflectiveOperationException;
     }

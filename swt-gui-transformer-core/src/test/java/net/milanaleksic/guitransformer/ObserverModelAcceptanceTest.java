@@ -9,7 +9,8 @@ import org.junit.runner.RunWith;
 import javax.inject.Inject;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
 
 @RunWith(GuiceRunner.class)
 public class ObserverModelAcceptanceTest {
@@ -49,6 +50,20 @@ public class ObserverModelAcceptanceTest {
         assertThat(text1.getData().toString(), equalTo("123"));
         model.setWithSideEffectValueOfData("456");
         assertThat(text1.getData().toString(), equalTo("456"));
+    }
+
+    @Test
+    public void from_model_to_form_also_via_method_with_multiple_params() throws TransformerException {
+        final TransformationContext transformationContext = transformer.fillManagedForm(this);
+        Text text1 = transformationContext.<Text>getMappedObject("text1").get();
+
+        assertThat(model, notNullValue());
+        model.setData("123");
+        assertThat(text1.getData().toString(), equalTo("123"));
+        model.setWithSideEffectValueOfData("456");
+        assertThat(text1.getData().toString(), equalTo("456"));
+        model.setWithSideEffectValueOfData("data", 1, 2, 3, 4, 5D, false);
+        assertThat(text1.getData().toString(), equalTo("data"));
     }
 
 }

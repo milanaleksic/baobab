@@ -8,7 +8,6 @@ import net.milanaleksic.guitransformer.providers.*;
 import net.milanaleksic.guitransformer.util.WidgetCreator;
 import org.codehaus.jackson.*;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.widgets.*;
 
 import javax.inject.Inject;

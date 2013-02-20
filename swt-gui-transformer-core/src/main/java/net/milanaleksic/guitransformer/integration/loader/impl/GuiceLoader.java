@@ -1,7 +1,7 @@
-package net.milanaleksic.guitransformer.loader.impl;
+package net.milanaleksic.guitransformer.integration.loader.impl;
 
 import com.google.inject.*;
-import net.milanaleksic.guitransformer.loader.Loader;
+import net.milanaleksic.guitransformer.integration.loader.Loader;
 
 public class GuiceLoader implements Loader {
 

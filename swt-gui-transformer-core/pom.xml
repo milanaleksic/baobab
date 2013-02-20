@@ -10,7 +10,7 @@
     <parent>
         <groupId>net.milanaleksic</groupId>
         <artifactId>swt-gui-transformer</artifactId>
-        <version>0.3.1</version>
+        <version>0.3.2</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -40,9 +40,9 @@
             <version>1</version>
         </dependency>
         <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib</artifactId>
-            <version>3.0</version>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>2.0.1</version>
         </dependency>
         <dependency>
             <groupId>com.esotericsoftware.reflectasm</groupId>
@@ -52,11 +52,6 @@
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
-            <version>4.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-util</artifactId>
             <version>4.0</version>
         </dependency>
 
@@ -110,6 +105,54 @@
                 <directory>${basedir}/src/test/resources</directory>
             </testResource>
         </testResources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <minimizeJar>true</minimizeJar>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <shadedClassifierName>all</shadedClassifierName>
+                            <relocations>
+                                <relocation>
+                                    <pattern>org.objectweb.asm</pattern>
+                                    <shadedPattern>net.milanaleksic.guitransformer.shaded.org.objectweb.asm
+                                    </shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.esotericsoftware.reflectasm</pattern>
+                                    <shadedPattern>
+                                        net.milanaleksic.guitransformer.shaded.com.esotericsoftware.reflectasm
+                                    </shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.codehaus.jackson</pattern>
+                                    <shadedPattern>net.milanaleksic.guitransformer.shaded.org.codehaus.jackson
+                                    </shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.google.common</pattern>
+                                    <shadedPattern>net.milanaleksic.guitransformer.shaded.com.google.common
+                                    </shadedPattern>
+                                </relocation>
+                            </relocations>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>org.eclipse.swt:*</exclude>
+                                </excludes>
+                            </artifactSet>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 
     <profiles>

@@ -1,8 +1,8 @@
-package net.milanaleksic.guitransformer.loader.impl;
+package net.milanaleksic.guitransformer.integration.loader.impl;
 
 import com.google.common.base.*;
 import net.milanaleksic.guitransformer.TransformerException;
-import net.milanaleksic.guitransformer.loader.Loader;
+import net.milanaleksic.guitransformer.integration.loader.Loader;
 import net.milanaleksic.guitransformer.util.ObjectUtil;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
