@@ -190,24 +190,27 @@
 <p>SWT GUI Transformer depends on following frameworks/libraries:</p>
 
 <ul>
+    <li>JRE required is <strong>1.7</strong></li>
     <li>(of course) <strong>SWT 4.2,</strong>
     </li>
-    <li>Google <strong>Guava 11,</strong>
+    <li>Google <strong>Guava 14.0-rc3,</strong>
     </li>
     <li>
-        <strong>Jackson 1.9.0</strong> - fastest JSON parser,
+        <strong>Jackson 1.9.12</strong> - fastest JSON parser,
     </li>
     <li>
-        a <strong>javax.inject (JSR 330)</strong> provider (for example Google Guice 3 or Spring 3)
+        a <strong>javax.inject (JSR 330)</strong> provider (SGT is supported/tested with Google Guice 3 and Spring 3.1.1)
     </li>
     <li>
-        <strong>ASM 4</strong>, <strong>Cglib 3</strong>, <strong>ReflectASM 1.07</strong> dynamic code generation libraries
+        <strong>ASM 4</strong> and <strong>ReflectASM 1.07</strong> dynamic code generation libraries
     </li>
 </ul>
-<p>If you don't use these libraries than you might need to fork the code
-    and try to hack your way through.</p>
+<p>If you don't use these libraries (or dependency management at all, for which there can't be any good reason)
+    then you might choose to download the core artifact with all dependencies
+    packed except SWT (which is platform-dependent) from following link:</p>
 
-<p>JRE required is <strong>1.7</strong>.</p>
+<script src="https://gist.github.com/2708850.js?file=linkForFile"></script>
+
 
 <h1>Interactive editor</h1>
 
