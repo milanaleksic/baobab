@@ -1,11 +1,8 @@
 package net.milanaleksic.guitransformer.providers.impl;
 
 import com.google.common.collect.ImmutableMap;
-import com.typesafe.config.*;
 import net.milanaleksic.guitransformer.providers.ShortcutsProvider;
 import net.milanaleksic.guitransformer.util.Configuration;
-
-import java.util.Map;
 
 import static net.milanaleksic.guitransformer.util.PropertiesMapper.getStringToClassMappingFromPropertiesFile;
 

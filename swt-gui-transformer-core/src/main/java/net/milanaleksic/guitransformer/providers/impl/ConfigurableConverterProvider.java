@@ -11,8 +11,6 @@ import net.milanaleksic.guitransformer.util.*;
 import javax.inject.Inject;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static net.milanaleksic.guitransformer.util.PropertiesMapper.getStringToClassMappingFromPropertiesFile;
-
 public class ConfigurableConverterProvider implements ConverterProvider {
 
     private final Loader loader;

@@ -32,7 +32,7 @@ public class ConfigurableBuilderProvider implements BuilderProvider {
     }
 
     private void bootUpLazilyMapping() {
-        final ImmutableMap.Builder<String, Builder<?>> builder = ImmutableMap.<String, Builder<?>>builder();
+        final ImmutableMap.Builder<String, Builder<?>> builder = ImmutableMap.builder();
         Configuration.loadStringToInstanceMappingToBuilder("builders", builder, Optional.of(loader));
         mapping.compareAndSet(null, builder
                 .putAll(PropertiesMapper.<Builder<?>>getStringToInstanceMappingFromPropertiesFile(GUI_TRANSFORMER_CONVERTERS_EXTENSION_PROPERTIES, Optional.of(loader)))
