@@ -6,10 +6,12 @@ import net.milanaleksic.guitransformer.converters.Converter;
 import net.milanaleksic.guitransformer.converters.typed.TypedConverter;
 import net.milanaleksic.guitransformer.integration.loader.Loader;
 import net.milanaleksic.guitransformer.providers.ConverterProvider;
-import net.milanaleksic.guitransformer.util.PropertiesMapper;
+import net.milanaleksic.guitransformer.util.*;
 
 import javax.inject.Inject;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static net.milanaleksic.guitransformer.util.PropertiesMapper.getStringToClassMappingFromPropertiesFile;
 
 public class ConfigurableConverterProvider implements ConverterProvider {
 
@@ -17,7 +19,6 @@ public class ConfigurableConverterProvider implements ConverterProvider {
 
     private final AtomicReference<ImmutableMap<Class<?>, Converter>> mapping = new AtomicReference<>(null);
 
-    private static final String GUI_TRANSFORMER_CONVERTERS_PROPERTIES = "/META-INF/guitransformer.converters-default.properties"; //NON-NLS
     private static final String GUI_TRANSFORMER_CONVERTERS_EXTENSION_PROPERTIES = "/META-INF/guitransformer.converters.properties"; //NON-NLS
 
     @Inject
@@ -26,10 +27,12 @@ public class ConfigurableConverterProvider implements ConverterProvider {
     }
 
     private void bootUpLazilyMapping() {
-        mapping.compareAndSet(null, ImmutableMap.<Class<?>, Converter>builder()
-                .putAll(PropertiesMapper.<Converter>getClassToInstanceMappingFromPropertiesFile(GUI_TRANSFORMER_CONVERTERS_PROPERTIES, Optional.of(loader)))
+        final ImmutableMap.Builder<Class<?>, Converter> builder = ImmutableMap.builder();
+        Configuration.loadClassToInstanceMappingToBuilder("converters", builder, Optional.of(loader));
+        final ImmutableMap<Class<?>, Converter> builtMapping = builder
                 .putAll(PropertiesMapper.<Converter>getClassToInstanceMappingFromPropertiesFile(GUI_TRANSFORMER_CONVERTERS_EXTENSION_PROPERTIES, Optional.of(loader)))
-                .build());
+                .build();
+        mapping.compareAndSet(null, builtMapping);
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
