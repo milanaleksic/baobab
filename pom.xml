@@ -33,7 +33,7 @@
         <sourceEncoding>UTF-8</sourceEncoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <swt.version>4.2</swt.version>
-        <guava.version>14.0-rc3</guava.version>
+        <guava.version>14.0.1</guava.version>
         <jackson.version>1.9.12</jackson.version>
         <guice.version>3.0</guice.version>
         <spring.version>3.1.1.RELEASE</spring.version>
