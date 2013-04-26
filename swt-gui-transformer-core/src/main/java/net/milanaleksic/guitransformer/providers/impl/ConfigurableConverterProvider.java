@@ -17,20 +17,18 @@ public class ConfigurableConverterProvider implements ConverterProvider {
 
     private final AtomicReference<ImmutableMap<Class<?>, Converter>> mapping = new AtomicReference<>(null);
 
-    private static final String GUI_TRANSFORMER_CONVERTERS_EXTENSION_PROPERTIES = "/META-INF/guitransformer.converters.properties"; //NON-NLS
-
     @Inject
     public ConfigurableConverterProvider(Loader loader) {
         this.loader = loader;
     }
 
     private void bootUpLazilyMapping() {
-        final ImmutableMap.Builder<Class<?>, Converter> builder = ImmutableMap.builder();
-        Configuration.loadClassToInstanceMappingToBuilder("converters", builder, Optional.of(loader));
-        final ImmutableMap<Class<?>, Converter> builtMapping = builder
-                .putAll(PropertiesMapper.<Converter>getClassToInstanceMappingFromPropertiesFile(GUI_TRANSFORMER_CONVERTERS_EXTENSION_PROPERTIES, Optional.of(loader)))
-                .build();
-        mapping.compareAndSet(null, builtMapping);
+        mapping.compareAndSet(null,
+                Configuration.<Converter>loadClassToInstanceMappingToBuilder(
+                        "converters",
+                        Optional.of(loader)
+                )
+        );
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {

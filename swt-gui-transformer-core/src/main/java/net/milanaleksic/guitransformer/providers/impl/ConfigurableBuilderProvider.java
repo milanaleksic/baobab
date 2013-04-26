@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import net.milanaleksic.guitransformer.builders.Builder;
 import net.milanaleksic.guitransformer.integration.loader.Loader;
 import net.milanaleksic.guitransformer.providers.BuilderProvider;
-import net.milanaleksic.guitransformer.util.*;
+import net.milanaleksic.guitransformer.util.Configuration;
 
 import javax.inject.Inject;
 import java.util.concurrent.atomic.AtomicReference;
@@ -15,8 +15,6 @@ public class ConfigurableBuilderProvider implements BuilderProvider {
     private final Loader loader;
 
     private final AtomicReference<ImmutableMap<String, Builder<?>>> mapping = new AtomicReference<>(null);
-
-    private static final String GUI_TRANSFORMER_CONVERTERS_EXTENSION_PROPERTIES = "/META-INF/guitransformer.builders.properties"; //NON-NLS
 
     @Inject
     public ConfigurableBuilderProvider(Loader loader) {
@@ -32,11 +30,12 @@ public class ConfigurableBuilderProvider implements BuilderProvider {
     }
 
     private void bootUpLazilyMapping() {
-        final ImmutableMap.Builder<String, Builder<?>> builder = ImmutableMap.builder();
-        Configuration.loadStringToInstanceMappingToBuilder("builders", builder, Optional.of(loader));
-        mapping.compareAndSet(null, builder
-                .putAll(PropertiesMapper.<Builder<?>>getStringToInstanceMappingFromPropertiesFile(GUI_TRANSFORMER_CONVERTERS_EXTENSION_PROPERTIES, Optional.of(loader)))
-                .build());
+        mapping.compareAndSet(null,
+                Configuration.<Builder<?>>loadStringToInstanceMapping(
+                        "builders",
+                        Optional.of(loader)
+                )
+        );
     }
 
 }

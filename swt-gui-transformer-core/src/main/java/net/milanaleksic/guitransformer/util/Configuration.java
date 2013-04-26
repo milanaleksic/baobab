@@ -16,7 +16,8 @@ public class Configuration {
 
     private static final Config reference = ConfigFactory.load();
 
-    public static void loadStringToClassMappingToBuilder(String configName, ImmutableMap.Builder<String, Class<?>> builder) {
+    public static ImmutableMap<String, Class<?>> loadStringToClassMappingToBuilder(String configName) {
+        ImmutableMap.Builder<String, Class<?>> builder = ImmutableMap.builder();
         final Config configuration = reference.getConfig(configName);
         for (Map.Entry<String, Object> entry : configuration.root().unwrapped().entrySet())
             try {
@@ -24,13 +25,15 @@ public class Configuration {
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
+        return builder.build();
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> void loadClassToInstanceMappingToBuilder(String configName, ImmutableMap.Builder<Class<?>, T> builder, Optional<Loader> loader) {
+    public static <T> ImmutableMap<Class<?>, T> loadClassToInstanceMappingToBuilder(String configName, Optional<Loader> loader) {
+        ImmutableMap.Builder<Class<?>, T> builder = ImmutableMap.builder();
         final Config configuration = reference.getConfig(configName);
         if (configuration.isEmpty())
-            return;
+            return ImmutableMap.of();
         for (Map.Entry<String, Object> entry : configuration.root().unwrapped().entrySet()) {
             try {
                 final Class<?> classWhichIsMaybeWrapper = Class.forName(entry.getKey());
@@ -53,13 +56,15 @@ public class Configuration {
                 e.printStackTrace();
             }
         }
+        return builder.build();
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> void loadStringToInstanceMappingToBuilder(String configName, ImmutableMap.Builder<String, T> builder, Optional<Loader> loader) {
+    public static <T> ImmutableMap<String, T> loadStringToInstanceMapping(String configName, Optional<Loader> loader) {
+        ImmutableMap.Builder builder = new ImmutableMap.Builder();
         final Config configuration = reference.getConfig(configName);
         if (configuration.isEmpty())
-            return;
+            return ImmutableMap.of();
         for (Map.Entry<String, Object> entry : configuration.root().unwrapped().entrySet()) {
             try {
                 T raw = (T) ObjectUtil.createInstanceForType(Class.forName(entry.getValue().toString()));
@@ -70,5 +75,6 @@ public class Configuration {
                 e.printStackTrace();
             }
         }
+        return builder.build();
     }
 }
