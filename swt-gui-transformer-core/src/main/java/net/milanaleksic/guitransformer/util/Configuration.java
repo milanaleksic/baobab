@@ -2,7 +2,8 @@ package net.milanaleksic.guitransformer.util;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
-import com.typesafe.config.*;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import net.milanaleksic.guitransformer.integration.loader.Loader;
 
 import java.util.Map;
@@ -23,7 +24,7 @@ public class Configuration {
             try {
                 builder.put(entry.getKey(), Class.forName(entry.getValue().toString()));
             } catch (ClassNotFoundException e) {
-                e.printStackTrace();
+                throw new RuntimeException("Configuration could not be loaded for entry: " + entry.getKey(), e);
             }
         return builder.build();
     }
@@ -53,7 +54,7 @@ public class Configuration {
                     builder.put(classWhichIsMaybeWrapper, raw);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                throw new RuntimeException("Configuration could not be loaded for entry: " + entry.getKey(), e);
             }
         }
         return builder.build();
@@ -72,7 +73,7 @@ public class Configuration {
                     loader.get().load(raw);
                 builder.put(entry.getKey(), raw);
             } catch (Exception e) {
-                e.printStackTrace();
+                throw new RuntimeException("Configuration could not be loaded for entry: " + entry.getKey(), e);
             }
         }
         return builder.build();
