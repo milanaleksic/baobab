@@ -16,7 +16,7 @@ public class Configuration {
 
     private static final Config reference = ConfigFactory.load();
 
-    public static ImmutableMap<String, Class<?>> loadStringToClassMappingToBuilder(String configName) {
+    public static ImmutableMap<String, Class<?>> loadStringToClassMapping(String configName) {
         ImmutableMap.Builder<String, Class<?>> builder = ImmutableMap.builder();
         final Config configuration = reference.getConfig(configName);
         for (Map.Entry<String, Object> entry : configuration.root().unwrapped().entrySet())
@@ -29,7 +29,7 @@ public class Configuration {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> ImmutableMap<Class<?>, T> loadClassToInstanceMappingToBuilder(String configName, Optional<Loader> loader) {
+    public static <T> ImmutableMap<Class<?>, T> loadClassToInstanceMapping(String configName, Optional<Loader> loader) {
         ImmutableMap.Builder<Class<?>, T> builder = ImmutableMap.builder();
         final Config configuration = reference.getConfig(configName);
         if (configuration.isEmpty())

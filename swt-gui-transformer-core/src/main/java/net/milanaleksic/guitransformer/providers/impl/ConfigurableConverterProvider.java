@@ -24,7 +24,7 @@ public class ConfigurableConverterProvider implements ConverterProvider {
 
     private void bootUpLazilyMapping() {
         mapping.compareAndSet(null,
-                Configuration.<Converter>loadClassToInstanceMappingToBuilder(
+                Configuration.<Converter>loadClassToInstanceMapping(
                         "converters",
                         Optional.of(loader)
                 )
