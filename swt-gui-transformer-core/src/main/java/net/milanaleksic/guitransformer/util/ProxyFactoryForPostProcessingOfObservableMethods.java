@@ -1,6 +1,5 @@
 package net.milanaleksic.guitransformer.util;
 
-import com.google.common.collect.ImmutableSet;
 import org.objectweb.asm.*;
 
 import java.lang.reflect.Method;
@@ -28,7 +27,7 @@ public class ProxyFactoryForPostProcessingOfObservableMethods {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T wrapMethodCalls(Class<T> modelClass, ImmutableSet<Method> observableMethods,
+    public static <T> T wrapMethodCalls(Class<T> modelClass, Set<Method> observableMethods,
                                         MethodPostProcessor methodPostProcessor) {
         final Type modelType = Type.getType(modelClass);
         final Type proxyType = Type.getType("L" + modelType.getInternalName() + "PostProcessingProxy;");
@@ -49,7 +48,7 @@ public class ProxyFactoryForPostProcessingOfObservableMethods {
         }
     }
 
-    private static ClassWriter getClassWriter(ImmutableSet<Method> observableMethods, Type modelType, Type proxyType) {
+    private static ClassWriter getClassWriter(Set<Method> observableMethods, Type modelType, Type proxyType) {
         final Type thisType = Type.getType(ProxyFactoryForPostProcessingOfObservableMethods.class);
         final Type postProcessorType = Type.getType(MethodPostProcessor.class);
         final ClassWriter cw = new ClassWriter(0);

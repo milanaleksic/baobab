@@ -6,7 +6,9 @@ import net.milanaleksic.guitransformer.*;
 import net.milanaleksic.guitransformer.model.*;
 import net.milanaleksic.guitransformer.util.ObjectUtil.*;
 import net.milanaleksic.guitransformer.util.ProxyFactoryForPostProcessingOfObservableMethods;
+
 import static net.milanaleksic.guitransformer.util.ProxyFactoryForPostProcessingOfObservableMethods.MethodPostProcessor;
+
 import org.eclipse.swt.widgets.*;
 
 import java.lang.reflect.*;
@@ -181,31 +183,34 @@ class EmbeddingService {
         );
     }
 
-    private ImmutableSet<Method> getObservableMethods(final Class<?> type, ModelBindingMetaData bindingMetaData) {
+    private Set<Method> getObservableMethods(final Class<?> type, ModelBindingMetaData bindingMetaData) {
         final ImmutableListMultimap<String, Method> methods = Multimaps.index(Arrays.asList(getAllAvailableDeclaredMethodsForClass(type)), new Function<Method, String>() {
             public String apply(Method input) {
                 return input.getName();
             }
         });
-        return ImmutableSet.copyOf(Iterables.concat(Iterables.transform(Iterables.filter(bindingMetaData.getFieldMapping().keySet(), new Predicate<Field>() {
-            @Override
-            public boolean apply(Field input) {
-                return input.getAnnotation(TransformerIgnoredProperty.class) == null &&
-                        methods.keySet().contains(getSetterForField(input.getName()));
-            }
-        }), new Function<Field, Method>() {
-            @Override
-            public Method apply(Field input) {
-                ImmutableList<Method> matchedMethods = methods.get(getSetterForField(input.getName()));
-                Preconditions.checkState(matchedMethods.size() == 1, "could not make an unique match for setter method");
-                return matchedMethods.get(0);
-            }
-        }), Iterables.filter(methods.values(), new Predicate<Method>() {
-            @Override
-            public boolean apply(Method method) {
-                return method.getAnnotation(TransformerFireUpdate.class) != null;
-            }
-        })));
+        return Sets.union(FluentIterable
+                .from(bindingMetaData.getFieldMapping().keySet())
+                .filter(new Predicate<Field>() {
+                    @Override
+                    public boolean apply(Field input) {
+                        return input.getAnnotation(TransformerIgnoredProperty.class) == null &&
+                                methods.keySet().contains(getSetterForField(input.getName()));
+                    }
+                }).transform(new Function<Field, Method>() {
+                    @Override
+                    public Method apply(Field input) {
+                        ImmutableList<Method> matchedMethods = methods.get(getSetterForField(input.getName()));
+                        Preconditions.checkState(matchedMethods.size() == 1, "could not make an unique match for setter method");
+                        return matchedMethods.get(0);
+                    }
+                }).toSet(),
+                Sets.filter(Sets.newHashSet(methods.values()), new Predicate<Method>() {
+                    @Override
+                    public boolean apply(Method method) {
+                        return method.getAnnotation(TransformerFireUpdate.class) != null;
+                    }
+                }));
     }
 
     private void mapOnChangeListeners(final Object model, final TransformationWorkingContext transformationContext) throws ReflectiveOperationException {
