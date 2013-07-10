@@ -1,19 +1,30 @@
 package net.milanaleksic.guitransformer.editor;
 
-import com.google.common.base.*;
-import com.google.common.collect.Maps;
+import com.google.common.base.Charsets;
+import com.google.common.base.Strings;
 import net.milanaleksic.guitransformer.*;
 import net.milanaleksic.guitransformer.model.TransformerModel;
 import net.milanaleksic.guitransformer.providers.ResourceBundleProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.dnd.*;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DropTarget;
+import org.eclipse.swt.dnd.FileTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.*;
 
 import javax.annotation.Nullable;
-import javax.inject.*;
-import java.io.*;
-import java.util.*;
+import javax.inject.Inject;
+import javax.inject.Named;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.nio.file.*;
+import java.util.ResourceBundle;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static java.nio.file.StandardWatchEventKinds.*;
 
 /**
  * User: Milan Aleksic
@@ -47,6 +58,57 @@ public class MainForm {
     /* editor's own context */
     private Shell shell;
     private ResourceBundle resourceBundle;
+
+    private AtomicReference<WatchKey> currentFileExternalChangesWatchKey = new AtomicReference<>(null);
+
+    private final Thread externalWatcherThread = new Thread() {
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public void run() {
+            try {
+                long lastUpdated = 0;
+                for (; ; ) {
+                    WatchKey localizedWatchKey = currentFileExternalChangesWatchKey.get();
+                    if (localizedWatchKey == null) {
+                        Thread.sleep(500);
+                        continue;
+                    }
+                    for (WatchEvent<?> event : localizedWatchKey.pollEvents()) {
+                        WatchEvent.Kind<?> kind = event.kind();
+                        if (kind == OVERFLOW) {
+                            continue;
+                        }
+
+                        WatchEvent<Path> ev = (WatchEvent<Path>) event;
+
+                        Path fullFilename = ((Path)localizedWatchKey.watchable()).resolve(ev.context());
+
+                        if (fullFilename.equals(model.getCurrentFile().toPath()) && (System.currentTimeMillis()-lastUpdated>100)) {
+                            lastUpdated = System.currentTimeMillis();
+                            System.out.println("File reloaded: "+fullFilename);
+                            shell.getDisplay().asyncExec(new Runnable() {
+                                @Override
+                                public void run() {
+                                    openFile(model.getCurrentFile());
+                                }
+                            });
+                        }
+                    }
+                    boolean valid = localizedWatchKey.reset();
+                    if (!valid) {
+                        currentFileExternalChangesWatchKey.set(null);
+                    }
+                }
+            } catch (InterruptedException ignored) {
+            }
+        }
+    };
+
+    public MainForm() {
+        externalWatcherThread.setDaemon(true);
+        externalWatcherThread.start();
+    }
 
     @EmbeddedEventListener(component = "editorDropTarget", event = DND.Drop)
     private void editorDropTargetDropListener(Event event) {
@@ -88,7 +150,7 @@ public class MainForm {
                 model.setCurrentShell(newShell);
                 newShell.open();
 
-                ((Control)event.widget).setFocus();
+                ((Control) event.widget).setFocus();
 
                 model.setActiveWidgets(nonManagedForm.getMappedObjects());
             } catch (TransformerException e) {
@@ -140,11 +202,9 @@ public class MainForm {
     private void editorKeyDown(Event event) {
         if (Character.toLowerCase(event.keyCode) == 'a' && (event.stateMask & SWT.CTRL) == SWT.CTRL) {
             editor.selectAll();
-        }
-        else if (Character.toLowerCase(event.keyCode) == 'f' && (event.stateMask & SWT.CTRL) == SWT.CTRL) {
+        } else if (Character.toLowerCase(event.keyCode) == 'f' && (event.stateMask & SWT.CTRL) == SWT.CTRL) {
             findText();
-        }
-        else if (event.keyCode == SWT.F3) {
+        } else if (event.keyCode == SWT.F3) {
             findNext();
         }
     }
@@ -281,6 +341,30 @@ public class MainForm {
                         ? resourceBundle.getString("mainForm.newFile")
                         : file.getName()));
         model.setModified(false);
+
+        setupExternalFSChangesWatcher(file);
+    }
+
+    private void setupExternalFSChangesWatcher(File file) {
+        WatchKey watchKey = currentFileExternalChangesWatchKey.get();
+        if (watchKey != null) {
+            watchKey.cancel();
+            currentFileExternalChangesWatchKey.set(null);
+        }
+        try {
+            if (file != null) {
+                //TODO: you don't close the watchservice!
+                WatchService currentFileExternalChangesWatcher = FileSystems.getDefault().newWatchService();
+                currentFileExternalChangesWatchKey.set(
+                        file.toPath().getParent().register(currentFileExternalChangesWatcher,
+                                StandardWatchEventKinds.ENTRY_MODIFY)
+                );
+            } else {
+                currentFileExternalChangesWatchKey.set(null);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void init() {
