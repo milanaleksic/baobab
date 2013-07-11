@@ -1,37 +1,27 @@
 package net.milanaleksic.guitransformer.editor;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Strings;
+import com.google.common.base.*;
+import com.google.common.eventbus.EventBus;
 import net.milanaleksic.guitransformer.*;
+import net.milanaleksic.guitransformer.editor.messages.ErrorMessage;
 import net.milanaleksic.guitransformer.model.TransformerModel;
 import net.milanaleksic.guitransformer.providers.ResourceBundleProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.dnd.DND;
-import org.eclipse.swt.dnd.DropTarget;
-import org.eclipse.swt.dnd.FileTransfer;
-import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.widgets.*;
 
 import javax.annotation.Nullable;
-import javax.inject.Inject;
-import javax.inject.Named;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.nio.file.*;
-import java.util.ResourceBundle;
-import java.util.concurrent.atomic.AtomicReference;
-
-import static java.nio.file.StandardWatchEventKinds.*;
+import javax.inject.*;
+import java.io.*;
+import java.util.*;
 
 /**
  * User: Milan Aleksic
  * Date: 5/14/12
  * Time: 3:00 PM
  */
-public class MainForm {
+public class MainForm implements Observer {
 
     @Inject
     private Transformer transformer;
@@ -41,7 +31,7 @@ public class MainForm {
     private Transformer editorTransformer;
 
     @Inject
-    private ErrorDialog errorDialog;
+    private EventBus eventBus;
 
     @Inject
     private FindDialog findDialog;
@@ -58,56 +48,12 @@ public class MainForm {
     /* editor's own context */
     private Shell shell;
     private ResourceBundle resourceBundle;
+    private MainFormFileChangesObservable fileChangesObservable;
 
-    private AtomicReference<WatchKey> currentFileExternalChangesWatchKey = new AtomicReference<>(null);
-
-    private final Thread externalWatcherThread = new Thread() {
-
-        @SuppressWarnings("unchecked")
-        @Override
-        public void run() {
-            try {
-                long lastUpdated = 0;
-                for (; ; ) {
-                    WatchKey localizedWatchKey = currentFileExternalChangesWatchKey.get();
-                    if (localizedWatchKey == null) {
-                        Thread.sleep(500);
-                        continue;
-                    }
-                    for (WatchEvent<?> event : localizedWatchKey.pollEvents()) {
-                        WatchEvent.Kind<?> kind = event.kind();
-                        if (kind == OVERFLOW) {
-                            continue;
-                        }
-
-                        WatchEvent<Path> ev = (WatchEvent<Path>) event;
-
-                        Path fullFilename = ((Path)localizedWatchKey.watchable()).resolve(ev.context());
-
-                        if (fullFilename.equals(model.getCurrentFile().toPath()) && (System.currentTimeMillis()-lastUpdated>100)) {
-                            lastUpdated = System.currentTimeMillis();
-                            System.out.println("File reloaded: "+fullFilename);
-                            shell.getDisplay().asyncExec(new Runnable() {
-                                @Override
-                                public void run() {
-                                    openFile(model.getCurrentFile());
-                                }
-                            });
-                        }
-                    }
-                    boolean valid = localizedWatchKey.reset();
-                    if (!valid) {
-                        currentFileExternalChangesWatchKey.set(null);
-                    }
-                }
-            } catch (InterruptedException ignored) {
-            }
-        }
-    };
-
-    public MainForm() {
-        externalWatcherThread.setDaemon(true);
-        externalWatcherThread.start();
+    @Inject
+    private MainForm(MainFormFileChangesObservable fileChangesObservable) {
+        this.fileChangesObservable = fileChangesObservable;
+        this.fileChangesObservable.addObserver(this);
     }
 
     @EmbeddedEventListener(component = "editorDropTarget", event = DND.Drop)
@@ -128,7 +74,20 @@ public class MainForm {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         model.getLastException().printStackTrace(pw);
-        errorDialog.showMessage(sw.toString());
+        eventBus.post(new ErrorMessage(sw.toString()));
+    }
+
+    @Override
+    public void update(Observable o, Object filename) {
+        if (!filename.equals(model.getCurrentFile().toPath()))
+            return;
+        System.out.println("File to be reloaded: " + filename);
+        shell.getDisplay().asyncExec(new Runnable() {
+            @Override
+            public void run() {
+                openFile(model.getCurrentFile());
+            }
+        });
     }
 
     private class EditorModifyRunnableListener implements Listener {
@@ -258,24 +217,30 @@ public class MainForm {
 
     @EmbeddedEventListener(component = "shell", event = SWT.Close)
     private void shellCloseListener(Event event) {
-        if (!model.isModified())
-            return;
-        int style = SWT.APPLICATION_MODAL | SWT.YES | SWT.NO | SWT.CANCEL | SWT.ICON_QUESTION;
-        MessageBox messageBox = new MessageBox(shell, style);
-        messageBox.setText(resourceBundle.getString("mainForm.information"));
-        messageBox.setMessage(resourceBundle.getString("mainForm.saveBeforeClosing"));
-        switch (messageBox.open()) {
-            case SWT.CANCEL:
-                event.doit = false;
-                break;
-            case SWT.YES:
-                saveCurrentDocument();
-                event.doit = true;
-                break;
-            case SWT.NO:
-            default:
-                event.doit = true;
-                break;
+        try {
+            if (!model.isModified())
+                return;
+            int style = SWT.APPLICATION_MODAL | SWT.YES | SWT.NO | SWT.CANCEL | SWT.ICON_QUESTION;
+            MessageBox messageBox = new MessageBox(shell, style);
+            messageBox.setText(resourceBundle.getString("mainForm.information"));
+            messageBox.setMessage(resourceBundle.getString("mainForm.saveBeforeClosing"));
+            switch (messageBox.open()) {
+                case SWT.CANCEL:
+                    event.doit = false;
+                    break;
+                case SWT.YES:
+                    saveCurrentDocument();
+                    event.doit = true;
+                    break;
+                case SWT.NO:
+                default:
+                    event.doit = true;
+                    break;
+            }
+        } finally {
+            if (event.doit) {
+                fileChangesObservable.close();
+            }
         }
     }
 
@@ -342,29 +307,7 @@ public class MainForm {
                         : file.getName()));
         model.setModified(false);
 
-        setupExternalFSChangesWatcher(file);
-    }
-
-    private void setupExternalFSChangesWatcher(File file) {
-        WatchKey watchKey = currentFileExternalChangesWatchKey.get();
-        if (watchKey != null) {
-            watchKey.cancel();
-            currentFileExternalChangesWatchKey.set(null);
-        }
-        try {
-            if (file != null) {
-                //TODO: you don't close the watchservice!
-                WatchService currentFileExternalChangesWatcher = FileSystems.getDefault().newWatchService();
-                currentFileExternalChangesWatchKey.set(
-                        file.toPath().getParent().register(currentFileExternalChangesWatcher,
-                                StandardWatchEventKinds.ENTRY_MODIFY)
-                );
-            } else {
-                currentFileExternalChangesWatchKey.set(null);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        fileChangesObservable.setupExternalFSChangesWatcher(file);
     }
 
     public void init() {

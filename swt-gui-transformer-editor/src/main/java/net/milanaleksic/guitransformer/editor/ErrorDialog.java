@@ -1,6 +1,8 @@
 package net.milanaleksic.guitransformer.editor;
 
+import com.google.common.eventbus.*;
 import net.milanaleksic.guitransformer.EmbeddedEventListener;
+import net.milanaleksic.guitransformer.editor.messages.ErrorMessage;
 import net.milanaleksic.guitransformer.model.TransformerModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Event;
@@ -25,9 +27,15 @@ public class ErrorDialog {
         event.widget.dispose();
     }
 
-    public void showMessage(final String stackTrace) {
+    @Inject
+    public ErrorDialog(EventBus eventBus) {
+        eventBus.register(this);
+    }
+
+    @Subscribe
+    public void showMessage(ErrorMessage errorMessage) {
         dialogHelper.bootUpDialog(this);
-        model.setText(stackTrace);
+        model.setText(errorMessage.getMessage());
     }
 
 }
