@@ -1,4 +1,4 @@
-[![Stories in Ready](http://badge.waffle.io/milanaleksic/swt-gui-transformer.png)](http://waffle.io/milanaleksic/swt-gui-transformer)  
+[![Stories in Ready](https://badge.waffle.io/milanaleksic/swt-gui-transformer.png)](http://waffle.io/milanaleksic/swt-gui-transformer)  
 swt-gui-transformer
 ===================
 
