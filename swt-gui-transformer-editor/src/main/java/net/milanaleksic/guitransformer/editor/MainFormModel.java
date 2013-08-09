@@ -1,5 +1,6 @@
 package net.milanaleksic.guitransformer.editor;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.*;
 import net.milanaleksic.guitransformer.model.TransformerFireUpdate;
 import net.milanaleksic.guitransformer.model.*;
@@ -42,7 +43,7 @@ public class MainFormModel {
     private boolean modified = false;
 
     @TransformerIgnoredProperty
-    private Exception lastException = null;
+    private Optional<Exception> lastException = Optional.absent();
 
     @TransformerIgnoredProperty
     private String lastSearchString = null;
@@ -117,12 +118,8 @@ public class MainFormModel {
         this.modified = modified;
     }
 
-    public Exception getLastException() {
+    public Optional<Exception> getLastException() {
         return lastException;
-    }
-
-    public void setLastException(Exception lastException) {
-        this.lastException = lastException;
     }
 
     public String getLastSearchString() {
@@ -137,7 +134,7 @@ public class MainFormModel {
         infoText = infoText.replaceAll("\r", "");
         infoText = infoText.replaceAll("\n", "");
         setInfoText(infoText);
-        setLastException(exception);
+        this.lastException = Optional.fromNullable(exception);
     }
 
     @TransformerFireUpdate

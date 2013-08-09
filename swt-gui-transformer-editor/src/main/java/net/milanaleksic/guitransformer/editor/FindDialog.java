@@ -1,6 +1,7 @@
 package net.milanaleksic.guitransformer.editor;
 
-import net.milanaleksic.guitransformer.EmbeddedEventListener;
+import com.google.common.eventbus.EventBus;
+import net.milanaleksic.guitransformer.*;
 import net.milanaleksic.guitransformer.model.TransformerModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.*;
@@ -15,7 +16,10 @@ import javax.inject.Inject;
 public class FindDialog {
 
     @Inject
-    private DialogHelper dialogHelper;
+    private Transformer transformer;
+
+    @Inject
+    private EventBus eventBus;
 
     @TransformerModel(observe = true)
     private FindDialogModel model;
@@ -37,10 +41,16 @@ public class FindDialog {
     }
 
     public String getSearchString() {
-        Shell shell = dialogHelper.bootUpDialog(this);
-        model.setAccepted(false);
-        dialogHelper.blockUntilClosed(shell);
-        return model.isAccepted() ? model.getSearchText() : null;
+        final TransformationContext transformationContext;
+        try {
+            transformationContext = transformer.fillManagedForm(this);
+            model.setAccepted(false);
+            transformationContext.showAndAwaitClosed();
+            return model.isAccepted() ? model.getSearchText() : null;
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

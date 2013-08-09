@@ -1,6 +1,6 @@
 package com.foobar;
 
-import com.google.inject.*;
+import com.google.inject.Guice;
 import net.milanaleksic.guitransformer.*;
 import net.milanaleksic.guitransformer.integration.CoreModule;
 import org.eclipse.swt.SWT;
@@ -19,28 +19,24 @@ public class MyForm {
     @EmbeddedComponent private Shell myFormShell;
 
     @EmbeddedEventListener(component = "btnLogin", event = SWT.Selection)
-    private void webSiteVisitor() {
+    private void login() {
         MessageBox box = new MessageBox(myFormShell, SWT.ICON_ERROR);
-        box.setMessage("You entered: username="+usernameBox.getText()+", password="+passwordBox.getText());
+        box.setMessage("You entered: username=" + usernameBox.getText() + ", password=" + passwordBox.getText());
         box.setText("Information");
         box.open();
     }
 
-    public static void main(String[] args) throws TransformerException {
-        // I use here Guice, but you can use any javax.inject - compatible DI container
-        Injector rootInjector = Guice.createInjector(new CoreModule());
-        final MyForm myFormInstance = rootInjector.getInstance(MyForm.class);
-        myFormInstance.execute();
+    @EmbeddedEventListeners({
+            @EmbeddedEventListener(component = "usernameBox", event = SWT.Traverse),
+            @EmbeddedEventListener(component = "passwordBox", event = SWT.Traverse)
+    })
+    private void loginOnEnterPressed(Event event) {
+        if (event.detail == SWT.TRAVERSE_RETURN)
+            login();
     }
 
-    public void execute() throws TransformerException {
-        transformer.fillManagedForm(this);
-        // all SGT injection is done
-        myFormShell.open();
-        Display display = Display.getDefault();
-        while (!this.myFormShell.isDisposed()) {
-            if (!display.readAndDispatch())
-                display.sleep();
-        }
+    public static void main(String[] args) throws TransformerException {
+        MyForm myForm = Guice.createInjector(new CoreModule()).getInstance(MyForm.class);
+        myForm.transformer.fillManagedForm(myForm).showAndAwaitClosed();
     }
 }

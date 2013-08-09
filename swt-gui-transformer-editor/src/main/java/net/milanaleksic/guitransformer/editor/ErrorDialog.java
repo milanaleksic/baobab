@@ -1,7 +1,7 @@
 package net.milanaleksic.guitransformer.editor;
 
 import com.google.common.eventbus.*;
-import net.milanaleksic.guitransformer.EmbeddedEventListener;
+import net.milanaleksic.guitransformer.*;
 import net.milanaleksic.guitransformer.editor.messages.ErrorMessage;
 import net.milanaleksic.guitransformer.model.TransformerModel;
 import org.eclipse.swt.SWT;
@@ -17,7 +17,7 @@ import javax.inject.Inject;
 public class ErrorDialog {
 
     @Inject
-    private DialogHelper dialogHelper;
+    private Transformer transformer;
 
     @TransformerModel(observe = true)
     private ErrorDialogModel model;
@@ -34,8 +34,14 @@ public class ErrorDialog {
 
     @Subscribe
     public void showMessage(ErrorMessage errorMessage) {
-        dialogHelper.bootUpDialog(this);
-        model.setText(errorMessage.getMessage());
+        final TransformationContext transformationContext;
+        try {
+            transformationContext = transformer.fillManagedForm(this);
+            model.setText(errorMessage.getMessage());
+            transformationContext.showAndAwaitClosed();
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        }
     }
 
 }

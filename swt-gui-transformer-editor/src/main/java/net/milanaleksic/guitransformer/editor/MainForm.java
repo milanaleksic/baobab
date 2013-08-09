@@ -66,14 +66,13 @@ public class MainForm implements Observer {
         }
     }
 
-    @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
     @EmbeddedEventListener(component = "infoLabel", event = SWT.MouseDown)
     private void infoLabelMouseDownListener() {
-        if (model.getLastException() == null)
+        if (!model.getLastException().isPresent())
             return;
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
-        model.getLastException().printStackTrace(pw);
+        model.getLastException().get().printStackTrace(pw);
         eventBus.post(new ErrorMessage(sw.toString()));
     }
 
@@ -86,6 +85,8 @@ public class MainForm implements Observer {
             @Override
             public void run() {
                 openFile(model.getCurrentFile());
+                if (!model.getLastException().isPresent())
+                    model.showInformation("File modification externally, reloaded!", null);
             }
         });
     }
@@ -294,10 +295,6 @@ public class MainForm implements Observer {
         box.open();
     }
 
-    public boolean isDisposed() {
-        return shell.isDisposed();
-    }
-
     private void setCurrentFile(@Nullable File file) {
         model.setCurrentFile(file);
         shell.setText(String.format("%s - [%s]",  //NON-NLS
@@ -310,15 +307,13 @@ public class MainForm implements Observer {
         fileChangesObservable.setupExternalFSChangesWatcher(file);
     }
 
-    public void init() {
+    public void entryPoint() {
         try {
             resourceBundle = resourceBundleProvider.getResourceBundle();
             final TransformationContext transformationContext = transformer.fillManagedForm(this);
             this.shell = transformationContext.getShell();
-
             postTransformation(transformationContext);
-
-            shell.open();
+            transformationContext.showAndAwaitClosed();
         } catch (TransformerException e) {
             e.printStackTrace();
         }
@@ -329,10 +324,6 @@ public class MainForm implements Observer {
                 .setTransfer(new Transfer[]{FileTransfer.getInstance()});
         editorTransformer.setDoNotCreateModalDialogs(true);
         setCurrentFile(null);
-    }
-
-    Shell getShell() {
-        return shell;
     }
 
     private void refreshCaretPositionInformation() {

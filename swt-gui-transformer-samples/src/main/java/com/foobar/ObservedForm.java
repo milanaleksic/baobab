@@ -5,18 +5,18 @@ import net.milanaleksic.guitransformer.*;
 import net.milanaleksic.guitransformer.integration.CoreModule;
 import net.milanaleksic.guitransformer.model.TransformerModel;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.*;
 
 import javax.inject.Inject;
 
 public class ObservedForm {
 
-    @Inject
-    private Transformer transformer;
+    @Inject private Transformer transformer;
 
     @TransformerModel(observe = true)
     private ObservedFormModel model;
 
+    // this method will be executed every time SWT Text component
+    // we named "text1" in GUI file fires Modify event
     @EmbeddedEventListener(component = "text1", event = SWT.Modify)
     private void textModified() {
         model.setText2(reverse(model.getSourceTextField()));
@@ -34,19 +34,8 @@ public class ObservedForm {
     }
 
     public static void main(String[] args) throws TransformerException {
-        Guice.createInjector(new CoreModule()).getInstance(ObservedForm.class).execute();
-    }
-
-    public void execute() throws TransformerException {
-        TransformationContext transformationContext = transformer.fillManagedForm(this);
-        // all SGT injection is done
-        Shell shell = transformationContext.getShell();
-        shell.open();
-        Display display = Display.getDefault();
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch())
-                display.sleep();
-        }
+        ObservedForm observedForm = Guice.createInjector(new CoreModule()).getInstance(ObservedForm.class);
+        observedForm.transformer.fillManagedForm(observedForm).showAndAwaitClosed();
     }
 
 }

@@ -3,7 +3,7 @@ package net.milanaleksic.guitransformer;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import net.milanaleksic.guitransformer.model.ModelBindingMetaData;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.*;
 
 import java.util.Map;
 
@@ -54,5 +54,14 @@ public class TransformationContext {
                 ", mappedObjects=" + mappedObjects +
                 ", shell=" + shell +
                 '}';
+    }
+
+    public void showAndAwaitClosed() {
+        shell.open();
+        Display display = Display.getDefault();
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch())
+                display.sleep();
+        }
     }
 }
