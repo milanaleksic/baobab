@@ -32,7 +32,7 @@ public class ConfigurableBuilderProvider implements BuilderProvider {
     private void bootUpLazilyMapping() {
         mapping.compareAndSet(null,
                 Configuration.<Builder<?>>loadStringToInstanceMapping(
-                        "builders",
+                        "net.milanaleksic.guitransformer.builders",
                         Optional.of(loader)
                 )
         );

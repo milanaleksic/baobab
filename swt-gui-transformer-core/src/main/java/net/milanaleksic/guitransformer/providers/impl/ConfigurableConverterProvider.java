@@ -25,7 +25,7 @@ public class ConfigurableConverterProvider implements ConverterProvider {
     private void bootUpLazilyMapping() {
         mapping.compareAndSet(null,
                 Configuration.<Converter>loadClassToInstanceMapping(
-                        "converters",
+                        "net.milanaleksic.guitransformer.converters",
                         Optional.of(loader)
                 )
         );

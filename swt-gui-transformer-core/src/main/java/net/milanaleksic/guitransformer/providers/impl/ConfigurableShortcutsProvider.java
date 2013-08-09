@@ -10,7 +10,7 @@ public class ConfigurableShortcutsProvider implements ShortcutsProvider {
 
     public ConfigurableShortcutsProvider() {
         // this Configurable* does not need lazy load since no injection is needed
-        mapping = Configuration.loadStringToClassMapping("shortcuts");
+        mapping = Configuration.loadStringToClassMapping("net.milanaleksic.guitransformer.shortcuts");
     }
 
     @Override
