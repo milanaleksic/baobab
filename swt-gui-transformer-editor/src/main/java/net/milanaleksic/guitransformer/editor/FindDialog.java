@@ -42,19 +42,14 @@ public class FindDialog {
     }
 
     public String getSearchString() {
-        try {
-            // model is overwritten during transformation
-            // another way to overcome OW is by avoiding transformation (hide form, don't recreate)
-            final FindDialogModel oldModel = model;
-            final TransformationContext transformationContext = transformer.fillManagedForm(this);
-            model.setAccepted(false);
-            model.copyFrom(oldModel);
-            transformationContext.showAndAwaitClosed();
-            return model.isAccepted() ? model.getSearchText() : null;
-        } catch (TransformerException e) {
-            e.printStackTrace();
-        }
-        return null;
+        // model is overwritten during transformation
+        // another way to overcome OW is by avoiding transformation (hide form, don't recreate)
+        final FindDialogModel oldModel = model;
+        final TransformationContext transformationContext = transformer.fillManagedForm(this);
+        model.setAccepted(false);
+        model.copyFrom(oldModel);
+        transformationContext.showAndAwaitClosed();
+        return model.isAccepted() ? model.getSearchText() : null;
     }
 
 }

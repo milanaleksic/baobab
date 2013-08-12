@@ -1,6 +1,5 @@
 package net.milanaleksic.guitransformer.converters;
 
-import net.milanaleksic.guitransformer.*;
 import net.milanaleksic.guitransformer.model.*;
 import net.milanaleksic.guitransformer.util.ObjectUtil;
 
@@ -45,8 +44,6 @@ public class FormUpdater {
                     }
                 });
             }
-        } catch (TransformerException e) {
-            throw new IllegalStateException("Unexpected error occurred when rebinding model", e);
         } finally {
             modelBindingMetaData.setFormIsBeingUpdatedFromModelRightNow(false);
         }

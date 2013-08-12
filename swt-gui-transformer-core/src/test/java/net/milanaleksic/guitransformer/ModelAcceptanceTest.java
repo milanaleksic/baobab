@@ -26,7 +26,7 @@ public class ModelAcceptanceTest {
     private ModelAcceptanceTestModel model;
 
     @Test
-    public void from_form_to_model() throws TransformerException {
+    public void from_form_to_model() {
         final TransformationContext transformationContext = transformer.fillManagedForm(this);
         Optional<Text> text = transformationContext.getMappedObject("text1");
         final Text text1 = text.get();
@@ -46,7 +46,7 @@ public class ModelAcceptanceTest {
     }
 
     @Test
-    public void from_model_to_form() throws TransformerException {
+    public void from_model_to_form() {
         final TransformationContext transformationContext = transformer.fillManagedForm(this);
         Text text1 = transformationContext.<Text>getMappedObject("text1").get();
         Text numericalValue = transformationContext.<Text>getMappedObject("numericalValue").get();

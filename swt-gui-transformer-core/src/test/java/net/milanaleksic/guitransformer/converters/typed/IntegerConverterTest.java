@@ -1,6 +1,5 @@
 package net.milanaleksic.guitransformer.converters.typed;
 
-import net.milanaleksic.guitransformer.TransformerException;
 import org.codehaus.jackson.node.TextNode;
 import org.eclipse.swt.SWT;
 import org.junit.Test;
@@ -22,7 +21,7 @@ public class IntegerConverterTest {
         IntegerConverter integerConverter = new IntegerConverter();
         try {
             assertThat(integerConverter.getValueFromJson(new TextNode("173")), equalTo(173));
-        } catch (TransformerException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             fail(e.getMessage());
         }
@@ -33,7 +32,7 @@ public class IntegerConverterTest {
         IntegerConverter integerConverter = new IntegerConverter();
         try {
             assertThat(integerConverter.getValueFromJson(new TextNode("{center}")), equalTo(SWT.CENTER));
-        } catch (TransformerException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             fail(e.getMessage());
         }
@@ -45,7 +44,7 @@ public class IntegerConverterTest {
         try {
             assertThat(integerConverter.getValueFromJson(new TextNode("1|2")), equalTo(1 | 2));
             assertThat(integerConverter.getValueFromJson(new TextNode("{transparent}|{up}")), equalTo(SWT.TRANSPARENT | SWT.UP));
-        } catch (TransformerException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             fail(e.getMessage());
         }

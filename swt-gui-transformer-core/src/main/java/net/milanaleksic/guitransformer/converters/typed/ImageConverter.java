@@ -1,6 +1,5 @@
 package net.milanaleksic.guitransformer.converters.typed;
 
-import net.milanaleksic.guitransformer.TransformerException;
 import net.milanaleksic.guitransformer.providers.ImageProvider;
 import org.codehaus.jackson.JsonNode;
 import org.eclipse.swt.graphics.Image;
@@ -18,7 +17,7 @@ public class ImageConverter extends TypedConverter<Image> {
     private ImageProvider imageProvider;
 
     @Override
-    public Image getValueFromJson(JsonNode node) throws TransformerException {
+    public Image getValueFromJson(JsonNode node) {
         return imageProvider.provideImageForName(node.asText());
     }
 

@@ -1,7 +1,6 @@
 package net.milanaleksic.guitransformer.converters;
 
 import com.google.common.base.*;
-import net.milanaleksic.guitransformer.TransformerException;
 import net.milanaleksic.guitransformer.builders.BuilderContext;
 import net.milanaleksic.guitransformer.converters.typed.IntegerConverter;
 import org.codehaus.jackson.JsonNode;
@@ -24,7 +23,7 @@ class ShortHandObjectCreator extends ObjectCreator {
         return builderValueShortHandSyntax.matcher(key).matches();
     }
 
-    protected TransformationWorkingContext createWidgetUsingBuilder(TransformationWorkingContext context, String key, JsonNode value) throws TransformerException {
+    protected TransformationWorkingContext createWidgetUsingBuilder(TransformationWorkingContext context, String key, JsonNode value) {
         final Matcher matcher = builderValueShortHandSyntax.matcher(key);
         Preconditions.checkArgument(matcher.matches(), "Invalid short hand syntax detected: " + key);
         String builderName = matcher.group(1);
@@ -46,7 +45,7 @@ class ShortHandObjectCreator extends ObjectCreator {
     }
 
     protected TransformationWorkingContext createWidgetUsingClassInstantiation(TransformationWorkingContext context, String key, JsonNode value)
-            throws TransformerException, InvocationTargetException, IllegalAccessException, InstantiationException {
+            throws InvocationTargetException, IllegalAccessException, InstantiationException {
         final Matcher matcher = shortHandSyntaxKey.matcher(key);
         Preconditions.checkArgument(matcher.matches(), "Invalid short hand syntax detected: " + key);
         String typeDefinition = matcher.group(1);

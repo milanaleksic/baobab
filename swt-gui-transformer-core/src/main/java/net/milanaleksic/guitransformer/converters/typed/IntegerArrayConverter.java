@@ -21,7 +21,7 @@ public class IntegerArrayConverter extends TypedConverter<int[]> {
     private IntegerConverter integerConverter;
 
     @Override
-    public int[] getValueFromJson(JsonNode node) throws TransformerException {
+    public int[] getValueFromJson(JsonNode node) {
         try {
             final JsonNode[] jsonNodes = mapper.readValue(node, JsonNode[].class);
             int[] ofTheJedi = new int[jsonNodes.length];

@@ -1,6 +1,5 @@
 package net.milanaleksic.guitransformer.converters.typed;
 
-import net.milanaleksic.guitransformer.*;
 import net.milanaleksic.guitransformer.converters.Converter;
 import org.codehaus.jackson.JsonNode;
 
@@ -14,11 +13,11 @@ import java.util.Map;
 public abstract class TypedConverter<T> implements Converter {
 
     @Override
-    public Object getValueFromJson(Object targetObject, JsonNode value, Map<String, Object> mappedObjects) throws TransformerException {
+    public Object getValueFromJson(Object targetObject, JsonNode value, Map<String, Object> mappedObjects) {
         return getValueFromJson(value);
     }
 
-    protected abstract T getValueFromJson(JsonNode node) throws TransformerException;
+    protected abstract T getValueFromJson(JsonNode node);
 
     @Override
     public void cleanUp() {}

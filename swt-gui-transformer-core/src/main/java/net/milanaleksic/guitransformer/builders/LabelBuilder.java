@@ -1,6 +1,6 @@
 package net.milanaleksic.guitransformer.builders;
 
-import net.milanaleksic.guitransformer.*;
+import net.milanaleksic.guitransformer.TransformerException;
 import net.milanaleksic.guitransformer.converters.typed.IntegerConverter;
 import org.eclipse.swt.widgets.*;
 
@@ -18,7 +18,7 @@ public class LabelBuilder implements Builder<Label> {
     private IntegerConverter integerConverter;
 
     @Override
-    public BuilderContext<Label> create(Object parent, List<String> parameters) throws TransformerException {
+    public BuilderContext<Label> create(Object parent, List<String> parameters) {
         if (parameters.size() != 2)
             throw new TransformerException("Label builder supports only two parameters (style and text)!");
         int styleParameter = integerConverter.getValueFromString(parameters.get(0));

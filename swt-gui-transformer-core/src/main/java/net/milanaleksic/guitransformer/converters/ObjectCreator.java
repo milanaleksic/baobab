@@ -32,13 +32,12 @@ abstract class ObjectCreator {
 
     protected abstract boolean isWidgetUsingBuilder(String key, JsonNode value);
 
-    protected abstract TransformationWorkingContext createWidgetUsingBuilder(TransformationWorkingContext context, @Nullable String key, JsonNode value)
-            throws TransformerException;
+    protected abstract TransformationWorkingContext createWidgetUsingBuilder(TransformationWorkingContext context, @Nullable String key, JsonNode value);
 
     protected abstract TransformationWorkingContext createWidgetUsingClassInstantiation(TransformationWorkingContext context, @Nullable String key, JsonNode objectDefinition)
-            throws TransformerException, IllegalAccessException, InstantiationException, InvocationTargetException;
+            throws IllegalAccessException, InstantiationException, InvocationTargetException;
 
-    public TransformationWorkingContext create(TransformationWorkingContext context, @Nullable String key, JsonNode value) throws TransformerException {
+    public TransformationWorkingContext create(TransformationWorkingContext context, @Nullable String key, JsonNode value) {
         try {
             TransformationWorkingContext ofTheJedi = isWidgetUsingBuilder(key, value)
                     ? createWidgetUsingBuilder(context, key, value)
@@ -52,7 +51,7 @@ abstract class ObjectCreator {
         }
     }
 
-    private void transformNodeToProperties(TransformationWorkingContext context, JsonNode jsonNode) throws TransformerException {
+    private void transformNodeToProperties(TransformationWorkingContext context, JsonNode jsonNode) {
         Iterator<Map.Entry<String, JsonNode>> fields = jsonNode.getFields();
         while (fields.hasNext()) {
             Map.Entry<String, JsonNode> field = fields.next();
@@ -72,13 +71,13 @@ abstract class ObjectCreator {
         return style;
     }
 
-    Class<?> deduceClassFromNode(JsonNode valueNode) throws TransformerException {
+    Class<?> deduceClassFromNode(JsonNode valueNode) {
         Preconditions.checkArgument(valueNode.has(ObjectConverter.KEY_SPECIAL_TYPE), "Item definition does not define type");
         String classIdentifier = valueNode.get(ObjectConverter.KEY_SPECIAL_TYPE).asText();
         return deduceClassFromNode(classIdentifier);
     }
 
-    Class<?> deduceClassFromNode(String classIdentifier) throws TransformerException {
+    Class<?> deduceClassFromNode(String classIdentifier) {
         Class<?> aClass = shortcutsProvider.provideClassForShortcut(classIdentifier);
         if (aClass != null)
             return aClass;

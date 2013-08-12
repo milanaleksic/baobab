@@ -35,13 +35,9 @@ public class ErrorDialog {
 
     @Subscribe
     public void showMessage(ErrorMessage errorMessage) {
-        try {
-            final TransformationContext transformationContext = transformer.fillManagedForm(this);
-            model.setText(errorMessage.getMessage());
-            transformationContext.showAndAwaitClosed();
-        } catch (TransformerException e) {
-            e.printStackTrace();
-        }
+        final TransformationContext transformationContext = transformer.fillManagedForm(this);
+        model.setText(errorMessage.getMessage());
+        transformationContext.showAndAwaitClosed();
     }
 
 }

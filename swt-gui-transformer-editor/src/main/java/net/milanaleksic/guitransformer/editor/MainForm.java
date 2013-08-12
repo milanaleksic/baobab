@@ -309,15 +309,11 @@ public class MainForm implements Observer {
     }
 
     public void entryPoint() {
-        try {
-            resourceBundle = resourceBundleProvider.getResourceBundle();
-            final TransformationContext transformationContext = transformer.fillManagedForm(this);
-            this.shell = transformationContext.getShell();
-            postTransformation(transformationContext);
-            transformationContext.showAndAwaitClosed();
-        } catch (TransformerException e) {
-            e.printStackTrace();
-        }
+        resourceBundle = resourceBundleProvider.getResourceBundle();
+        final TransformationContext transformationContext = transformer.fillManagedForm(this);
+        this.shell = transformationContext.getShell();
+        postTransformation(transformationContext);
+        transformationContext.showAndAwaitClosed();
     }
 
     private void postTransformation(TransformationContext transformationContext) {

@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class ObjectUtil {
 
-    public static void setFieldValueOnObject(Field field, final Object targetObject, final Object valueOfField) throws TransformerException {
+    public static void setFieldValueOnObject(Field field, final Object targetObject, final Object valueOfField) {
         allowOperationOnField(field, new OperationOnField() {
             @Override
             public void operate(Field field) throws ReflectiveOperationException {
@@ -47,7 +47,7 @@ public class ObjectUtil {
         void operate(Field field) throws ReflectiveOperationException;
     }
 
-    public static void allowOperationOnField(Field field, OperationOnField operation) throws TransformerException {
+    public static void allowOperationOnField(Field field, OperationOnField operation) {
         boolean wasPublic = Modifier.isPublic(field.getModifiers());
         if (!wasPublic)
             field.setAccessible(true);

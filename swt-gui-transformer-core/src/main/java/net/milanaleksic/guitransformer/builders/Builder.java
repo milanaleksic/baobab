@@ -1,7 +1,5 @@
 package net.milanaleksic.guitransformer.builders;
 
-import net.milanaleksic.guitransformer.TransformerException;
-
 import java.util.List;
 
 /**
@@ -11,6 +9,6 @@ import java.util.List;
  */
 public interface Builder<T> {
 
-    BuilderContext<T> create(Object parent, List<String> parameters) throws TransformerException;
+    BuilderContext<T> create(Object parent, List<String> parameters);
 
 }

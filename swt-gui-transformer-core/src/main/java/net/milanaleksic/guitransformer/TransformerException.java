@@ -5,7 +5,7 @@ package net.milanaleksic.guitransformer;
  * Date: 4/19/12
  * Time: 11:46 AM
  */
-public class TransformerException extends Exception {
+public class TransformerException extends RuntimeException {
 
     public TransformerException(String message) {
         super(message);

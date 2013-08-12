@@ -24,7 +24,7 @@ public class FontConverter extends TypedConverter<Font> {
     }
 
     @Override
-    public Font getValueFromJson(JsonNode node) throws TransformerException {
+    public Font getValueFromJson(JsonNode node) {
         FontData systemFontData = getSystemFontData();
         int style = parseStyle(systemFontData, node);
         int height = parseHeight(systemFontData, node);
@@ -44,7 +44,7 @@ public class FontConverter extends TypedConverter<Font> {
         return node.get(FIELD_HEIGHT).asInt();
     }
 
-    private int parseStyle(FontData systemFontData, JsonNode node) throws TransformerException {
+    private int parseStyle(FontData systemFontData, JsonNode node) {
         int ofTheJedi = systemFontData.getStyle();
         if (!node.has(FIELD_STYLE)) {
             return ofTheJedi;

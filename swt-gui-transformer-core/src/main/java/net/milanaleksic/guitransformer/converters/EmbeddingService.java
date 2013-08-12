@@ -6,9 +6,6 @@ import net.milanaleksic.guitransformer.*;
 import net.milanaleksic.guitransformer.model.*;
 import net.milanaleksic.guitransformer.util.ObjectUtil.*;
 import net.milanaleksic.guitransformer.util.ProxyFactoryForPostProcessingOfObservableMethods;
-
-import static net.milanaleksic.guitransformer.util.ProxyFactoryForPostProcessingOfObservableMethods.MethodPostProcessor;
-
 import org.eclipse.swt.widgets.*;
 
 import java.lang.reflect.*;
@@ -16,6 +13,7 @@ import java.util.*;
 import java.util.List;
 
 import static net.milanaleksic.guitransformer.util.ObjectUtil.*;
+import static net.milanaleksic.guitransformer.util.ProxyFactoryForPostProcessingOfObservableMethods.MethodPostProcessor;
 
 class EmbeddingService {
 
@@ -26,14 +24,14 @@ class EmbeddingService {
         this.methodEventListenerExceptionHandler = methodEventListenerExceptionHandler;
     }
 
-    public void embed(Object formObject, TransformationWorkingContext transformationContext) throws TransformerException {
+    public void embed(Object formObject, TransformationWorkingContext transformationContext) {
         embedComponents(formObject, transformationContext);
         embedModels(formObject, transformationContext);
         embedEventListenersAsFields(formObject, transformationContext);
         embedEventListenersAsMethods(formObject, transformationContext);
     }
 
-    private void embedComponents(final Object targetObject, TransformationWorkingContext transformationContext) throws TransformerException {
+    private void embedComponents(final Object targetObject, TransformationWorkingContext transformationContext) {
         Field[] fields = targetObject.getClass().getDeclaredFields();
         for (Field field : fields) {
             EmbeddedComponent annotation = field.getAnnotation(EmbeddedComponent.class);
@@ -49,7 +47,7 @@ class EmbeddingService {
         }
     }
 
-    private void embedEventListenersAsFields(final Object targetObject, TransformationWorkingContext transformationContext) throws TransformerException {
+    private void embedEventListenersAsFields(final Object targetObject, TransformationWorkingContext transformationContext) {
         Field[] fields = targetObject.getClass().getDeclaredFields();
         for (Field field : fields) {
             List<EmbeddedEventListener> allListeners = Lists.newArrayList();
@@ -139,7 +137,7 @@ class EmbeddingService {
         });
     }
 
-    private void embedModels(final Object formObject, final TransformationWorkingContext transformationContext) throws TransformerException {
+    private void embedModels(final Object formObject, final TransformationWorkingContext transformationContext) {
         Field[] fields = formObject.getClass().getDeclaredFields();
         for (Field field : fields) {
             TransformerModel annotation = field.getAnnotation(TransformerModel.class);
@@ -162,7 +160,7 @@ class EmbeddingService {
         }
     }
 
-    private void bindModel(Object model, TransformationWorkingContext transformationContext, ModelBindingMetaData bindingMetaData) throws TransformerException {
+    private void bindModel(Object model, TransformationWorkingContext transformationContext, ModelBindingMetaData bindingMetaData) {
         transformationContext.setModelBindingMetaData(bindingMetaData);
         try {
             mapOnChangeListeners(model, transformationContext);
@@ -256,7 +254,7 @@ class EmbeddingService {
             throw new RuntimeException("Transformer event delegation got an exception: " + e.getMessage(), e);
     }
 
-    private ModelBindingMetaData createBindingMetaData(Class<?> modelClazz, TransformationWorkingContext transformationContext) throws TransformerException {
+    private ModelBindingMetaData createBindingMetaData(Class<?> modelClazz, TransformationWorkingContext transformationContext) {
         ModelBindingMetaData bindingData = new ModelBindingMetaData();
         Field[] fields = modelClazz.getDeclaredFields();
         for (Field field : fields) {
@@ -328,7 +326,7 @@ class EmbeddingService {
         }
     }
 
-    private Object convertFromComponentToModelValue(String value, Class<?> targetClass) throws TransformerException {
+    private Object convertFromComponentToModelValue(String value, Class<?> targetClass) {
         if (String.class.isAssignableFrom(targetClass))
             return value;
         else if (Long.class.isAssignableFrom(targetClass) || long.class.isAssignableFrom(targetClass))

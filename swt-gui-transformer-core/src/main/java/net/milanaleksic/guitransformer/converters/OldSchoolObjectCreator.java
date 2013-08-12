@@ -1,6 +1,5 @@
 package net.milanaleksic.guitransformer.converters;
 
-import net.milanaleksic.guitransformer.TransformerException;
 import net.milanaleksic.guitransformer.builders.BuilderContext;
 import net.milanaleksic.guitransformer.converters.typed.IntegerConverter;
 import org.codehaus.jackson.JsonNode;
@@ -22,7 +21,7 @@ class OldSchoolObjectCreator extends ObjectCreator {
         return value.has(ObjectConverter.KEY_SPECIAL_TYPE) && ObjectConverter.builderValue.matcher(value.get(ObjectConverter.KEY_SPECIAL_TYPE).asText()).matches();
     }
 
-    protected TransformationWorkingContext createWidgetUsingBuilder(TransformationWorkingContext context, String key, JsonNode value) throws TransformerException {
+    protected TransformationWorkingContext createWidgetUsingBuilder(TransformationWorkingContext context, String key, JsonNode value) {
         final TransformationWorkingContext ofTheJedi = new TransformationWorkingContext(context);
         final Matcher matcher = ObjectConverter.builderValue.matcher(value.get(ObjectConverter.KEY_SPECIAL_TYPE).asText());
         final boolean processingResult = matcher.matches();
@@ -39,7 +38,7 @@ class OldSchoolObjectCreator extends ObjectCreator {
     }
 
     protected TransformationWorkingContext createWidgetUsingClassInstantiation(TransformationWorkingContext context, String key, JsonNode objectDefinition)
-            throws TransformerException, IllegalAccessException, InstantiationException, InvocationTargetException {
+            throws IllegalAccessException, InstantiationException, InvocationTargetException {
         final Class<?> widgetClass = deduceClassFromNode(objectDefinition);
         int style = widgetClass == Shell.class ? DEFAULT_STYLE_SHELL : DEFAULT_STYLE_REST;
         if (objectDefinition.has(ObjectConverter.KEY_SPECIAL_STYLE)) {

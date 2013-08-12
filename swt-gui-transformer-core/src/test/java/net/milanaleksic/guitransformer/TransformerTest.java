@@ -56,7 +56,7 @@ public class TransformerTest {
     }
 
     @Test
-    public void transform_managed_form() throws TransformerException {
+    public void transform_managed_form() {
         transformer.fillManagedForm(this);
 
         assertThat(buttonFieldBinding, not(nullValue()));
@@ -91,19 +91,19 @@ public class TransformerTest {
     }
 
     @Test
-    public void exclude_widgets_with_leading_line_in_name() throws TransformerException {
+    public void exclude_widgets_with_leading_line_in_name() {
         final TransformationContext formFromResource = transformer.createFormFromResource(null, null, "/net/milanaleksic/guitransformer/TransformerTest_ExcludeWidgetsWithLeadingLineInName.gui");
         assertThat(formFromResource.getMappedObject("test").isPresent(), equalTo(true));
         assertThat(formFromResource.getMappedObject("_test").isPresent(), equalTo(false));
     }
 
     @Test
-    public void form_creation() throws TransformerException {
+    public void form_creation() {
         test_form_creation(transformer.createFormFromResource(null, null, "/net/milanaleksic/guitransformer/TransformerTest_FormCreation.gui"));
     }
 
     @Test
-    public void form_creation_short_notation() throws TransformerException {
+    public void form_creation_short_notation() {
         test_form_creation(transformer.createFormFromResource(null, null, "/net/milanaleksic/guitransformer/TransformerTest_ShortChildrenNotation.gui"));
     }
 
@@ -111,7 +111,7 @@ public class TransformerTest {
         Shell form = context.getShell();
         assertThat(form, not(nullValue()));
         assertThat(form.getText(), equalTo("Delete movie"));
-        assertThat(form.getSize(), equalTo(new Point(431,154)));
+        assertThat(form.getSize(), equalTo(new Point(431, 154)));
         assertThat(form.getLayout(), not(nullValue()));
         assertThat(form.getLayout(), instanceOf(GridLayout.class));
         GridLayout layout = (GridLayout) form.getLayout();
@@ -130,24 +130,24 @@ public class TransformerTest {
         assertThat(canvas.getBackground(), equalTo(Display.getDefault().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND)));
 
         assertThat(children[1], Matchers.instanceOf(Label.class));
-        assertThat(((Label)children[1]).getText(), equalTo("Do you really wish to delete movie??"));
-        Font labelFont = ((Control)children[1]).getFont();
+        assertThat(((Label) children[1]).getText(), equalTo("Do you really wish to delete movie??"));
+        Font labelFont = ((Control) children[1]).getFont();
         assertThat(labelFont.getFontData()[0].getStyle() & SWT.BOLD, equalTo(SWT.BOLD));
         assertThat(labelFont.getFontData()[0].getHeight(), equalTo(12));
 
         assertThat(children[2], Matchers.<Object>instanceOf(Label.class));
-        assertThat(((Label)children[2]).getText(), equalTo(""));
+        assertThat(((Label) children[2]).getText(), equalTo(""));
         assertThat(context.getMappedObject("labFilmName").get(), equalTo(children[2]));
 
         assertThat(children[3], Matchers.instanceOf(Label.class));
-        assertThat(((Label)children[3]).getText(), equalTo(""));
+        assertThat(((Label) children[3]).getText(), equalTo(""));
 
         assertThat(children[4], Matchers.instanceOf(Label.class));
         Optional<Cursor> cursor = context.getMappedObject("handCursor");
         assertThat(cursor, not(nullValue()));
         assertThat(cursor.isPresent(), equalTo(true));
-        assertThat(((Label)children[4]).getCursor(), equalTo(cursor.get()));
-        assertThat(((Label)children[4]).getForeground(), equalTo(Display.getDefault().getSystemColor(SWT.COLOR_RED)));
+        assertThat(((Label) children[4]).getCursor(), equalTo(cursor.get()));
+        assertThat(((Label) children[4]).getForeground(), equalTo(Display.getDefault().getSystemColor(SWT.COLOR_RED)));
     }
 
 }

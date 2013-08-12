@@ -23,7 +23,7 @@ public abstract class WidgetCreator<T> {
     public abstract T newInstance(Object parent, int style);
 
     @SuppressWarnings("unchecked")
-    public static <T> WidgetCreator<T> get(Class<T> type) throws TransformerException {
+    public static <T> WidgetCreator<T> get(Class<T> type) {
         WidgetCreator widgetCreator = cachedCreatorMap.get(type);
         if (widgetCreator != null)
             return (WidgetCreator<T>) widgetCreator;
@@ -57,7 +57,7 @@ public abstract class WidgetCreator<T> {
         }
     }
 
-    private static Constructor<?> findAppropriateSWTStyledConstructor(Class<?> widgetClass) throws TransformerException {
+    private static Constructor<?> findAppropriateSWTStyledConstructor(Class<?> widgetClass) {
         Constructor<?> defaultConstructor = null;
         Constructor<?>[] constructors = widgetClass.getConstructors();
         for (Constructor<?> constructor : constructors) {

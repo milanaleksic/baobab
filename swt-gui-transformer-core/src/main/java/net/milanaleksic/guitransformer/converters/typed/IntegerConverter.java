@@ -430,12 +430,12 @@ public class IntegerConverter extends TypedConverter<Integer> {
     }
 
     @Override
-    public Integer getValueFromJson(JsonNode node) throws TransformerException {
+    public Integer getValueFromJson(JsonNode node) {
         String input = node.asText();
         return getValueFromString(input);
     }
 
-    public Integer getValueFromString(String input) throws TransformerException {
+    public Integer getValueFromString(String input) {
         checkNotNull(input);
         String[] values = input.split("\\|");
         int ofTheJedi = 0;

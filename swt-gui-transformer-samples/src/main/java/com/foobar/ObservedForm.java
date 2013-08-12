@@ -33,7 +33,7 @@ public class ObservedForm {
         return builder.toString();
     }
 
-    public static void main(String[] args) throws TransformerException {
+    public static void main(String[] args) {
         ObservedForm observedForm = Guice.createInjector(new CoreModule()).getInstance(ObservedForm.class);
         observedForm.transformer.fillManagedForm(observedForm).showAndAwaitClosed();
     }

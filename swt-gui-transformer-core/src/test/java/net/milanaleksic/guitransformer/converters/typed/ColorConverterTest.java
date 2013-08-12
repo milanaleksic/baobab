@@ -1,6 +1,5 @@
 package net.milanaleksic.guitransformer.converters.typed;
 
-import net.milanaleksic.guitransformer.TransformerException;
 import org.codehaus.jackson.node.TextNode;
 import org.eclipse.swt.graphics.Color;
 import org.junit.Test;
@@ -29,7 +28,7 @@ public class ColorConverterTest {
             assertThat(color2.getRed(), equalTo(0));
             assertThat(color2.getGreen(), equalTo(170));
             assertThat(color2.getBlue(), equalTo(102));
-        } catch (TransformerException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             fail(e.getMessage());
         }

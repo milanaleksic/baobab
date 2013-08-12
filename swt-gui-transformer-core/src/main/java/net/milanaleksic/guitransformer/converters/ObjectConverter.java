@@ -76,7 +76,7 @@ public class ObjectConverter implements Converter {
         this.mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
     }
 
-    public TransformationWorkingContext createHierarchy(TransformationWorkingContext context, String content) throws TransformerException {
+    public TransformationWorkingContext createHierarchy(TransformationWorkingContext context, String content) {
         try {
             final JsonNode shellDefinition = mapper.readValue(content, JsonNode.class);
             return getTransformationWorkingContext(context, shellDefinition);
@@ -85,7 +85,7 @@ public class ObjectConverter implements Converter {
         }
     }
 
-    public TransformationWorkingContext createHierarchy(Object formObject, TransformationWorkingContext context, InputStream content) throws TransformerException {
+    public TransformationWorkingContext createHierarchy(Object formObject, TransformationWorkingContext context, InputStream content) {
         try {
             final JsonNode shellDefinition = mapper.readValue(content, JsonNode.class);
             final TransformationWorkingContext transformationWorkingContext = getTransformationWorkingContext(context, shellDefinition);
@@ -97,7 +97,7 @@ public class ObjectConverter implements Converter {
         }
     }
 
-    private TransformationWorkingContext getTransformationWorkingContext(TransformationWorkingContext context, JsonNode shellDefinition) throws TransformerException {
+    private TransformationWorkingContext getTransformationWorkingContext(TransformationWorkingContext context, JsonNode shellDefinition) {
         return oldSchoolObjectCreator.create(context, null, shellDefinition);
     }
 
@@ -106,14 +106,14 @@ public class ObjectConverter implements Converter {
     }
 
     @Override
-    public Object getValueFromJson(Object targetObject, JsonNode value, Map<String, Object> mappedObjects) throws TransformerException {
+    public Object getValueFromJson(Object targetObject, JsonNode value, Map<String, Object> mappedObjects) {
         final TransformationWorkingContext transformationWorkingContext = new TransformationWorkingContext();
         transformationWorkingContext.setWorkItem(targetObject);
         transformationWorkingContext.mapAll(mappedObjects);
         return getValueFromJson(transformationWorkingContext, value);
     }
 
-    private Object getValueFromJson(TransformationWorkingContext context, JsonNode node) throws TransformerException {
+    private Object getValueFromJson(TransformationWorkingContext context, JsonNode node) {
         if (!node.isTextual()) {
             final TransformationWorkingContext widgetFromNode = oldSchoolObjectCreator.create(context, null, node);
             return widgetFromNode.getWorkItem();
@@ -136,7 +136,7 @@ public class ObjectConverter implements Converter {
         throw new TransformerException("Invalid syntax for object definition - " + originalValue);
     }
 
-    BuilderContext<?> constructObjectUsingBuilderNotation(TransformationWorkingContext context, String builderName, String parameters) throws TransformerException {
+    BuilderContext<?> constructObjectUsingBuilderNotation(TransformationWorkingContext context, String builderName, String parameters) {
         final List<String> params = Lists.newArrayList(Splitter.on(",").trimResults().split(parameters));
         final Builder<?> builder = builderProvider.provideBuilderForName(builderName);
         if (builder == null)
@@ -151,7 +151,7 @@ public class ObjectConverter implements Converter {
         return mappedObject;
     }
 
-    <T> T createInstanceOfSWTWidget(Class<T> widgetClass, Object parent, int style) throws TransformerException {
+    <T> T createInstanceOfSWTWidget(Class<T> widgetClass, Object parent, int style) {
         try {
             return WidgetCreator.get(widgetClass).newInstance(parent, style);
         } catch (Exception e) {
@@ -161,7 +161,7 @@ public class ObjectConverter implements Converter {
         }
     }
 
-    void transformChildren(TransformationWorkingContext context, JsonNode childrenNodes) throws TransformerException {
+    void transformChildren(TransformationWorkingContext context, JsonNode childrenNodes) {
         final Object parentWidget = context.getWorkItem();
         if (!(parentWidget instanceof Composite) && !(parentWidget instanceof Menu))
             throw new IllegalStateException("Can not create children for parent which is not Composite nor Menu (" + parentWidget.getClass().getName() + " in this case)");
@@ -175,7 +175,7 @@ public class ObjectConverter implements Converter {
         }
     }
 
-    private void transformChildrenUsingShortHandSyntax(TransformationWorkingContext context, JsonNode childrenNodes) throws TransformerException {
+    private void transformChildrenUsingShortHandSyntax(TransformationWorkingContext context, JsonNode childrenNodes) {
         final Iterator<String> fieldNames = childrenNodes.getFieldNames();
         while (fieldNames.hasNext()) {
             final String field = fieldNames.next();
@@ -183,14 +183,14 @@ public class ObjectConverter implements Converter {
         }
     }
 
-    private void transformChildrenAsArray(TransformationWorkingContext context, JsonNode childrenNodes) throws TransformerException, IOException {
+    private void transformChildrenAsArray(TransformationWorkingContext context, JsonNode childrenNodes) throws IOException {
         for (JsonNode node : mapper.readValue(childrenNodes, JsonNode[].class)) {
             getValueFromJson(context, node);
         }
     }
 
     @SuppressWarnings("unchecked")
-    void transformSingleJsonNode(TransformationWorkingContext context, Map.Entry<String, JsonNode> field) throws TransformerException {
+    void transformSingleJsonNode(TransformationWorkingContext context, Map.Entry<String, JsonNode> field) {
         try {
             if (SPECIAL_KEYS.contains(field.getKey()))
                 return;

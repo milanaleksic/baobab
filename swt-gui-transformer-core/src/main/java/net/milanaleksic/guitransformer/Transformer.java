@@ -6,7 +6,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
-import java.io.*;
+import java.io.InputStream;
 import java.util.ResourceBundle;
 
 /**
@@ -24,19 +24,19 @@ public class Transformer {
 
     private boolean doNotCreateModalDialogs = false;
 
-    public TransformationContext createNonManagedForm(@Nullable Shell parent, String definition) throws TransformerException {
+    public TransformationContext createNonManagedForm(@Nullable Shell parent, String definition) {
         return transformFromContent(parent, definition);
     }
 
-    public TransformationContext fillManagedForm(Object formObject) throws TransformerException {
+    public TransformationContext fillManagedForm(Object formObject) {
         return createFormFromResource(null, formObject, getFullNameOfResource(formObject));
     }
 
-    public TransformationContext fillManagedForm(@Nullable Shell parent, Object formObject) throws TransformerException {
+    public TransformationContext fillManagedForm(@Nullable Shell parent, Object formObject) {
         return createFormFromResource(parent, formObject, getFullNameOfResource(formObject));
     }
 
-    public TransformationContext createFormFromResource(@Nullable Shell parent, @Nullable Object formObject, String formFileFullName) throws TransformerException {
+    public TransformationContext createFormFromResource(@Nullable Shell parent, @Nullable Object formObject, String formFileFullName) {
         TransformationWorkingContext context = new TransformationWorkingContext(formFileFullName);
         InputStream resourceAsStream = null;
         try {
@@ -67,7 +67,7 @@ public class Transformer {
             context.mapObject("bundle", resourceBundle); //NON-NLS
     }
 
-    private TransformationContext transformFromContent(@Nullable Shell parent, String content) throws TransformerException {
+    private TransformationContext transformFromContent(@Nullable Shell parent, String content) {
         TransformationWorkingContext context = new TransformationWorkingContext();
         mapResourceBundleIfExists(context);
         context.setDoNotCreateModalDialogs(doNotCreateModalDialogs);

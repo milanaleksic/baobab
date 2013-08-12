@@ -35,7 +35,7 @@ public class MyForm {
             login();
     }
 
-    public static void main(String[] args) throws TransformerException {
+    public static void main(String[] args) {
         MyForm myForm = Guice.createInjector(new CoreModule()).getInstance(MyForm.class);
         myForm.transformer.fillManagedForm(myForm).showAndAwaitClosed();
     }

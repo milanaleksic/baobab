@@ -22,7 +22,7 @@ public class ObserverModelAcceptanceTest {
     private ModelAcceptanceTestModel model;
 
     @Test
-    public void from_model_to_form() throws TransformerException {
+    public void from_model_to_form() {
         final TransformationContext transformationContext = transformer.fillManagedForm(this);
         Text text1 = transformationContext.<Text>getMappedObject("text1").get();
         Text numericalValue = transformationContext.<Text>getMappedObject("numericalValue").get();
@@ -41,7 +41,7 @@ public class ObserverModelAcceptanceTest {
     }
 
     @Test
-    public void from_model_to_form_also_via_method() throws TransformerException {
+    public void from_model_to_form_also_via_method() {
         final TransformationContext transformationContext = transformer.fillManagedForm(this);
         Text text1 = transformationContext.<Text>getMappedObject("text1").get();
 
@@ -53,7 +53,7 @@ public class ObserverModelAcceptanceTest {
     }
 
     @Test
-    public void from_model_to_form_also_via_method_with_multiple_params() throws TransformerException {
+    public void from_model_to_form_also_via_method_with_multiple_params() {
         final TransformationContext transformationContext = transformer.fillManagedForm(this);
         Text text1 = transformationContext.<Text>getMappedObject("text1").get();
 

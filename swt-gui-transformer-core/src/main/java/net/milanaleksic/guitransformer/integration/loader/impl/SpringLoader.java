@@ -1,7 +1,6 @@
 package net.milanaleksic.guitransformer.integration.loader.impl;
 
-import com.google.common.base.*;
-import net.milanaleksic.guitransformer.TransformerException;
+import com.google.common.base.Optional;
 import net.milanaleksic.guitransformer.integration.loader.Loader;
 import net.milanaleksic.guitransformer.util.ObjectUtil;
 import org.springframework.beans.BeansException;
@@ -21,12 +20,12 @@ public class SpringLoader implements Loader, ApplicationContextAware {
     private Optional<ApplicationContext> applicationContext = Optional.absent();
 
     @Override
-    public void load(Object raw) throws TransformerException {
+    public void load(Object raw) {
         fieldInjectionForObject(ObjectUtil.getFieldsWithAnnotation(raw.getClass(), Inject.class), raw);
     }
 
-    private void fieldInjectionForObject(Iterable<Field> fieldsForInjection, final Object raw) throws TransformerException {
-        for(Field field : fieldsForInjection)
+    private void fieldInjectionForObject(Iterable<Field> fieldsForInjection, final Object raw) {
+        for (Field field : fieldsForInjection)
             ObjectUtil.setFieldValueOnObject(field, raw, getBeanByClass(field.getType()));
     }
 
