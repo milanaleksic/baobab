@@ -4,6 +4,7 @@ import com.google.common.base.*;
 import com.google.common.eventbus.EventBus;
 import net.milanaleksic.guitransformer.*;
 import net.milanaleksic.guitransformer.editor.messages.ErrorMessage;
+import net.milanaleksic.guitransformer.editor.model.MainFormModel;
 import net.milanaleksic.guitransformer.model.TransformerModel;
 import net.milanaleksic.guitransformer.providers.ResourceBundleProvider;
 import org.eclipse.swt.SWT;

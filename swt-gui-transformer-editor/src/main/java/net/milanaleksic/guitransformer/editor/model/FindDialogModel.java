@@ -1,6 +1,6 @@
-package net.milanaleksic.guitransformer.editor;
+package net.milanaleksic.guitransformer.editor.model;
 
-import net.milanaleksic.guitransformer.model.TransformerIgnoredProperty;
+import net.milanaleksic.guitransformer.model.*;
 
 /**
  * User: Milan Aleksic
@@ -28,5 +28,12 @@ public class FindDialogModel {
 
     public void setSearchText(String searchText) {
         this.searchText = searchText;
+    }
+
+    @TransformerFireUpdate
+    public void copyFrom(FindDialogModel oldModel) {
+        if (oldModel == null)
+            return;
+        this.searchText = oldModel.searchText;
     }
 }

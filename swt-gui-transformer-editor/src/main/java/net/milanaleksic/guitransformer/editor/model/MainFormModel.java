@@ -1,4 +1,4 @@
-package net.milanaleksic.guitransformer.editor;
+package net.milanaleksic.guitransformer.editor.model;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.*;

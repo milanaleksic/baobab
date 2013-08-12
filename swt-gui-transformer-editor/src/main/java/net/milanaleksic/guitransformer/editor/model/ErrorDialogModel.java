@@ -1,4 +1,4 @@
-package net.milanaleksic.guitransformer.editor;
+package net.milanaleksic.guitransformer.editor.model;
 
 /**
  * User: Milan Aleksic

@@ -2,6 +2,7 @@ package net.milanaleksic.guitransformer.editor;
 
 import com.google.common.eventbus.EventBus;
 import net.milanaleksic.guitransformer.*;
+import net.milanaleksic.guitransformer.editor.model.FindDialogModel;
 import net.milanaleksic.guitransformer.model.TransformerModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.*;
@@ -41,10 +42,13 @@ public class FindDialog {
     }
 
     public String getSearchString() {
-        final TransformationContext transformationContext;
         try {
-            transformationContext = transformer.fillManagedForm(this);
+            // model is overwritten during transformation
+            // another way to overcome OW is by avoiding transformation (hide form, don't recreate)
+            final FindDialogModel oldModel = model;
+            final TransformationContext transformationContext = transformer.fillManagedForm(this);
             model.setAccepted(false);
+            model.copyFrom(oldModel);
             transformationContext.showAndAwaitClosed();
             return model.isAccepted() ? model.getSearchText() : null;
         } catch (TransformerException e) {
