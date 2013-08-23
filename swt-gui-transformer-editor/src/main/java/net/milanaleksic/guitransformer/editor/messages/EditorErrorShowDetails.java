@@ -5,11 +5,11 @@ package net.milanaleksic.guitransformer.editor.messages;
  * Date: 7/11/13
  * Time: 9:44 AM
  */
-public class ErrorMessage {
+public class EditorErrorShowDetails {
 
     private final String message;
 
-    public ErrorMessage(String message) {
+    public EditorErrorShowDetails(String message) {
         this.message = message;
     }
 

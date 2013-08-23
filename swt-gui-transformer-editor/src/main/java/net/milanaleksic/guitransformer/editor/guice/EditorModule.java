@@ -4,7 +4,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.inject.*;
 import com.google.inject.name.Names;
 import net.milanaleksic.guitransformer.Transformer;
-import net.milanaleksic.guitransformer.editor.ErrorDialog;
+import net.milanaleksic.guitransformer.editor.*;
 
 /**
  * User: Milan Aleksic
@@ -15,17 +15,15 @@ public class EditorModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        binder()
-                .bind(Transformer.class)
+        final Binder binder = binder();
+        binder.bind(Transformer.class)
                 .annotatedWith(Names.named("EditorTransformer")) //NON-NLS
                 .to(Transformer.class)
                 .in(Scopes.SINGLETON);
-        binder()
-                .bind(EventBus.class)
-                .in(Scopes.SINGLETON);
-        binder()
-                .bind(ErrorDialog.class)
-                .asEagerSingleton();
+        binder.bind(EventBus.class).in(Scopes.SINGLETON);
+
+        binder.bind(ErrorDialog.class).asEagerSingleton();
+        binder.bind(ApplicationErrorHandler.class).asEagerSingleton();
     }
 
 }
