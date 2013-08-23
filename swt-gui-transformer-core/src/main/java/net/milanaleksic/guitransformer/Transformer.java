@@ -2,6 +2,7 @@ package net.milanaleksic.guitransformer;
 
 import net.milanaleksic.guitransformer.converters.*;
 import net.milanaleksic.guitransformer.providers.ResourceBundleProvider;
+import net.milanaleksic.guitransformer.util.*;
 import org.eclipse.swt.widgets.Shell;
 
 import javax.annotation.Nullable;
@@ -36,24 +37,19 @@ public class Transformer {
         return createFormFromResource(parent, formObject, getFullNameOfResource(formObject));
     }
 
-    public TransformationContext createFormFromResource(@Nullable Shell parent, @Nullable Object formObject, String formFileFullName) {
-        TransformationWorkingContext context = new TransformationWorkingContext(formFileFullName);
-        InputStream resourceAsStream = null;
-        try {
-            mapResourceBundleIfExists(context);
-            context.setDoNotCreateModalDialogs(doNotCreateModalDialogs);
-            context.setWorkItem(parent);
-
-            resourceAsStream = Transformer.class.getResourceAsStream(formFileFullName);
-
-            context = objectConverter.createHierarchy(formObject, context, resourceAsStream);
-            return context.createTransformationContext();
-        } finally {
-            try {
-                if (resourceAsStream != null) resourceAsStream.close();
-            } catch (Exception ignored) {
+    public TransformationContext createFormFromResource(@Nullable final Shell parent, @Nullable final Object formObject,
+                                                        final String formFileFullName) {
+        return StreamUtil.loanResourceStream(formFileFullName, new StreamLoaner<TransformationContext>() {
+            @Override
+            public TransformationContext loan(InputStream stream) {
+                TransformationWorkingContext context = new TransformationWorkingContext(formFileFullName);
+                mapResourceBundleIfExists(context);
+                context.setDoNotCreateModalDialogs(doNotCreateModalDialogs);
+                context.setWorkItem(parent);
+                context = objectConverter.createHierarchy(formObject, context, stream);
+                return context.createTransformationContext();
             }
-        }
+        });
     }
 
     private String getFullNameOfResource(Object formObject) {
@@ -72,7 +68,6 @@ public class Transformer {
         mapResourceBundleIfExists(context);
         context.setDoNotCreateModalDialogs(doNotCreateModalDialogs);
         context.setWorkItem(parent);
-
         context = objectConverter.createHierarchy(context, content);
         return context.createTransformationContext();
     }
