@@ -2,13 +2,13 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-    <bean id="sgtEmbeddingService" class="net.milanaleksic.baobab.converters.EmbeddingService" />
+    <bean id="baobabEmbeddingService" class="net.milanaleksic.baobab.converters.EmbeddingService" />
 
-    <bean id="sgtResourceBundleProvider" class="net.milanaleksic.baobab.providers.impl.SimpleResourceBundleProvider"/>
+    <bean id="baobabResourceBundleProvider" class="net.milanaleksic.baobab.providers.impl.SimpleResourceBundleProvider"/>
 
-    <bean id="sgtObjectProvider" class="net.milanaleksic.baobab.providers.impl.AlwaysReturnNullObjectProvider"/>
+    <bean id="baobabObjectProvider" class="net.milanaleksic.baobab.providers.impl.AlwaysReturnNullObjectProvider"/>
 
-    <bean id="sgtImageProvider" class="net.milanaleksic.baobab.providers.impl.AlwaysReturnEmptyImageProvider"/>
+    <bean id="baobabImageProvider" class="net.milanaleksic.baobab.providers.impl.AlwaysReturnEmptyImageProvider"/>
 
     <bean class="net.milanaleksic.baobab.providers.impl.ConfigurableBuilderProvider" />
 
