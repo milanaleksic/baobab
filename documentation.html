@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Swt-gui-transformer by milanaleksic</title>
+    <title>Baobab by milanaleksic</title>
 
     <link rel="stylesheet" href="stylesheets/styles2.css">
     <link rel="stylesheet" href="stylesheets/prettify.css">
@@ -20,19 +20,19 @@
 <body onload="prettyPrint()">
 <div class="wrapper">
 <header>
-    <h1>swt-gui-transformer</h1>
+    <h1>Baobab</h1>
 
-    <p>&quot;JSON → SWT shells&quot; GUI Transformer tool for Java delopers</p>
+    <p>&quot;JSON → SWT shells&quot; GUI Transformer tool for Java developers</p>
 
-    <p class="view"><a href="https://github.com/milanaleksic/swt-gui-transformer">View the Project on GitHub
-        <small>milanaleksic/swt-gui-transformer</small>
+    <p class="view"><a href="https://github.com/milanaleksic/baobab">View the Project on GitHub
+        <small>milanaleksic/Baobab</small>
     </a></p>
     <ul>
-        <li><a href="https://github.com/milanaleksic/swt-gui-transformer/zipball/master">Download <strong>ZIP
+        <li><a href="https://github.com/milanaleksic/baobab/zipball/master">Download <strong>ZIP
             File</strong></a></li>
-        <li><a href="https://github.com/milanaleksic/swt-gui-transformer/tarball/master">Download <strong>TAR
+        <li><a href="https://github.com/milanaleksic/baobab/tarball/master">Download <strong>TAR
             Ball</strong></a></li>
-        <li><a href="https://github.com/milanaleksic/swt-gui-transformer">View On <strong>GitHub</strong></a></li>
+        <li><a href="https://github.com/milanaleksic/baobab">View On <strong>GitHub</strong></a></li>
     </ul>
 </header>
 <section>
@@ -42,7 +42,7 @@
 
 <h2>Overview</h2>
 
-<p>You use SGT to convert JSON to create SWT beans using:</p>
+<p>You use Baobab to convert JSON to create SWT beans using:</p>
 <ol>
     <li><a href="#explicit-notation">explicit class mention</a>,</li>
     <li><a href="#shortcut-notation">shortcut notation</a> or</li>
@@ -51,7 +51,7 @@
 <p>and then to configure them you use property setters. As usual, make sure the property
     you are setting value to is exposed in the means of setter method or public field.</p>
 
-<p>SGT uses type information to find out which <a href="#converters">converter</a> to use to map the JSON node
+<p>Baobab uses type information to find out which <a href="#converters">converter</a> to use to map the JSON node
     value to the target object.</p>
 
 <p>If you wish to add <em>children widgets</em> to the current widget, or to know how to <em>name the widget</em>,
@@ -93,9 +93,9 @@
         .....
     }</pre>
 
-<p>If you wish to see entire list of supported shortcuts out-of-the-box in SGT, take a look at the
+<p>If you wish to see entire list of supported shortcuts out-of-the-box in Baobab, take a look at the
     current version's <code>knownShortcuts</code> field in
-    <a href="https://github.com/milanaleksic/swt-gui-transformer/blob/master/swt-gui-transformer-core/src/main/resources/META-INF/guitransformer.shortcuts-default.properties">properties
+    <a href="https://github.com/milanaleksic/baobab/blob/master/baobab-core/src/main/resources/META-INF/guitransformer.shortcuts-default.properties">properties
         file</a>.</p>
 
 <h4>Wish to extend?</h4>
@@ -103,7 +103,7 @@
 <p>If you wish to extend the list of the items to use some additional SWT classes or if you wish to
     use shortcuts for your own widgets, you can create properties file <code>&lt;root&gt;application.conf</code>
     like I did it in <a href="mcs/application.conf">MovieCatalogSystem</a>.
-    If you use this approach and wish to use SGT's interactive editor for your project's GUI files,
+    If you use this approach and wish to use Baobab's interactive editor for your project's GUI files,
     just include the compiled output to the editor's classpath.
 </p>
 
@@ -138,7 +138,7 @@
 
 <h4>Example: GridDataBuilder</h4>
 
-<p>Builder notation is used in SGT to replace creation of the <code>org.eclipse.swt.layout.GridData</code>
+<p>Builder notation is used in Baobab to replace creation of the <code>org.eclipse.swt.layout.GridData</code>
     object which can be quite cumbersome if you base you layout on it a lot. Using <code>GridDataBuilder</code>
     you can replace following block of code:</p>
 
@@ -186,13 +186,13 @@
 
 <h2 id="converters">Converters</h2>
 
-<p>Converters are critical part of any SGT-driven application. JSON only recognizes Strings, booleans and number
+<p>Converters are critical part of any Baobab-driven application. JSON only recognizes Strings, booleans and number
     values.
     How can you possibly map a <code>TabItem</code>? The trick is in converters - they are specialized
     for converting a JSON node (which can be text, number, boolean, array or object node) into a specific
     <strong>target type</strong>.</p>
 
-<p>To detect target type, SGT uses type introspection at runtime. For example, when it encounters
+<p>To detect target type, Baobab uses type introspection at runtime. For example, when it encounters
     a field of type <code>int</code>, it will use <code>IntegerConverter</code> to convert the value
     on the right side of JSON property to appropriate type - int. IntegerConverter is, though, more
     powerful because it has magic value notation, which you can read in details later.</p>
@@ -309,7 +309,7 @@
 <p>This converter just delegates the image name to image provider to do whatever it wants with it.</p>
 
 <p>For example, in MCS I have image provider implementation that uses the value as a full path
-    to the location in application resources, from where it fetches it for SGT to embed.</p>
+    to the location in application resources, from where it fetches it for Baobab to embed.</p>
 
     <pre class="prettyprint lang-js">    {
         "_type" : "toolItem",
@@ -339,7 +339,7 @@
 
 <h4 id="object-converter">ObjectConverter</h4>
 
-<p>Object converter is the <strong>fallback converter</strong>. This means that when SGT finds a field
+<p>Object converter is the <strong>fallback converter</strong>. This means that when Baobab finds a field
     which type is not directly registered in the list of converters, it goes to <code>ObjectConverter</code>
     and says "Help!".</p>
 
@@ -463,7 +463,7 @@
     otherwise (because of the nature of JSON), it will overwrite all previous nodes with the last one
     in case there is more than one node with the identical json key value (same combination
     type_syntax+object_name+style syntax) and thus create only one item. The <strong>good</strong> news is that
-    you can use _* syntax which tells the SGT not to push the widget name to transformation context (and thus not
+    you can use _* syntax which tells the Baobab not to push the widget name to transformation context (and thus not
     pollute it). If you wish to use this approach you need to have unique names only in once children collection
     (they don't have to be unique throughout entire definition file).</p>
 
@@ -479,7 +479,7 @@
 <h3>_name tag</h3>
 
 <p>Name tag has a single usage - putting the widget in the TransformationContext. This context object
-    is the one you get after calling transformation on the GUI file from the Transformer (SGT entry point).</p>
+    is the one you get after calling transformation on the GUI file from the Transformer (Baobab entry point).</p>
 
 <p>All possible names are allowed, as long as they don't take trailing spaces and comma. But, if you decide
     to name your component with a leading "low line" symbol (e.g. _label1 or _comp etc.) the widget will
@@ -507,7 +507,7 @@
 <p>This is trivial special tag to be used if you have need to comment something in the GUI code. Proper JSON
     should not have JavaScript-styled comments so the only way to have a proper JSON is to use a custom JSON
     field which will be omitted by content parsers. So, just put it in any object definition and put in the
-    value field whatever you wish - it will not be taken into consideration by SGT.</p>
+    value field whatever you wish - it will not be taken into consideration by Baobab.</p>
 
     <pre class="prettyprint lang-js">    "label(myLabel)" : {
         "__comment" : "This is a comment in the GUI file!"
@@ -520,7 +520,7 @@
     interface for it. You use your dependency injection framework to say "here is the implementor for the
     provider", and like magic you'll see our application messages, images from your resources or external
     location or even <strong>other beans</strong> from your DI framework showing up as possible candidates
-    for wiring into SGT definition JSONs.</p>
+    for wiring into Baobab definition JSONs.</p>
 
 <h3>Messages string provider</h3>
 
@@ -564,7 +564,7 @@
     <code>net.milanaleksic.guitransformer.Transformer.fillManagedForm(Shell parent, Object managedFormObject)</code>.
     When Transformer analyzes the managedFormObject it will find all the fields with embedding annotations
     and either inject values into them or attach listeners, depending on the annotation. It is
-    important to remember that SGT <em>expects the GUI file to be named exactly like the Java managedFormObject</em>
+    important to remember that Baobab <em>expects the GUI file to be named exactly like the Java managedFormObject</em>
     from the call, just having <strong>.gui</strong> instead of java/class.</p>
 
 <p>If you give your widget a name then you can include a field of type <code>org.eclipse.swt.widgets.Listener</code>
@@ -586,7 +586,7 @@
 <p>in the managed form Java file you just mark the appropriate field with the annotation:</p>
     <pre class="prettyprint lang-java">    @EmbeddedComponent
     private Label myLabel;</pre>
-<p>After transformation, you can just dereference the value in it - it will be injected by SGT before that
+<p>After transformation, you can just dereference the value in it - it will be injected by Baobab before that
     time or it will fail early while trying to do so.</p>
 
 <h3>@EmbeddedEventListener and @EmbeddedEventListeners</h3>
@@ -669,12 +669,12 @@
         XML wiring used in the MovieCatalogSystem</a>,
     </li>
     <li>if you use Guice, there is already a <a
-            href="https://github.com/milanaleksic/swt-gui-transformer/blob/master/swt-gui-transformer-core/src/main/java/net/milanaleksic/guitransformer/integration/CoreModule.java">
-        basic module</a> defined in the SGT code.
+            href="https://github.com/milanaleksic/baobab/blob/master/baobab-core/src/main/java/net/milanaleksic/guitransformer/integration/CoreModule.java">
+        basic module</a> defined in the Baobab code.
     </li>
 </ol>
 
-<p>The code for wiring the form and GUI file uses the entry point to SGT - <code>Transformer</code>.</p>
+<p>The code for wiring the form and GUI file uses the entry point to Baobab - <code>Transformer</code>.</p>
 
 <p>Calling the transformer is quite straight-forward:</p>
     <pre class="prettyprint lang-java">  @Inject private Transformer transformer;
@@ -721,12 +721,12 @@
 
 <h3 id="observed-model">Observed model approach</h3>
 
-<p>Starting from SGT v0.3.0 and with help of Cglib magic it is possible to simplify further the usage of SGT using
+<p>Starting from Baobab v0.3.0 and with help of Cglib magic it is possible to simplify further the usage of Baobab using
     embedded model which wraps the binding between a standard Java object expressing the current state and the view
     presented to the user in the shape of SWT form. I believe the best way to show how to use it is via simple
     example.</p>
 
-<p>Let us imagine a situation where a form called MovieDetailsForm uses SGT for mapping the SWT form to a simple
+<p>Let us imagine a situation where a form called MovieDetailsForm uses Baobab for mapping the SWT form to a simple
     model object. This MovieDetailsForm can look something like this:</p>
     <pre class="prettyprint lang-java">public class MovieDetailsForm {
 
@@ -808,8 +808,8 @@ public class MovieDetailsModel {
     annotation <code>@net.milanaleksic.guitransformer.model.TransformerIgnoredProperty</code>. It finds the
     <strong>named</strong> components for all of these fields and maps the <code>text</code> property of them
     to the value of the property in the model. This means that modifying the value in the model and then asking the
-    SGT toolkit to update form based on model will force the value of the SWT component to be updated to this value.
-    At the same time SGT will update the model field when SWT component's text value gets modified using dynamically
+    Baobab toolkit to update form based on model will force the value of the SWT component to be updated to this value.
+    At the same time Baobab will update the model field when SWT component's text value gets modified using dynamically
     created event listener for SWT.Modify event.</p>
 
 <p>Both default choices <code>SWT.Modify</code> trigger and the bound property <code>text</code> can be modified
@@ -819,21 +819,21 @@ public class MovieDetailsModel {
     after updating the model:</p>
 <ol>
     <li>If you have set (back in the form controller object) <code>@TransformerModel</code>'s attribute
-        <code>observe</code> to true, SGT will create Cglib-driven listeners for all setters of property-bound fields.
+        <code>observe</code> to true, Baobab will create Cglib-driven listeners for all setters of property-bound fields.
         Property-bound fields are all the fields in model that don't have <code>@TransformerIgnoredProperty</code>.
         This listener will execute immediately after the setter finishes with execution;
     </li>
     <li>If you have set (back in the form controller object) <code>@TransformerModel</code>'s attribute
-        <code>observe</code> to true, SGT allows you to update more than one field in a single method to maintain
+        <code>observe</code> to true, Baobab allows you to update more than one field in a single method to maintain
         UX consistency using <code>@net.milanaleksic.guitransformer.model.TransformerFireUpdate</code>.
-        If SGT finds a method in the model object annotated with this annotation it will create additional Cglib-driven
+        If Baobab finds a method in the model object annotated with this annotation it will create additional Cglib-driven
         listener which will execute the form update after this method has finished executing;
     </li>
     <li>Third (and last) method of updating the component does not demand you to have the <code>observe</code> attribute
         set to true - you can execute it whenever from the form controller. It is based on the Transformer's
         call <code>transformer.updateFormFromModel(form, context)</code>. Please note that to be able to use this call
         you need to maintain the model binding metadata by yourself (you receive it as part the context object which
-        is result of the SGT transformation call).
+        is result of the Baobab transformation call).
     </li>
 </ol>
 

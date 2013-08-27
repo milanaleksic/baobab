@@ -2,18 +2,18 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-    <import resource="classpath:net/milanaleksic/guitransformer/integration/spring-transformer.xml"/>
+    <import resource="classpath:net/milanaleksic/baobab/integration/spring-transformer.xml"/>
 
-    <bean id="sgtEmbeddingService" class="net.milanaleksic.guitransformer.converters.EmbeddingService">
+    <bean id="baobabEmbeddingService" class="net.milanaleksic.guitransformer.converters.EmbeddingService">
         <property name="methodEventListenerExceptionHandler">
             <bean class="net.milanaleksic.mcs.infrastructure.swt.GuiExceptionHandler"/>
         </property>
     </bean>
 
-    <bean id="sgtResourceBundleProvider" class="net.milanaleksic.mcs.infrastructure.guitransformer.providers.MCSResourceBundleProvider"/>
+    <bean id="baobabResourceBundleProvider" class="net.milanaleksic.mcs.infrastructure.guitransformer.providers.MCSResourceBundleProvider"/>
 
-    <bean id="sgtObjectProvider" class="net.milanaleksic.mcs.infrastructure.guitransformer.providers.MCSObjectProvider"/>
+    <bean id="baobabObjectProvider" class="net.milanaleksic.mcs.infrastructure.guitransformer.providers.MCSObjectProvider"/>
 
-    <bean id="sgtImageProvider" class="net.milanaleksic.mcs.infrastructure.guitransformer.providers.MCSImageProvider"/>
+    <bean id="baobabImageProvider" class="net.milanaleksic.mcs.infrastructure.guitransformer.providers.MCSImageProvider"/>
 
 </beans>

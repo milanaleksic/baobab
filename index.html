@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Swt-gui-transformer by milanaleksic</title>
+    <title>Baobab by milanaleksic</title>
 
     <link rel="stylesheet" href="stylesheets/styles2.css">
     <link rel="stylesheet" href="stylesheets/lightbox.css">
@@ -44,19 +44,19 @@
 <body>
 <div class="wrapper">
 <header>
-    <h1>swt-gui-transformer</h1>
+    <h1>Baobab</h1>
 
     <p>Fast(er) building of Eclipse SWT-based user interfaces in Java using JSON</p>
 
-    <p class="view"><a href="https://github.com/milanaleksic/swt-gui-transformer">View the Project on GitHub
-        <small>milanaleksic/swt-gui-transformer</small>
+    <p class="view"><a href="https://github.com/milanaleksic/baobab">View the Project on GitHub
+        <small>milanaleksic/baobab</small>
     </a></p>
     <ul>
-        <li><a href="https://github.com/milanaleksic/swt-gui-transformer/zipball/master">Download <strong>ZIP
+        <li><a href="https://github.com/milanaleksic/baobab/zipball/master">Download <strong>ZIP
             File</strong></a></li>
-        <li><a href="https://github.com/milanaleksic/swt-gui-transformer/tarball/master">Download <strong>TAR
+        <li><a href="https://github.com/milanaleksic/baobab/tarball/master">Download <strong>TAR
             Ball</strong></a></li>
-        <li><a href="https://github.com/milanaleksic/swt-gui-transformer">View On <strong>GitHub</strong></a></li>
+        <li><a href="https://github.com/milanaleksic/baobab">View On <strong>GitHub</strong></a></li>
     </ul>
 </header>
 <section>
@@ -83,10 +83,10 @@
 
 <div class="tab_container" id="tabs" style="display:none">
     <div class="tab_content">
-        <p>If you want to use the SGT "the proper way", you can avoid most of direct contact with the SWT
+        <p>If you want to use the Baobab "the proper way", you can avoid most of direct contact with the SWT
             components from your Java code. You use a model class that wraps all of the needed properties of your form
             in normal Java primitives. All you need to do is modify the model property values and
-            SGT will make sure your form gets updated.</p>
+            Baobab will make sure your form gets updated.</p>
 
         <p>For a quite simple example, let's build a "text reverser" which reverses the text you typed and shows the
             reversed output in another field. The interface will thus have only 2 text fields and some labels:</p>
@@ -100,7 +100,7 @@
         </ul>
         <div id="tabs1" class="tab_container">
             <div class="tab_content">
-                <p>The GUI file will be used by SGT to create the layout. <a href="documentation.html">
+                <p>The GUI file will be used by Baobab to create the layout. <a href="documentation.html">
                 Documentation</a> page describes in many details how to write these files.</p>
                 <script src="https://gist.github.com/2708850.js?file=ObservedForm.gui.json"></script>
                 <p>Small note: the correct filename is ObservedForm.gui, but for the sake of syntax highlighting by
@@ -122,7 +122,7 @@
     </div>
     <div class="tab_content">
         <p>Let's say you plan to make a simple username/password form with a single button to accept. If you wish to
-            use SGT, you need to make 2 files: java code file <code>com.foobar.MyForm</code> and GUI definition file
+            use Baobab, you need to make 2 files: java code file <code>com.foobar.MyForm</code> and GUI definition file
             in the same package (with identical name as the form class): <code>com/foobar/MyForm.gui</code></p>
 
         <p>This is the interface we wish to define in the GUI file:</p>
@@ -136,7 +136,7 @@
         </ul>
         <div id="tabs2" class="tab_container">
             <div class="tab_content">
-                <p>First step you need to do is to define the interface in a JSON file (either manually or using SGT
+                <p>First step you need to do is to define the interface in a JSON file (either manually or using Baobab
                     editor) with extension .gui in the same package where the Java file with same name is placed.</p>
 
                 <script src="https://gist.github.com/2708850.js?file=MyForm.gui.json"></script>
@@ -187,7 +187,7 @@
 
 <h2>Project dependencies</h2>
 
-<p>SWT GUI Transformer depends on following frameworks/libraries:</p>
+<p>Baobab depends on following frameworks/libraries:</p>
 
 <ul>
     <li>JRE required is <strong>1.7</strong></li>
@@ -199,7 +199,7 @@
         <strong>Jackson 1.9.12</strong> - fastest JSON parser,
     </li>
     <li>
-        a <strong>javax.inject (JSR 330)</strong> provider (SGT is supported/tested with Google Guice 3 and Spring 3.1.1)
+        a <strong>javax.inject (JSR 330)</strong> provider (Baobab is supported/tested with Google Guice 3 and Spring 3.1.1)
     </li>
     <li>
         <strong>ASM 4</strong> and <strong>ReflectASM 1.07</strong> dynamic code generation libraries
@@ -222,10 +222,10 @@
     special tag and current location in the files (very useful when tracking down errors from stack traces)
     , and has some basic editor functionalities, like open/save/text search/copy&paste.</p>
 
-<p>The interesting part, though is that the editor has been built also using SGT :)</p>
+<p>The interesting part, though is that the editor has been built also using Baobab :)</p>
 
 <p>
-    <a href="images/editor-0.1.7.2.png" rel="lightbox" title="Interactive editor for SGT">
+    <a href="images/editor-0.1.7.2.png" rel="lightbox" title="Interactive editor for Baobab">
         <img src="images/editor-0.1.7.2_mini.jpg"/>
     </a>
 </p>
@@ -233,7 +233,7 @@
 <p>To run the editor, you have 2 options:</p>
 <ol>
     <li>checkout the project and <code>mvn package</code> - you will get executable
-        <code>swt-gui-transformer-editor-{version}-jar-with-dependencies.jar</code>,
+        <code>baobab-editor-{version}-jar-with-dependencies.jar</code>,
     </li>
     <li>download the assembled artifact from the github page.</li>
 </ol>
@@ -252,7 +252,7 @@
 
 <h1>Feature requests / Ideas / bugs / problems?</h1>
 
-<p>Try to use the project's <a href="https://github.com/milanaleksic/swt-gui-transformer/issues">Issues</a>
+<p>Try to use the project's <a href="https://github.com/milanaleksic/Baobab/issues">Issues</a>
     page to report feature requests or send bug reports.</p>
 
 <p>If you wish to contact me good way to do it is via email: <a href="mailto:milanaleksic@gmail.com">
