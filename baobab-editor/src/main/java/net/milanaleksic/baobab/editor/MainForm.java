@@ -183,7 +183,7 @@ public class MainForm implements Observer {
     @EmbeddedEventListener(component = "btnNew", event = SWT.Selection)
     private void btnNewSelectionListener() {
         setCurrentFile(null);
-        editor.setText("");
+        editor.setText(resourceBundle.getString("mainForm.editorDefaultContents"));
     }
 
     @EmbeddedEventListener(component = "btnOpen", event = SWT.Selection)
