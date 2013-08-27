@@ -2,12 +2,12 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.milanaleksic</groupId>
-    <artifactId>swt-gui-transformer</artifactId>
-    <name>SWT GUI Transformer</name>
+    <artifactId>baobab</artifactId>
+    <name>Baobab</name>
     <version>0.3.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <description>SWT GUI Transformer toolkit for building interfaces in SWT interactively</description>
+    <description>Baobab toolkit for building interfaces in SWT interactively</description>
 
     <developers>
         <developer>
@@ -40,9 +40,9 @@
     </properties>
 
     <modules>
-        <module>swt-gui-transformer-core</module>
-        <module>swt-gui-transformer-editor</module>
-        <module>swt-gui-transformer-samples</module>
+        <module>baobab-core</module>
+        <module>baobab-editor</module>
+        <module>baobab-samples</module>
     </modules>
 
     <build>
