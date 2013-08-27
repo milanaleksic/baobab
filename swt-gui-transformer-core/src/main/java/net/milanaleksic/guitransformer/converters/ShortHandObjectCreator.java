@@ -1,13 +1,14 @@
 package net.milanaleksic.guitransformer.converters;
 
-import com.google.common.base.*;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import net.milanaleksic.guitransformer.builders.BuilderContext;
 import net.milanaleksic.guitransformer.converters.typed.IntegerConverter;
 import org.codehaus.jackson.JsonNode;
 import org.eclipse.swt.widgets.Shell;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.regex.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * User: Milan Aleksic
@@ -16,15 +17,23 @@ import java.util.regex.*;
  */
 class ShortHandObjectCreator extends ObjectCreator {
 
-    private static final Pattern builderValueShortHandSyntax = Pattern.compile("\\[([^\\]]+)\\]\\(([^\\)]*)\\)\\(([^\\),]*)\\s*,?\\s*([^\\)]*)\\)"); //NON-NLS
+    private static final Pattern builderValueShortHandSyntaxKey = Pattern.compile("\\[([^\\]]+)\\]\\(([^\\)]*)\\)\\(([^\\),]*)\\s*,?\\s*([^\\)]*)\\)"); //NON-NLS
     private static final Pattern shortHandSyntaxKey = Pattern.compile("([^\\)]+)\\(([^\\),]*)\\s*,?\\s*([^\\)]*)\\)"); //NON-NLS
 
-    protected boolean isWidgetUsingBuilder(String key, JsonNode value) {
-        return builderValueShortHandSyntax.matcher(key).matches();
+    @Override
+    public boolean isEligibleForItem(String key, JsonNode value) {
+        return (key != null) && (shortHandSyntaxKey.matcher(key).matches()
+                || builderValueShortHandSyntaxKey.matcher(key).matches());
     }
 
-    protected TransformationWorkingContext createWidgetUsingBuilder(TransformationWorkingContext context, String key, JsonNode value) {
-        final Matcher matcher = builderValueShortHandSyntax.matcher(key);
+    @Override
+    public boolean isWidgetUsingBuilder(String key, JsonNode value) {
+        return builderValueShortHandSyntaxKey.matcher(key).matches();
+    }
+
+    @Override
+    public TransformationWorkingContext createWidgetUsingBuilder(TransformationWorkingContext context, String key, JsonNode value) {
+        final Matcher matcher = builderValueShortHandSyntaxKey.matcher(key);
         Preconditions.checkArgument(matcher.matches(), "Invalid short hand syntax detected: " + key);
         String builderName = matcher.group(1);
         String builderParams = matcher.group(2);
@@ -36,7 +45,7 @@ class ShortHandObjectCreator extends ObjectCreator {
                     "as parameter for short-hand constructor - styling must be set in builder");
 
         final TransformationWorkingContext ofTheJedi = new TransformationWorkingContext(context);
-        final BuilderContext<?> builderContext = objectConverter.constructObjectUsingBuilderNotation(context, builderName, builderParams);
+        final BuilderContext<?> builderContext = nodeProcessor.visitBuilderNotationItem(context, builderName, builderParams);
         if (builderContext.getName() != null)
             ofTheJedi.mapObject(builderContext.getName(), builderContext.getBuiltElement());
         ofTheJedi.setWorkItem(builderContext.getBuiltElement());
@@ -44,8 +53,8 @@ class ShortHandObjectCreator extends ObjectCreator {
         return ofTheJedi;
     }
 
-    protected TransformationWorkingContext createWidgetUsingClassInstantiation(TransformationWorkingContext context, String key, JsonNode value)
-            throws InvocationTargetException, IllegalAccessException, InstantiationException {
+    @Override
+    public TransformationWorkingContext createWidgetUsingClassInstantiation(TransformationWorkingContext context, String key, JsonNode value) {
         final Matcher matcher = shortHandSyntaxKey.matcher(key);
         Preconditions.checkArgument(matcher.matches(), "Invalid short hand syntax detected: " + key);
         String typeDefinition = matcher.group(1);
@@ -61,10 +70,11 @@ class ShortHandObjectCreator extends ObjectCreator {
         }
 
         style = fixStyleIfNoModalDialogs(context, style);
-        final Object instanceOfSWTWidget = objectConverter.createInstanceOfSWTWidget(widgetClass, context.getWorkItem(), style);
+        final Object instanceOfSWTWidget = createInstanceOfSWTWidget(widgetClass, context.getWorkItem(), style);
         final TransformationWorkingContext ofTheJedi = new TransformationWorkingContext(context);
         ofTheJedi.setWorkItem(instanceOfSWTWidget);
         context.mapObject(name, instanceOfSWTWidget);
         return ofTheJedi;
     }
+
 }

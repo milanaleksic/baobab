@@ -28,4 +28,6 @@
 
     <bean id="transformer" class="net.milanaleksic.guitransformer.Transformer" />
 
+    <bean id="nodeProcessor" class="net.milanaleksic.guitransformer.converters.ObjectCreationNodeProcessor" />
+
 </beans>

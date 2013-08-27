@@ -1,31 +1,27 @@
 package net.milanaleksic.guitransformer.converters;
 
-import com.google.common.base.*;
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableSet;
 import net.milanaleksic.guitransformer.TransformerException;
-import net.milanaleksic.guitransformer.builders.*;
-import net.milanaleksic.guitransformer.providers.*;
-import net.milanaleksic.guitransformer.util.WidgetCreator;
-import org.codehaus.jackson.*;
+import net.milanaleksic.guitransformer.builders.BuilderContext;
+import net.milanaleksic.guitransformer.providers.ObjectProvider;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Menu;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
-import java.io.*;
-import java.lang.reflect.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
-import java.util.List;
-import java.util.regex.*;
-
-import static net.milanaleksic.guitransformer.util.ObjectUtil.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * User: Milan Aleksic
  * Date: 4/19/12
  * Time: 3:03 PM
- * <p>
- * ObjectConverter's sole purpose is to convert object nodes to SWT objects
- * </p>
  */
 public class ObjectConverter implements Converter {
 
@@ -33,15 +29,15 @@ public class ObjectConverter implements Converter {
 
     private static final Pattern injectedObjectValue = Pattern.compile("\\((.*)\\)");
 
+    private final ObjectMapper mapper;
+
     static final String KEY_SPECIAL_TYPE = "_type"; //NON-NLS
     static final String KEY_SPECIAL_CHILDREN = "_children"; //NON-NLS
     static final String KEY_SPECIAL_NAME = "_name"; //NON-NLS
     static final String KEY_SPECIAL_STYLE = "_style"; //NON-NLS
     static final String KEY_SPECIAL_COMMENT = "__comment"; //NON-NLS
 
-    private final ObjectMapper mapper;
-
-    private static final Set<String> SPECIAL_KEYS = ImmutableSet
+    static final Set<String> SPECIAL_KEYS = ImmutableSet
             .<String>builder()
             .add(KEY_SPECIAL_TYPE)
             .add(KEY_SPECIAL_CHILDREN)
@@ -54,22 +50,10 @@ public class ObjectConverter implements Converter {
     private ObjectProvider objectProvider;
 
     @Inject
-    private ConverterProvider converterProvider;
-
-    @Inject
-    private BuilderProvider builderProvider;
-
-    @Inject
-    private ShortcutsProvider shortcutsProvider;
-
-    @Inject
     private EmbeddingService embeddingService;
 
     @Inject
-    private OldSchoolObjectCreator oldSchoolObjectCreator;
-
-    @Inject
-    private ShortHandObjectCreator shortHandObjectCreator;
+    private NodeProcessor nodeProcessor;
 
     public ObjectConverter() {
         this.mapper = new ObjectMapper();
@@ -79,7 +63,7 @@ public class ObjectConverter implements Converter {
     public TransformationWorkingContext createHierarchy(TransformationWorkingContext context, String content) {
         try {
             final JsonNode shellDefinition = mapper.readValue(content, JsonNode.class);
-            return getTransformationWorkingContext(context, shellDefinition);
+            return create(context, null, shellDefinition);
         } catch (IOException e) {
             throw new TransformerException("IO Error while trying to find and parse required form: " + context.getFormName(), e);
         }
@@ -88,7 +72,7 @@ public class ObjectConverter implements Converter {
     public TransformationWorkingContext createHierarchy(Object formObject, TransformationWorkingContext context, InputStream content) {
         try {
             final JsonNode shellDefinition = mapper.readValue(content, JsonNode.class);
-            final TransformationWorkingContext transformationWorkingContext = getTransformationWorkingContext(context, shellDefinition);
+            final TransformationWorkingContext transformationWorkingContext = create(context, null, shellDefinition);
             if (formObject != null)
                 embeddingService.embed(formObject, transformationWorkingContext);
             return transformationWorkingContext;
@@ -97,8 +81,16 @@ public class ObjectConverter implements Converter {
         }
     }
 
-    private TransformationWorkingContext getTransformationWorkingContext(TransformationWorkingContext context, JsonNode shellDefinition) {
-        return oldSchoolObjectCreator.create(context, null, shellDefinition);
+    private TransformationWorkingContext create(TransformationWorkingContext context, @Nullable String key, JsonNode value) {
+        try {
+            TransformationWorkingContext ofTheJedi = nodeProcessor.visitHierarchyItem(context, key, value);
+            transformNodeToProperties(ofTheJedi, value);
+            return ofTheJedi;
+        } catch (TransformerException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new TransformerException("Widget creation failed", e);
+        }
     }
 
     @Override
@@ -115,33 +107,22 @@ public class ObjectConverter implements Converter {
 
     private Object getValueFromJson(TransformationWorkingContext context, JsonNode node) {
         if (!node.isTextual()) {
-            final TransformationWorkingContext widgetFromNode = oldSchoolObjectCreator.create(context, null, node);
+            final TransformationWorkingContext widgetFromNode = create(context, null, node);
             return widgetFromNode.getWorkItem();
         }
-
         String originalValue = node.asText();
-
         Matcher matcher = injectedObjectValue.matcher(originalValue);
         if (matcher.matches())
             return provideObjectFromDIContainer(context, matcher.group(1));
-
         matcher = builderValue.matcher(originalValue);
         if (matcher.matches()) {
-            final BuilderContext<?> builderContext = constructObjectUsingBuilderNotation(context, matcher.group(1), matcher.group(2));
+            final BuilderContext<?> builderContext = nodeProcessor.visitBuilderNotationItem(context, matcher.group(1), matcher.group(2));
             if (builderContext.getName() != null)
                 context.mapObject(builderContext.getName(), builderContext.getBuiltElement());
             return builderContext.getBuiltElement();
         }
 
         throw new TransformerException("Invalid syntax for object definition - " + originalValue);
-    }
-
-    BuilderContext<?> constructObjectUsingBuilderNotation(TransformationWorkingContext context, String builderName, String parameters) {
-        final List<String> params = Lists.newArrayList(Splitter.on(",").trimResults().split(parameters));
-        final Builder<?> builder = builderProvider.provideBuilderForName(builderName);
-        if (builder == null)
-            throw new TransformerException("Builder is not registered: " + builderName);
-        return builder.create(context.getWorkItem(), params);
     }
 
     private Object provideObjectFromDIContainer(TransformationWorkingContext mappedObjects, String magicName) {
@@ -151,13 +132,14 @@ public class ObjectConverter implements Converter {
         return mappedObject;
     }
 
-    <T> T createInstanceOfSWTWidget(Class<T> widgetClass, Object parent, int style) {
-        try {
-            return WidgetCreator.get(widgetClass).newInstance(parent, style);
-        } catch (Exception e) {
-            throw new TransformerException("Unexpected exception encountered while processing widget creation, widgetClass="+widgetClass.getName()+", parent="+parent+", style="+style, e);
-        } catch (VerifyError error) {
-            throw new TransformerException("Code generation verify error encountered while processing widget creation, widgetClass="+widgetClass.getName()+", parent="+parent+", style="+style, error);
+    private void transformNodeToProperties(TransformationWorkingContext context, JsonNode jsonNode) {
+        Iterator<Map.Entry<String, JsonNode>> fields = jsonNode.getFields();
+        while (fields.hasNext()) {
+            Map.Entry<String, JsonNode> field = fields.next();
+            if (field.getKey().equals(ObjectConverter.KEY_SPECIAL_CHILDREN))
+                transformChildren(context, field.getValue());
+            else
+                nodeProcessor.visitSingleField(context, field.getKey(), field.getValue());
         }
     }
 
@@ -179,42 +161,13 @@ public class ObjectConverter implements Converter {
         final Iterator<String> fieldNames = childrenNodes.getFieldNames();
         while (fieldNames.hasNext()) {
             final String field = fieldNames.next();
-            shortHandObjectCreator.create(context, field, childrenNodes.get(field));
+            create(context, field, childrenNodes.get(field));
         }
     }
 
     private void transformChildrenAsArray(TransformationWorkingContext context, JsonNode childrenNodes) throws IOException {
         for (JsonNode node : mapper.readValue(childrenNodes, JsonNode[].class)) {
             getValueFromJson(context, node);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    void transformSingleJsonNode(TransformationWorkingContext context, Map.Entry<String, JsonNode> field) {
-        try {
-            if (SPECIAL_KEYS.contains(field.getKey()))
-                return;
-
-            Optional<Method> method = getSetterByName(context.getWorkItem(), getSetterForField(field.getKey()));
-            if (method.isPresent()) {
-                Class<?> argType = method.get().getParameterTypes()[0];
-                Converter converter = converterProvider.provideConverterForClass(argType);
-                Object value = converter.getValueFromJson(context.getWorkItem(), field.getValue(), context.getMutableRootMappedObjects());
-                method.get().invoke(context.getWorkItem(), value);
-            } else {
-                Optional<Field> fieldByName = getFieldByName(context.getWorkItem(), field.getKey());
-                if (fieldByName.isPresent()) {
-                    Class<?> argType = fieldByName.get().getType();
-                    Converter converter = converterProvider.provideConverterForClass(argType);
-                    Object value = converter.getValueFromJson(context.getWorkItem(), field.getValue(), context.getMutableRootMappedObjects());
-                    fieldByName.get().set(context.getWorkItem(), value);
-                } else
-                    throw new TransformerException("No setter nor field " + field.getKey() + " could be found in class " + context.getWorkItem().getClass().getName() + "; context: " + field.getValue());
-            }
-        } catch (TransformerException e) {
-            throw e;
-        } catch (Throwable t) {
-            throw new TransformerException("Transformation was not successful", t);
         }
     }
 
