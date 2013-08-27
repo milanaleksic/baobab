@@ -2,7 +2,7 @@ package net.milanaleksic.baobab.editor;
 
 import com.google.common.eventbus.*;
 import net.milanaleksic.baobab.*;
-import net.milanaleksic.baobab.editor.messages.ErrorMessage;
+import net.milanaleksic.baobab.editor.messages.EditorErrorShowDetails;
 import net.milanaleksic.baobab.editor.model.ErrorDialogModel;
 import net.milanaleksic.baobab.model.TransformerModel;
 import org.eclipse.swt.SWT;
@@ -34,7 +34,7 @@ public class ErrorDialog {
     }
 
     @Subscribe
-    public void showMessage(ErrorMessage errorMessage) {
+    public void showMessage(EditorErrorShowDetails errorMessage) {
         final TransformationContext transformationContext = transformer.fillManagedForm(this);
         model.setText(errorMessage.getMessage());
         transformationContext.showAndAwaitClosed();

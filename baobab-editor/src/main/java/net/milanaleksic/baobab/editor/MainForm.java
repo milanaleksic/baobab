@@ -3,7 +3,8 @@ package net.milanaleksic.baobab.editor;
 import com.google.common.base.*;
 import com.google.common.eventbus.EventBus;
 import net.milanaleksic.baobab.*;
-import net.milanaleksic.baobab.editor.messages.ErrorMessage;
+import net.milanaleksic.baobab.editor.messages.ApplicationError;
+import net.milanaleksic.baobab.editor.messages.EditorErrorShowDetails;
 import net.milanaleksic.baobab.editor.model.MainFormModel;
 import net.milanaleksic.baobab.model.TransformerModel;
 import net.milanaleksic.baobab.providers.ResourceBundleProvider;
@@ -67,6 +68,7 @@ public class MainForm implements Observer {
         }
     }
 
+    @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
     @EmbeddedEventListener(component = "infoLabel", event = SWT.MouseDown)
     private void infoLabelMouseDownListener() {
         if (!model.getLastException().isPresent())
@@ -74,7 +76,7 @@ public class MainForm implements Observer {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         model.getLastException().get().printStackTrace(pw);
-        eventBus.post(new ErrorMessage(sw.toString()));
+        eventBus.post(new EditorErrorShowDetails(sw.toString()));
     }
 
     @Override
@@ -92,10 +94,16 @@ public class MainForm implements Observer {
         });
     }
 
-    private class EditorModifyRunnableListener implements Listener {
+    public class MainFormBackgroundFormCreator implements Listener {
 
         @Override
         public void handleEvent(Event event) {
+            final Control widget = (Control) event.widget;
+            reCreateForm();
+            widget.setFocus();
+        }
+
+        private void reCreateForm() {
             model.showInformation("", null);
             String text = editor.getText();
             if (Strings.isNullOrEmpty(text))
@@ -110,8 +118,6 @@ public class MainForm implements Observer {
                 setSizeOverride(newShell);
                 model.setCurrentShell(newShell);
                 newShell.open();
-
-                ((Control) event.widget).setFocus();
 
                 model.setActiveWidgets(nonManagedForm.getMappedObjects());
             } catch (TransformerException e) {
@@ -146,10 +152,9 @@ public class MainForm implements Observer {
                     return;
                 shell.setSize(widthAsInt, heightAsInt);
             } catch (Exception e) {
-                showError("Invalid size parameters: " + e);
+                eventBus.post(new ApplicationError("Invalid size parameters: " + e, e));
             }
         }
-
     }
 
     @EmbeddedEventListeners({
@@ -157,7 +162,7 @@ public class MainForm implements Observer {
             @EmbeddedEventListener(component = "textWidth", event = SWT.Modify),
             @EmbeddedEventListener(component = "textHeight", event = SWT.Modify)
     })
-    private final EditorModifyRunnableListener editorModifyListener = new EditorModifyRunnableListener();
+    private final MainFormBackgroundFormCreator formCreator = new MainFormBackgroundFormCreator();
 
     @EmbeddedEventListener(component = "editor", event = SWT.KeyDown)
     private void editorKeyDown(Event event) {
@@ -247,17 +252,12 @@ public class MainForm implements Observer {
     }
 
     private void openFile(File targetFile) {
-        if (!targetFile.exists()) {
-            showError(String.format(resourceBundle.getString("mainForm.fileDoesNotExist"),
-                    targetFile.getAbsolutePath()));
-            return;
-        }
         try {
             editor.setText(com.google.common.io.Files.toString(targetFile, Charsets.UTF_8));
             setCurrentFile(targetFile);
         } catch (IOException e) {
-            e.printStackTrace();
-            showError(String.format(resourceBundle.getString("mainForm.ioError.open"), targetFile.getAbsolutePath()));
+            eventBus.post(new ApplicationError(String.format(resourceBundle.getString("mainForm.ioError.open"),
+                    targetFile.getAbsolutePath()), e));
         }
     }
 
@@ -272,8 +272,8 @@ public class MainForm implements Observer {
         try {
             com.google.common.io.Files.write(editor.getText(), currentFile, Charsets.UTF_8);
         } catch (IOException e) {
-            e.printStackTrace();
-            showError(String.format(resourceBundle.getString("mainForm.ioError.save"), currentFile.getAbsolutePath()));
+            eventBus.post(new ApplicationError(String.format(resourceBundle.getString("mainForm.ioError.save"),
+                    currentFile.getAbsolutePath()), e));
         }
         model.setModified(false);
     }
@@ -289,13 +289,6 @@ public class MainForm implements Observer {
         saveCurrentDocument();
     }
 
-    private void showError(String errorMessage) {
-        MessageBox box = new MessageBox(shell, SWT.ICON_ERROR);
-        box.setMessage(errorMessage);
-        box.setText(resourceBundle.getString("mainForm.error"));
-        box.open();
-    }
-
     private void setCurrentFile(@Nullable File file) {
         model.setCurrentFile(file);
         shell.setText(String.format("%s - [%s]",  //NON-NLS
@@ -304,7 +297,6 @@ public class MainForm implements Observer {
                         ? resourceBundle.getString("mainForm.newFile")
                         : file.getName()));
         model.setModified(false);
-
         fileChangesObservable.setupExternalFSChangesWatcher(file);
     }
 
@@ -321,6 +313,7 @@ public class MainForm implements Observer {
                 .setTransfer(new Transfer[]{FileTransfer.getInstance()});
         editorTransformer.setDoNotCreateModalDialogs(true);
         setCurrentFile(null);
+        formCreator.reCreateForm();
     }
 
     private void refreshCaretPositionInformation() {
@@ -359,8 +352,7 @@ public class MainForm implements Observer {
             }
             editor.setSelection(loc, loc + model.getLastSearchString().length());
         } catch (Throwable t) {
-            t.printStackTrace();
-            showError(t.getMessage());
+            eventBus.post(new ApplicationError("Search failed: " + t.getMessage(), t));
         }
     }
 }

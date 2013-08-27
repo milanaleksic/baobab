@@ -1,7 +1,10 @@
 package net.milanaleksic.baobab.editor;
 
 import com.google.common.base.Optional;
+import com.google.common.eventbus.EventBus;
+import net.milanaleksic.baobab.editor.messages.ApplicationError;
 
+import javax.inject.Inject;
 import java.io.*;
 import java.nio.file.*;
 import java.util.Observable;
@@ -19,6 +22,7 @@ public class MainFormFileChangesObservable extends Observable {
     public static final int DELAY_BETWEEN_EVENTS = 100;
 
     private final AtomicReference<WatchKey> currentFileExternalChangesWatchKey = new AtomicReference<>(null);
+    private final EventBus eventBus;
 
     private Optional<WatchService> fileExternalChangesWatcher = Optional.absent();
 
@@ -62,14 +66,16 @@ public class MainFormFileChangesObservable extends Observable {
         notifyObservers(fullFilename);
     }
 
-    public MainFormFileChangesObservable() {
+    @Inject
+    public MainFormFileChangesObservable(EventBus eventBus) {
+        this.eventBus = eventBus;
         try {
             fileExternalChangesWatcher = Optional.of(FileSystems.getDefault().newWatchService());
             ExternalWatcherThread externalWatcherThread = new ExternalWatcherThread();
             externalWatcherThread.setDaemon(true);
             externalWatcherThread.start();
         } catch (IOException e) {
-            e.printStackTrace();
+            eventBus.post(new ApplicationError("Watcher could not have been set", e));
         }
     }
 
@@ -79,7 +85,7 @@ public class MainFormFileChangesObservable extends Observable {
             try {
                 fileExternalChangesWatcher.get().close();
             } catch (IOException e) {
-                e.printStackTrace();
+                eventBus.post(new ApplicationError("Watcher problem", e));
             }
         }
     }
@@ -100,7 +106,7 @@ public class MainFormFileChangesObservable extends Observable {
                 currentFileExternalChangesWatchKey.set(null);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            eventBus.post(new ApplicationError("Watcher problem", e));
         }
     }
 
