@@ -4,7 +4,7 @@
     <groupId>net.milanaleksic</groupId>
     <artifactId>baobab</artifactId>
     <name>Baobab</name>
-    <version>0.3.3-SNAPSHOT</version>
+    <version>0.4.0</version>
     <packaging>pom</packaging>
 
     <description>Baobab toolkit for building interfaces in SWT interactively</description>
