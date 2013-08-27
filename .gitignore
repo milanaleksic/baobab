@@ -8,8 +8,8 @@
 *.iml
 .idea
 out
-swt-gui-transformer-core/target/
-swt-gui-transformer-editor/target/
+baobab-core/target/
+baobab-editor/target/
 target/
 *.ipr
 *.iws
