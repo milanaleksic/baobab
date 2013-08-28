@@ -260,8 +260,12 @@ class EmbeddingService {
         for (Field field : fields) {
             if (field.getAnnotation(TransformerIgnoredProperty.class) != null)
                 continue;
+            if (field.isSynthetic())
+                continue;
             try {
                 bindingData.getFieldMapping().put(field, createSingleBindingMetaData(field, transformationContext));
+            } catch (TransformerException e) {
+                throw e;
             } catch (Exception e) {
                 throw new TransformerException("Error while creating binding metadata for component field " + field, e);
             }
