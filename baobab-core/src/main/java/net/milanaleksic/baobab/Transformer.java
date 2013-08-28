@@ -2,13 +2,12 @@ package net.milanaleksic.baobab;
 
 import net.milanaleksic.baobab.converters.*;
 import net.milanaleksic.baobab.providers.ResourceBundleProvider;
-import net.milanaleksic.baobab.util.StreamLoaner;
-import net.milanaleksic.baobab.util.StreamUtil;
+import net.milanaleksic.baobab.util.*;
 import org.eclipse.swt.widgets.Shell;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ResourceBundle;
 
 /**
@@ -26,31 +25,44 @@ public class Transformer {
 
     private boolean doNotCreateModalDialogs = false;
 
-    public TransformationContext createNonManagedForm(@Nullable Shell parent, String definition) {
-        return transformFromContent(parent, definition);
+    public TransformationContext createNonManagedForm(String definition) {
+        return createFormFromString(definition, null);
+    }
+
+    public TransformationContext createFormFromString(String definition, @Nullable final Shell parent) {
+        return StreamUtil.loanStringStream(definition, new ReaderLoaner<TransformationContext>() {
+            @Override
+            public TransformationContext loan(Reader reader) {
+                return createContextFromReader(reader, parent, null);
+            }
+        });
     }
 
     public TransformationContext fillManagedForm(Object formObject) {
-        return createFormFromResource(null, formObject, getFullNameOfResource(formObject));
+        return createFormFromResource(getFullNameOfResource(formObject), null, formObject);
     }
 
-    public TransformationContext fillManagedForm(@Nullable Shell parent, Object formObject) {
-        return createFormFromResource(parent, formObject, getFullNameOfResource(formObject));
+    public TransformationContext fillManagedForm(Object formObject, @Nullable Shell parent) {
+        return createFormFromResource(getFullNameOfResource(formObject), parent, formObject);
     }
 
-    public TransformationContext createFormFromResource(@Nullable final Shell parent, @Nullable final Object formObject,
-                                                        final String formFileFullName) {
-        return StreamUtil.loanResourceStream(formFileFullName, new StreamLoaner<TransformationContext>() {
+    public TransformationContext createFormFromResource(final String formResourceLocation, @Nullable final Shell parent,
+                                                        @Nullable final Object formObject) {
+        return StreamUtil.loanResourceReader(formResourceLocation, new ReaderLoaner<TransformationContext>() {
             @Override
-            public TransformationContext loan(InputStream stream) {
-                TransformationWorkingContext context = new TransformationWorkingContext(formFileFullName);
-                mapResourceBundleIfExists(context);
-                context.setDoNotCreateModalDialogs(doNotCreateModalDialogs);
-                context.setWorkItem(parent);
-                context = objectConverter.createHierarchy(formObject, context, stream);
-                return context.createTransformationContext();
+            public TransformationContext loan(Reader reader) {
+                return createContextFromReader(reader, parent, formObject);
             }
         });
+    }
+
+    private TransformationContext createContextFromReader(Reader definitionStream, Shell parent, Object formObject) {
+        TransformationWorkingContext context = new TransformationWorkingContext();
+        mapResourceBundleIfExists(context);
+        context.setDoNotCreateModalDialogs(doNotCreateModalDialogs);
+        context.setWorkItem(parent);
+        context = objectConverter.createHierarchy(formObject, context, definitionStream);
+        return context.createTransformationContext();
     }
 
     private String getFullNameOfResource(Object formObject) {
@@ -62,15 +74,6 @@ public class Transformer {
         final ResourceBundle resourceBundle = resourceBundleProvider.getResourceBundle();
         if (resourceBundle != null)
             context.mapObject("bundle", resourceBundle); //NON-NLS
-    }
-
-    private TransformationContext transformFromContent(@Nullable Shell parent, String content) {
-        TransformationWorkingContext context = new TransformationWorkingContext();
-        mapResourceBundleIfExists(context);
-        context.setDoNotCreateModalDialogs(doNotCreateModalDialogs);
-        context.setWorkItem(parent);
-        context = objectConverter.createHierarchy(context, content);
-        return context.createTransformationContext();
     }
 
     public void setDoNotCreateModalDialogs(boolean doNotCreateModalDialogs) {

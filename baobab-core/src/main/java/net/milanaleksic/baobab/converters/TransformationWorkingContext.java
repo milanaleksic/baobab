@@ -25,8 +25,6 @@ public class TransformationWorkingContext {
 
     private ModelBindingMetaData modelBindingMetaData;
 
-    private final String formName;
-
     private boolean doNotCreateModalDialogs;
 
     private Object workItem;
@@ -34,19 +32,10 @@ public class TransformationWorkingContext {
     private final TransformationWorkingContext parentContext;
 
     public TransformationWorkingContext() {
-        this(null, "<no name>");
+        this(null);
     }
 
-    public TransformationWorkingContext(String formName) {
-        this(null, formName);
-    }
-
-    public TransformationWorkingContext(TransformationWorkingContext parentContext) {
-        this(parentContext, parentContext.getFormName());
-    }
-
-    public TransformationWorkingContext(@Nullable TransformationWorkingContext parentContext, String formName) {
-        this.formName = formName;
+    public TransformationWorkingContext(@Nullable TransformationWorkingContext parentContext) {
         this.parentContext = parentContext;
         mappedObjects = parentContext == null ? Maps.<String, Object>newHashMap() : ImmutableMap.<String, Object>of();
     }
@@ -106,7 +95,4 @@ public class TransformationWorkingContext {
         return parentContext;
     }
 
-    public String getFormName() {
-        return formName;
-    }
 }

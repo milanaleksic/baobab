@@ -1,14 +1,14 @@
 package net.milanaleksic.baobab.util;
 
-import java.io.InputStream;
+import java.io.Reader;
 
 /**
  * User: Milan Aleksic
  * Date: 8/23/13
  * Time: 4:30 PM
  */
-public interface StreamLoaner<T> {
+public interface ReaderLoaner<T> {
 
-    T loan(InputStream stream);
+    T loan(Reader reader);
 
 }

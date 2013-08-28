@@ -1,6 +1,6 @@
 package net.milanaleksic.baobab.util;
 
-import java.io.InputStream;
+import java.io.*;
 
 /**
  * User: Milan Aleksic
@@ -9,14 +9,27 @@ import java.io.InputStream;
  */
 public class StreamUtil {
 
-    public static <T> T loanResourceStream(String resourceName, StreamLoaner<T> loaner) {
-        InputStream resourceAsStream = null;
+    public static <T> T loanResourceReader(String resourceName, ReaderLoaner<T> loaner) {
+        Reader contentAsReader = null;
         try {
-            resourceAsStream = StreamUtil.class.getResourceAsStream(resourceName);
-            return loaner.loan(resourceAsStream);
+            contentAsReader = new InputStreamReader(StreamUtil.class.getResourceAsStream(resourceName));
+            return loaner.loan(contentAsReader);
         } finally {
             try {
-                if (resourceAsStream != null) resourceAsStream.close();
+                if (contentAsReader != null) contentAsReader.close();
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    public static <T> T loanStringStream(String content, ReaderLoaner<T> loaner) {
+        Reader contentAsReader = null;
+        try {
+            contentAsReader = new StringReader(content);
+            return loaner.loan(contentAsReader);
+        } finally {
+            try {
+                if (contentAsReader != null) contentAsReader.close();
             } catch (Exception ignored) {
             }
         }

@@ -109,7 +109,7 @@ public class MainForm implements Observer {
             if (Strings.isNullOrEmpty(text))
                 return;
             try {
-                TransformationContext nonManagedForm = editorTransformer.createNonManagedForm(shell, editor.getText());
+                TransformationContext nonManagedForm = editorTransformer.createFormFromString(editor.getText(), shell);
                 Shell newShell = nonManagedForm.getShell();
                 newShell.setLocation(20, 20);
 

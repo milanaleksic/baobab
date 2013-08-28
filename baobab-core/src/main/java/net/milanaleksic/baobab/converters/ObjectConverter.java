@@ -12,8 +12,7 @@ import org.eclipse.swt.widgets.Menu;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -60,16 +59,7 @@ public class ObjectConverter implements Converter {
         this.mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
     }
 
-    public TransformationWorkingContext createHierarchy(TransformationWorkingContext context, String content) {
-        try {
-            final JsonNode shellDefinition = mapper.readValue(content, JsonNode.class);
-            return create(context, null, shellDefinition);
-        } catch (IOException e) {
-            throw new TransformerException("IO Error while trying to find and parse required form: " + context.getFormName(), e);
-        }
-    }
-
-    public TransformationWorkingContext createHierarchy(Object formObject, TransformationWorkingContext context, InputStream content) {
+    public TransformationWorkingContext createHierarchy(Object formObject, TransformationWorkingContext context, Reader content) {
         try {
             final JsonNode shellDefinition = mapper.readValue(content, JsonNode.class);
             final TransformationWorkingContext transformationWorkingContext = create(context, null, shellDefinition);
@@ -77,7 +67,7 @@ public class ObjectConverter implements Converter {
                 embeddingService.embed(formObject, transformationWorkingContext);
             return transformationWorkingContext;
         } catch (IOException e) {
-            throw new TransformerException("IO Error while trying to find and parse required form: " + context.getFormName(), e);
+            throw new TransformerException("IO Error while trying to find and parse required form", e);
         }
     }
 
