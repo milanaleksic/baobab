@@ -49,7 +49,7 @@
                         "name" : "Courier New",
                         "height" : 9
                     },
-                    "text" : "{\n\t\"_type\" : \"shell\",\n\t\"layout\" : {\n\t\t\"_type\" : \"gridLayout\"\n\t},\n\t\"_children\" : {\n\t\t\n\t}\n}",
+                    "text" : "[mainForm.editorDefaultContents]",
                     "_children" : {
                         "dropTarget(editorDropTarget,{dnd.drop_default}|{dnd.drop_copy}|{dnd.drop_link}|{dnd.drop_move})" : {}
                     }

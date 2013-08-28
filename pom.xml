@@ -1,10 +1,11 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.milanaleksic</groupId>
     <artifactId>baobab</artifactId>
     <name>Baobab</name>
-    <version>0.4.0</version>
+    <version>0.4.1</version>
     <packaging>pom</packaging>
 
     <description>Baobab toolkit for building interfaces in SWT interactively</description>
@@ -69,6 +70,50 @@
                     <source>1.7</source>
                     <target>1.7</target>
                     <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.0</version>
+                <configuration>
+                    <minimizeJar>false</minimizeJar>
+                    <shadedArtifactAttached>true</shadedArtifactAttached>
+                    <shadedClassifierName>all</shadedClassifierName>
+                    <relocations>
+                        <relocation>
+                            <pattern>com.typesafe.config</pattern>
+                            <shadedPattern>net.milanaleksic.baobab.shaded.com.typesafe.config</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.objectweb.asm</pattern>
+                            <shadedPattern>net.milanaleksic.baobab.shaded.org.objectweb.asm</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.esotericsoftware.reflectasm</pattern>
+                            <shadedPattern>
+                                net.milanaleksic.baobab.shaded.com.esotericsoftware.reflectasm
+                            </shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.codehaus.jackson</pattern>
+                            <shadedPattern>net.milanaleksic.baobab.shaded.org.codehaus.jackson
+                            </shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.google.common</pattern>
+                            <shadedPattern>net.milanaleksic.baobab.shaded.com.google.common</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.aopalliance</pattern>
+                            <shadedPattern>net.milanaleksic.baobab.shaded.org.aopalliance</shadedPattern>
+                        </relocation>
+                    </relocations>
+                    <artifactSet>
+                        <excludes>
+                            <exclude>org.eclipse.swt:*</exclude>
+                        </excludes>
+                    </artifactSet>
                 </configuration>
             </plugin>
         </plugins>
