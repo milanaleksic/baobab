@@ -120,39 +120,6 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
-                        <configuration>
-                            <minimizeJar>true</minimizeJar>
-                            <shadedArtifactAttached>true</shadedArtifactAttached>
-                            <shadedClassifierName>all</shadedClassifierName>
-                            <relocations>
-                                <relocation>
-                                    <pattern>org.objectweb.asm</pattern>
-                                    <shadedPattern>net.milanaleksic.baobab.shaded.org.objectweb.asm
-                                    </shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>com.esotericsoftware.reflectasm</pattern>
-                                    <shadedPattern>
-                                        net.milanaleksic.baobab.shaded.com.esotericsoftware.reflectasm
-                                    </shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>org.codehaus.jackson</pattern>
-                                    <shadedPattern>net.milanaleksic.baobab.shaded.org.codehaus.jackson
-                                    </shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>com.google.common</pattern>
-                                    <shadedPattern>net.milanaleksic.baobab.shaded.com.google.common
-                                    </shadedPattern>
-                                </relocation>
-                            </relocations>
-                            <artifactSet>
-                                <excludes>
-                                    <exclude>org.eclipse.swt:*</exclude>
-                                </excludes>
-                            </artifactSet>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
