@@ -175,11 +175,10 @@
 
 <script src="https://gist.github.com/2708850.js?file=repo.xml"></script>
 
-<p>Since Eclipse doesn't really like to use Maven to store SWT artifacts (at least for now)
-    most probably you will have to download and install SWT jar manually into your local repo.
-    I know it's not a popular approach but there's nothing I can do :)</p>
-
-<script src="https://gist.github.com/2708850.js?file=installSWT.cmd"></script>
+<p>Eclipse doesn't really like to use Maven to store SWT artifacts (at least for now)
+    so I decided to host SWT JAR artifacts (until it is shown to be a bad idea) on my S3
+    Maven repo - but if you need older/newer SWT artifacts you will need to manually
+    introduce them in you Maven/Nexus repo.</p>
 
 <p>I propose using debug artifacts since it allows you to do so much more in debug mode
     in your IDE. Of course, in production mode better pack the non-debug version
