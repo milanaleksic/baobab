@@ -1,5 +1,5 @@
 language: java
 install: true
-script: "mvn --debug clean compile"
+script: "mvn clean compile -P !standard-with-extra-repos"
 jdk:
   - oraclejdk7
