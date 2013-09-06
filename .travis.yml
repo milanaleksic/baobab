@@ -1,5 +1,0 @@
-language: java
-install: true
-script: "mvn -X -P !standard-with-extra-repos clean compile"
-jdk:
-  - oraclejdk7
