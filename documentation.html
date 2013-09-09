@@ -95,7 +95,7 @@
 
 <p>If you wish to see entire list of supported shortcuts out-of-the-box in Baobab, take a look at the
     current version's <code>knownShortcuts</code> field in
-    <a href="https://github.com/milanaleksic/baobab/blob/master/baobab-core/src/main/resources/META-INF/guitransformer.shortcuts-default.properties">properties
+    <a href="https://github.com/milanaleksic/baobab/blob/master/baobab-core/src/main/resources/reference.conf">config
         file</a>.</p>
 
 <h4>Wish to extend?</h4>
@@ -117,7 +117,7 @@
 
 <pre class="prettyprint lang-js">    [builderName](param1,param2...)</pre>
 
-<p>The param count is generic. Implementation of <code>net.milanaleksic.guitransformer.builders.Builder&lt;T&gt;</code>
+<p>The param count is generic. Implementation of <code>net.milanaleksic.baobab.builders.Builder&lt;T&gt;</code>
     has only one method <code>create</code> that gets List of all parameters.</p>
 
 <p>You can use builder notation in 2 different ways:</p>
@@ -167,17 +167,17 @@
 
 <h4>Wish to extend?</h4>
 
-<p>First, you need to make your own implementations of interface <code>net.milanaleksic.guitransformer.builders.Builder&lt;T&gt;</code>.
+<p>First, you need to make your own implementations of interface <code>net.milanaleksic.baobab.builders.Builder&lt;T&gt;</code>.
 </p>
 
-<p>You need to add your mapping file <code>/META-INF/guitransformer.builders.properties</code> with following
-    form:</p>
+<p>You need to modify your Typesafe Config file <code>/application.conf</code> to include following
+    form of config pairs inside package <code>net.milanaleksic.baobab.builders</code>:</p>
     <pre class="prettyprint">  myBuilderName=com.foo.MyBuilder
   myBuilderName2=com.foo.MyBuilder2
   ...</pre>
 <p>The previous mapping will allow you to register (e.g.) a builder with name <code>myBuilderName</code> which
     is defined in the class <code>com.foo.MyBuilder</code>. This builder will receive all parameters sent to it in
-    the GUI file. The response must be instance of <code>net.milanaleksic.guitransformer.builders.BuilderContext&lt;T&gt;</code>
+    the GUI file. The response must be instance of <code>net.milanaleksic.baobab.builders.BuilderContext&lt;T&gt;</code>
     which describes the built SWT component and its name. If you choose to return <code>null</code>, it will not
     be placed in the map on named components.</p>
 
@@ -198,7 +198,7 @@
     powerful because it has magic value notation, which you can read in details later.</p>
 
 <p>Currently supported converters (most of them are in package
-    <code>net.milanaleksic.guitransformer.converters.typed</code>)
+    <code>net.milanaleksic.baobab.converters.typed</code>)
     are:</p>
 
 <ol>
@@ -211,20 +211,20 @@
     <li><a href="#point-converter"><code>PointConverter</code></a></li>
     <li><a href="#string-converter"><code>StringConverter</code></a></li>
     <li>if none is appropriate - fallback to
-        <a href="#object-converter"><code>net.milanaleksic.guitransformer.converters.ObjectConverter</code></a></li>
+        <a href="#object-converter"><code>net.milanaleksic.baobab.converters.ObjectConverter</code></a></li>
 </ol>
 
 <h4>Wish to extend?</h4>
 
-<p>You need to add your mapping file <code>/META-INF/guitransformer.converters.properties</code> with following
-    form:</p>
+<p>You need to modify your Typesafe Config file <code>/application.conf</code> to include following
+    form of config pairs inside package <code>net.milanaleksic.baobab.converters</code>:</p>
     <pre class="prettyprint">  com.foo.TargetType=com.foo.MyConverter
   com.foo.TargetType2=com.foo.MyConverter2
   ...</pre>
 <p>The previous mapping will allow conversion of a JsonNode (<em>Jackson</em> is used for JSON processing)
     to the type (e.g.) <code>com.foo.TargetType</code> using an implementation of interface
-    <code>net.milanaleksic.guitransformer.converters.Converter</code> or maybe (easier/cleaner for simple type
-    mapping) <code>net.milanaleksic.guitransformer.converters.typed.TypedConverter</code> defined with the right
+    <code>net.milanaleksic.baobab.converters.Converter</code> or maybe (easier/cleaner for simple type
+    mapping) <code>net.milanaleksic.baobab.converters.typed.TypedConverter</code> defined with the right
     side of the property - <code>com.foo.MyConverter</code> and so on.</p>
 
 <h4 id="boolean-converter">BooleanConverter</h4>
@@ -496,7 +496,7 @@
     </li>
     <li>you can embed (inject) the widget reference in the code using <code>@EmbeddedComponent</code>,</li>
     <li>you can dereference named widgets from the transformationContext using call
-        <code>net.milanaleksic.guitransformer.TransformationContext.getMappedObject(String name)</code>.
+        <code>net.milanaleksic.baobab.TransformationContext.getMappedObject(String name)</code>.
     </li>
 </ol>
 
@@ -525,7 +525,7 @@
 <h3>Messages string provider</h3>
 
 <p>Use your DI container to override
-    <code>net.milanaleksic.guitransformer.providers.ResourceBundleProvider</code>
+    <code>net.milanaleksic.baobab.providers.ResourceBundleProvider</code>
     with your implementation or just route it to <code>SimpleResourceBundleProvider</code> to always use
     messages_en.properties (or default messages.properties if first does not exist) as the source for resource
     naming pattern for string properties. For example:</p>
@@ -538,7 +538,7 @@
 
 <p>When you use named object syntax to ask from the DI for a named object in JSON definition,
     you basically ask it from implementation of
-    <code>net.milanaleksic.guitransformer.providers.ObjectProvider</code>
+    <code>net.milanaleksic.baobab.providers.ObjectProvider</code>
     you registered in the DI container.
     You can though use <code>AlwaysReturnNullObjectProvider</code> to always embed null when named object
     is requested, for example:</p>
@@ -549,7 +549,7 @@
 
 <h3>Images provider</h3>
 
-<p>Use your DI container to override <code>net.milanaleksic.guitransformer.providers.ImageProvider</code>
+<p>Use your DI container to override <code>net.milanaleksic.baobab.providers.ImageProvider</code>
     with your implementation or just route it to AlwaysReturnEmptyImageProvider to always embed dummy image
     with the value of the JSON value node for the image setter.</p>
 
@@ -561,14 +561,14 @@
 
 <p>Java files that have identical name and package position as the GUI file are called <strong>managed forms</strong>
     since you can embed components and event listeners directly using the
-    <code>net.milanaleksic.guitransformer.Transformer.fillManagedForm(Shell parent, Object managedFormObject)</code>.
+    <code>net.milanaleksic.baobab.Transformer.fillManagedForm(Shell parent, Object managedFormObject)</code>.
     When Transformer analyzes the managedFormObject it will find all the fields with embedding annotations
     and either inject values into them or attach listeners, depending on the annotation. It is
     important to remember that Baobab <em>expects the GUI file to be named exactly like the Java managedFormObject</em>
     from the call, just having <strong>.gui</strong> instead of java/class.</p>
 
 <p>If you give your widget a name then you can include a field of type <code>org.eclipse.swt.widgets.Listener</code>
-    and annotate it with <code>net.milanaleksic.guitransformer.EmbeddedEventListener</code>.
+    and annotate it with <code>net.milanaleksic.baobab.EmbeddedEventListener</code>.
     This annotation specializes the binding to make sure proper named component and event is listened to via
     this field listener. There is even a shorter way, called "method level listeners", where you put the annotation
     not on the field of type Listener but on a method, which removes a lot of clutter.</p>
@@ -578,7 +578,7 @@
 <p>This annotation can be used on fields (should be but don't <em>have to be</em> private) in the form file.</p>
 
 <p>If you wish to reuse a event listener method or field for diferent events, you can use
-    <code>net.milanaleksic.guitransformer.EmbeddedEventListeners</code> to group more than one annotation
+    <code>net.milanaleksic.baobab.EmbeddedEventListeners</code> to group more than one annotation
     on a single listener.</p>
 
 <p>So, if you have a field named "myLabel" in the GUI file:</p>
@@ -650,7 +650,7 @@
     your main SWT dispatch loop will either be prepared for it or face the consequences - immediate
     program shutdown. How to deal with this issue and still avoid using try/catch in <strong>all</strong>
     of your listener methods? By registering
-    <code>net.milanaleksic.guitransformer.converters.MethodEventListenerExceptionHandler</code> in the Transformer
+    <code>net.milanaleksic.baobab.converters.MethodEventListenerExceptionHandler</code> in the Transformer
     configuration.</p>
 
 <p>If you do so, the exception will be caught in Transformer and delegated to this exception handler
@@ -669,7 +669,7 @@
         XML wiring used in the MovieCatalogSystem</a>,
     </li>
     <li>if you use Guice, there is already a <a
-            href="https://github.com/milanaleksic/baobab/blob/master/baobab-core/src/main/java/net/milanaleksic/guitransformer/integration/CoreModule.java">
+            href="https://github.com/milanaleksic/baobab/blob/master/baobab-core/src/main/java/net/milanaleksic/baobab/integration/CoreModule.java">
         basic module</a> defined in the Baobab code.
     </li>
 </ol>
@@ -680,7 +680,7 @@
     <pre class="prettyprint lang-java">  @Inject private Transformer transformer;
 
   public showForm() throws TransformerException {
-    net.milanaleksic.guitransformer.TransformationContext context = transformer.fillManagedForm(this);
+    net.milanaleksic.baobab.TransformationContext context = transformer.fillManagedForm(this);
     org.eclipse.swt.widgets.Shell shell = context.getShell();
     shell.open();
   }</pre>
@@ -709,9 +709,9 @@
 
 <ol>
     <li><p>by asking for them using their name (something similar to the Servlet getAttribute/getParameter approach)
-        using <code>net.milanaleksic.guitransformer.TransformationContext.&lt;*widgetClass*&gt;getMappedObject(*widgetName*)</code>
+        using <code>net.milanaleksic.baobab.TransformationContext.&lt;*widgetClass*&gt;getMappedObject(*widgetName*)</code>
     </p></li>
-    <li><p>or using annotation <code>net.milanaleksic.guitransformer.EmbeddedComponent</code> in your form class
+    <li><p>or using annotation <code>net.milanaleksic.baobab.EmbeddedComponent</code> in your form class
         to have the component injected for you (approach based on dependency injection pattern)</p></li>
 </ol>
 <p>In my opinion, first approach is useful for the cases when you wish to execute a simple and small action,
@@ -751,7 +751,7 @@
     <pre class="prettyprint lang-java">package net.milanaleksic.mcs.application.gui.model;
 
 import com.google.common.collect.Sets;
-import net.milanaleksic.guitransformer.model.*;
+import net.milanaleksic.baobab.model.*;
 import net.milanaleksic.mcs.domain.model.*;
 
 import java.util.Set;
@@ -805,7 +805,7 @@ public class MovieDetailsModel {
 </pre>
 
 <p>So, what model wrapping does is following: it goes through all of the fields which <strong>don't have</strong> the
-    annotation <code>@net.milanaleksic.guitransformer.model.TransformerIgnoredProperty</code>. It finds the
+    annotation <code>@net.milanaleksic.baobab.model.TransformerIgnoredProperty</code>. It finds the
     <strong>named</strong> components for all of these fields and maps the <code>text</code> property of them
     to the value of the property in the model. This means that modifying the value in the model and then asking the
     Baobab toolkit to update form based on model will force the value of the SWT component to be updated to this value.
@@ -825,7 +825,7 @@ public class MovieDetailsModel {
     </li>
     <li>If you have set (back in the form controller object) <code>@TransformerModel</code>'s attribute
         <code>observe</code> to true, Baobab allows you to update more than one field in a single method to maintain
-        UX consistency using <code>@net.milanaleksic.guitransformer.model.TransformerFireUpdate</code>.
+        UX consistency using <code>@net.milanaleksic.baobab.model.TransformerFireUpdate</code>.
         If Baobab finds a method in the model object annotated with this annotation it will create additional Cglib-driven
         listener which will execute the form update after this method has finished executing;
     </li>

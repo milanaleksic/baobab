@@ -4,16 +4,16 @@
 
     <import resource="classpath:net/milanaleksic/baobab/integration/spring-transformer.xml"/>
 
-    <bean id="baobabEmbeddingService" class="net.milanaleksic.guitransformer.converters.EmbeddingService">
+    <bean id="baobabEmbeddingService" class="net.milanaleksic.baobab.converters.EmbeddingService">
         <property name="methodEventListenerExceptionHandler">
             <bean class="net.milanaleksic.mcs.infrastructure.swt.GuiExceptionHandler"/>
         </property>
     </bean>
 
-    <bean id="baobabResourceBundleProvider" class="net.milanaleksic.mcs.infrastructure.guitransformer.providers.MCSResourceBundleProvider"/>
+    <bean id="baobabResourceBundleProvider" class="net.milanaleksic.mcs.infrastructure.baobab.providers.MCSResourceBundleProvider"/>
 
-    <bean id="baobabObjectProvider" class="net.milanaleksic.mcs.infrastructure.guitransformer.providers.MCSObjectProvider"/>
+    <bean id="baobabObjectProvider" class="net.milanaleksic.mcs.infrastructure.baobab.providers.MCSObjectProvider"/>
 
-    <bean id="baobabImageProvider" class="net.milanaleksic.mcs.infrastructure.guitransformer.providers.MCSImageProvider"/>
+    <bean id="baobabImageProvider" class="net.milanaleksic.mcs.infrastructure.baobab.providers.MCSImageProvider"/>
 
 </beans>
