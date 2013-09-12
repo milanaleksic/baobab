@@ -8,7 +8,7 @@ public class GeneratorNodeProcessor implements NodeProcessor {
 
     @Override
     public TransformationWorkingContext visitHierarchyItem(TransformationWorkingContext context, String key, JsonNode value) {
-        System.out.println("Builder notation visited: key=" + key + ", value=" + value.toString());
+        System.out.println("Hierarchy item visited: key=" + key + ", value=" + value.toString());
         return context;
     }
 
