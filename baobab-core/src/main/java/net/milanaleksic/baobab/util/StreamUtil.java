@@ -1,5 +1,7 @@
 package net.milanaleksic.baobab.util;
 
+import net.milanaleksic.baobab.TransformationContext;
+
 import java.io.*;
 
 /**
@@ -35,4 +37,18 @@ public class StreamUtil {
         }
     }
 
+    public static TransformationContext loanFileStream(File file, ReaderLoaner<TransformationContext> loaner) {
+        Reader contentAsReader = null;
+        try {
+            contentAsReader = new FileReader(file);
+            return loaner.loan(contentAsReader);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException("File not found: " + file, e);
+        } finally {
+            try {
+                if (contentAsReader != null) contentAsReader.close();
+            } catch (Exception ignored) {
+            }
+        }
+    }
 }

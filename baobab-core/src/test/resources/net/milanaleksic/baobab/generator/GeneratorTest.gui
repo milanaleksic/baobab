@@ -1,0 +1,19 @@
+{
+    "_type": "shell",
+    "_children": {
+        "text(text1)": {
+            "text": "test value"
+        },
+        "text(numericalValue)": {
+            "text": "175"
+        },
+        "list(aList)": {},
+        "[label]({wrap}|{center}, infoLabel)(infoLabel)": {
+            "foreground": "#ff0000",
+            "layoutData": {
+                "_type": "[gridData](fill,end,true,false)"
+            },
+            "cursor": "(handCursor)"
+        }
+    }
+}

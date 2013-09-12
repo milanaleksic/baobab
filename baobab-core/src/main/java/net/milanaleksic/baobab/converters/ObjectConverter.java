@@ -4,24 +4,15 @@ import com.google.common.collect.ImmutableSet;
 import net.milanaleksic.baobab.TransformerException;
 import net.milanaleksic.baobab.builders.BuilderContext;
 import net.milanaleksic.baobab.providers.ObjectProvider;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.*;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Menu;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.io.*;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.regex.*;
 
-/**
- * User: Milan Aleksic
- * Date: 4/19/12
- * Time: 3:03 PM
- */
 public class ObjectConverter implements Converter {
 
     static final Pattern builderValue = Pattern.compile("\\[([^\\]]+)\\]\\s*\\(([^\\)]*)\\)"); //NON-NLS
@@ -134,9 +125,6 @@ public class ObjectConverter implements Converter {
     }
 
     void transformChildren(TransformationWorkingContext context, JsonNode childrenNodes) {
-        final Object parentWidget = context.getWorkItem();
-        if (!(parentWidget instanceof Composite) && !(parentWidget instanceof Menu))
-            throw new IllegalStateException("Can not create children for parent which is not Composite nor Menu (" + parentWidget.getClass().getName() + " in this case)");
         try {
             if (childrenNodes.isArray())
                 transformChildrenAsArray(context, childrenNodes);

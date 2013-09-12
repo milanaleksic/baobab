@@ -29,6 +29,15 @@ public class Transformer {
         return createFormFromString(definition, null);
     }
 
+    public TransformationContext createFormFromFile(File file, @Nullable final Shell parent) {
+        return StreamUtil.loanFileStream(file, new ReaderLoaner<TransformationContext>() {
+            @Override
+            public TransformationContext loan(Reader reader) {
+                return createContextFromReader(reader, parent, null);
+            }
+        });
+    }
+
     public TransformationContext createFormFromString(String definition, @Nullable final Shell parent) {
         return StreamUtil.loanStringStream(definition, new ReaderLoaner<TransformationContext>() {
             @Override

@@ -1,33 +1,37 @@
 package net.milanaleksic.baobab;
 
-import com.google.common.base.Optional;
+import com.google.common.base.*;
 import com.google.common.collect.ImmutableMap;
 import net.milanaleksic.baobab.model.ModelBindingMetaData;
 import org.eclipse.swt.widgets.*;
 
 import java.util.Map;
 
-/**
- * User: Milan Aleksic
- * Date: 4/21/12
- * Time: 8:07 PM
- */
 public class TransformationContext {
 
     private final ModelBindingMetaData modelBindingMetaData;
 
     private final ImmutableMap<String, Object> mappedObjects;
 
-    private final Shell shell;
+    private final Object rootItem;
 
-    public TransformationContext(Shell shell, Map<String, Object> mappedObjects, ModelBindingMetaData modelBindingMetaData) {
-        this.shell = shell;
+    public TransformationContext(Object rootItem, Map<String, Object> mappedObjects, ModelBindingMetaData modelBindingMetaData) {
+        this.rootItem = rootItem;
         this.modelBindingMetaData = modelBindingMetaData;
         this.mappedObjects = ImmutableMap.copyOf(mappedObjects);
     }
 
     public Shell getShell() {
-        return shell;
+        checkRootItemIsShell();
+        return (Shell) rootItem;
+    }
+
+    private void checkRootItemIsShell() {
+        Preconditions.checkArgument(rootItem instanceof Shell, "TransformationContext does not contain Shell as hierarchy root");
+    }
+
+    public Object getRootItem() {
+        return rootItem;
     }
 
     @SuppressWarnings("unchecked")
@@ -52,11 +56,12 @@ public class TransformationContext {
         return "TransformationContext{" +
                 "modelBindingMetaData=" + modelBindingMetaData +
                 ", mappedObjects=" + mappedObjects +
-                ", shell=" + shell +
-                '}';
+                ", rootItem=" + rootItem +
+                "} " + super.toString();
     }
 
     public void showAndAwaitClosed() {
+        final Shell shell = getShell();
         shell.open();
         Display display = Display.getDefault();
         while (!shell.isDisposed()) {

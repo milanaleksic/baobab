@@ -4,15 +4,11 @@ import com.google.common.base.*;
 import com.google.common.collect.*;
 import net.milanaleksic.baobab.TransformationContext;
 import net.milanaleksic.baobab.model.ModelBindingMetaData;
-import org.eclipse.swt.widgets.Shell;
 
 import javax.annotation.Nullable;
 import java.util.Map;
 
 /**
- * User: Milan Aleksic
- * Date: 6/25/12
- * Time: 1:31 PM
  * <p>
  * Adding is always delegated to hierarchy root context. Fetching all mapped objects
  * involves aggregating all tree elements up to current context (to cover independent
@@ -53,8 +49,7 @@ public class TransformationWorkingContext {
     }
 
     public TransformationContext createTransformationContext() {
-        Preconditions.checkArgument(workItem instanceof Shell, "You can't create TransformationContext for a non-Shell hierarchy root, class=" + workItem.getClass().getName());
-        return new TransformationContext((Shell) workItem, getMutableRootMappedObjects(), modelBindingMetaData);
+        return new TransformationContext(workItem, getMutableRootMappedObjects(), modelBindingMetaData);
     }
 
     public ModelBindingMetaData getModelBindingMetaData() {
