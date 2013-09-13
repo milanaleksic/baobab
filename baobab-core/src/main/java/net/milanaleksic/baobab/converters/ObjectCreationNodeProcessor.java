@@ -8,6 +8,7 @@ import net.milanaleksic.baobab.builders.Builder;
 import net.milanaleksic.baobab.builders.BuilderContext;
 import net.milanaleksic.baobab.providers.BuilderProvider;
 import net.milanaleksic.baobab.providers.ConverterProvider;
+import net.milanaleksic.baobab.util.WidgetCreator;
 import org.codehaus.jackson.JsonNode;
 
 import javax.inject.Inject;
@@ -17,11 +18,6 @@ import java.util.List;
 
 import static net.milanaleksic.baobab.util.ObjectUtil.*;
 
-/**
- * User: Milan Aleksic
- * Date: 2/5/13
- * Time: 2:20 PM
- */
 public class ObjectCreationNodeProcessor implements NodeProcessor {
 
     @Inject
@@ -29,21 +25,6 @@ public class ObjectCreationNodeProcessor implements NodeProcessor {
 
     @Inject
     private BuilderProvider builderProvider;
-
-    @Inject
-    private OldSchoolObjectCreator oldSchoolObjectCreator;
-
-    @Inject
-    private ShortHandObjectCreator shortHandObjectCreator;
-
-    @Override
-    public TransformationWorkingContext visitHierarchyItem(TransformationWorkingContext context, String key, JsonNode value) {
-        if (shortHandObjectCreator.isEligibleForItem(key, value))
-            return shortHandObjectCreator.create(context, key, value);
-        else if (oldSchoolObjectCreator.isEligibleForItem(key, value))
-            return oldSchoolObjectCreator.create(context, key, value);
-        throw new TransformerException("No creator eligible for key=" + key + ", value=" + value);
-    }
 
     @Override
     public BuilderContext<?> visitBuilderNotationItem(TransformationWorkingContext context, String builderName, String parameters) {
@@ -58,9 +39,6 @@ public class ObjectCreationNodeProcessor implements NodeProcessor {
     @SuppressWarnings("unchecked")
     public void visitSingleField(TransformationWorkingContext context, String propertyName, JsonNode propertyNode) {
         try {
-            if (ObjectConverter.SPECIAL_KEYS.contains(propertyName))
-                return;
-
             Optional<Method> method = getSetterByName(context.getWorkItem(), getSetterForField(propertyName));
             if (method.isPresent()) {
                 Class<?> argType = method.get().getParameterTypes()[0];
@@ -81,6 +59,17 @@ public class ObjectCreationNodeProcessor implements NodeProcessor {
             throw e;
         } catch (Throwable t) {
             throw new TransformerException("Transformation was not successful", t);
+        }
+    }
+
+    @Override
+    public <T> T visitObjectItem(Class<T> widgetClass, Object parent, int style) {
+        try {
+            return WidgetCreator.get(widgetClass).newInstance(parent, style);
+        } catch (Exception e) {
+            throw new TransformerException("Unexpected exception encountered while processing widget creation, widgetClass=" + widgetClass.getName() + ", parent=" + parent + ", style=" + style, e);
+        } catch (VerifyError error) {
+            throw new TransformerException("Code generation verify error encountered while processing widget creation, widgetClass=" + widgetClass.getName() + ", parent=" + parent + ", style=" + style, error);
         }
     }
 

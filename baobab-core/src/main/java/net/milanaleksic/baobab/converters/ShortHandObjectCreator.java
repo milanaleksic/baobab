@@ -70,7 +70,7 @@ class ShortHandObjectCreator extends ObjectCreator {
         }
 
         style = fixStyleIfNoModalDialogs(context, style);
-        final Object instanceOfSWTWidget = createInstanceOfSWTWidget(widgetClass, context.getWorkItem(), style);
+        final Object instanceOfSWTWidget = nodeProcessor.visitObjectItem(widgetClass, context.getWorkItem(), style);
         final TransformationWorkingContext ofTheJedi = new TransformationWorkingContext(context);
         ofTheJedi.setWorkItem(instanceOfSWTWidget);
         context.mapObject(name, instanceOfSWTWidget);

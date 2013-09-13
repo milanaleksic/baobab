@@ -2,9 +2,7 @@ package net.milanaleksic.baobab.converters;
 
 import com.google.common.base.Preconditions;
 import net.milanaleksic.baobab.TransformerException;
-import net.milanaleksic.baobab.providers.ConverterProvider;
-import net.milanaleksic.baobab.providers.ShortcutsProvider;
-import net.milanaleksic.baobab.util.WidgetCreator;
+import net.milanaleksic.baobab.providers.*;
 import org.codehaus.jackson.JsonNode;
 import org.eclipse.swt.SWT;
 
@@ -28,16 +26,6 @@ public abstract class ObjectCreator {
 
     @Inject
     protected ConverterProvider converterProvider;
-
-    protected <T> T createInstanceOfSWTWidget(Class<T> widgetClass, Object parent, int style) {
-        try {
-            return WidgetCreator.get(widgetClass).newInstance(parent, style);
-        } catch (Exception e) {
-            throw new TransformerException("Unexpected exception encountered while processing widget creation, widgetClass=" + widgetClass.getName() + ", parent=" + parent + ", style=" + style, e);
-        } catch (VerifyError error) {
-            throw new TransformerException("Code generation verify error encountered while processing widget creation, widgetClass=" + widgetClass.getName() + ", parent=" + parent + ", style=" + style, error);
-        }
-    }
 
     protected Class<?> deduceClassFromNode(JsonNode valueNode) {
         Preconditions.checkArgument(valueNode.has(ObjectConverter.KEY_SPECIAL_TYPE), "Item definition does not define type");

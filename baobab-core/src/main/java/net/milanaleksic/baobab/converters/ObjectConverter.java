@@ -45,6 +45,12 @@ public class ObjectConverter implements Converter {
     @Inject
     private NodeProcessor nodeProcessor;
 
+    @Inject
+    private OldSchoolObjectCreator oldSchoolObjectCreator;
+
+    @Inject
+    private ShortHandObjectCreator shortHandObjectCreator;
+
     public ObjectConverter() {
         this.mapper = new ObjectMapper();
         this.mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
@@ -64,7 +70,13 @@ public class ObjectConverter implements Converter {
 
     private TransformationWorkingContext create(TransformationWorkingContext context, @Nullable String key, JsonNode value) {
         try {
-            TransformationWorkingContext ofTheJedi = nodeProcessor.visitHierarchyItem(context, key, value);
+            final TransformationWorkingContext ofTheJedi;
+            if (shortHandObjectCreator.isEligibleForItem(key, value))
+                ofTheJedi = shortHandObjectCreator.create(context, key, value);
+            else if (oldSchoolObjectCreator.isEligibleForItem(key, value))
+                ofTheJedi = oldSchoolObjectCreator.create(context, key, value);
+            else
+                throw new TransformerException("No creator eligible for key=" + key + ", value=" + value);
             transformNodeToProperties(ofTheJedi, value);
             return ofTheJedi;
         } catch (TransformerException e) {
@@ -119,8 +131,10 @@ public class ObjectConverter implements Converter {
             Map.Entry<String, JsonNode> field = fields.next();
             if (field.getKey().equals(ObjectConverter.KEY_SPECIAL_CHILDREN))
                 transformChildren(context, field.getValue());
-            else
-                nodeProcessor.visitSingleField(context, field.getKey(), field.getValue());
+            else {
+                if (!ObjectConverter.SPECIAL_KEYS.contains(field.getKey()))
+                    nodeProcessor.visitSingleField(context, field.getKey(), field.getValue());
+            }
         }
     }
 
