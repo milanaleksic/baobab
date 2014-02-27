@@ -3,7 +3,7 @@ package net.milanaleksic.baobab;
 import net.milanaleksic.baobab.converters.*;
 import net.milanaleksic.baobab.providers.ResourceBundleProvider;
 import net.milanaleksic.baobab.util.*;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Composite;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -29,7 +29,7 @@ public class Transformer {
         return createFormFromString(definition, null);
     }
 
-    public TransformationContext createFormFromString(String definition, @Nullable final Shell parent) {
+    public TransformationContext createFormFromString(String definition, @Nullable final Composite parent) {
         return StreamUtil.loanStringStream(definition, new ReaderLoaner<TransformationContext>() {
             @Override
             public TransformationContext loan(Reader reader) {
@@ -42,11 +42,11 @@ public class Transformer {
         return createFormFromResource(getFullNameOfResource(formObject), null, formObject);
     }
 
-    public TransformationContext fillManagedForm(Object formObject, @Nullable Shell parent) {
+    public TransformationContext fillManagedForm(Object formObject, @Nullable Composite parent) {
         return createFormFromResource(getFullNameOfResource(formObject), parent, formObject);
     }
 
-    public TransformationContext createFormFromResource(final String formResourceLocation, @Nullable final Shell parent,
+    public TransformationContext createFormFromResource(final String formResourceLocation, @Nullable final Composite parent,
                                                         @Nullable final Object formObject) {
         return StreamUtil.loanResourceReader(formResourceLocation, new ReaderLoaner<TransformationContext>() {
             @Override
@@ -56,7 +56,7 @@ public class Transformer {
         });
     }
 
-    private TransformationContext createContextFromReader(Reader definitionStream, Shell parent, Object formObject) {
+    private TransformationContext createContextFromReader(Reader definitionStream, Composite parent, Object formObject) {
         TransformationWorkingContext context = new TransformationWorkingContext();
         mapResourceBundleIfExists(context);
         context.setDoNotCreateModalDialogs(doNotCreateModalDialogs);
