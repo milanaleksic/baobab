@@ -83,7 +83,6 @@ public class MainForm implements Observer {
     public void update(Observable o, Object filename) {
         if (!filename.equals(model.getCurrentFile().toPath()))
             return;
-        System.out.println("File to be reloaded: " + filename);
         shell.getDisplay().asyncExec(new Runnable() {
             @Override
             public void run() {
