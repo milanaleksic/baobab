@@ -681,7 +681,7 @@
 
   public showForm() throws TransformerException {
     net.milanaleksic.baobab.TransformationContext context = transformer.fillManagedForm(this);
-    org.eclipse.swt.widgets.Shell shell = context.getShell();
+    org.eclipse.swt.widgets.Shell shell = context.getRoot();
     shell.open();
   }</pre>
 <p>Now, what the call to <code></code> will do is the following:</p>
