@@ -68,7 +68,14 @@ public class ObjectConverter implements Converter {
     public TransformationWorkingContext createHierarchy(Object formObject, TransformationWorkingContext context, Reader content) {
         try {
             final JsonNode shellDefinition = mapper.readValue(content, JsonNode.class);
-            final TransformationWorkingContext transformationWorkingContext = create(context, null, shellDefinition);
+            final TransformationWorkingContext transformationWorkingContext;
+            if (shellDefinition.size() == 1 && !shellDefinition.has(KEY_SPECIAL_TYPE)) {
+                // we are using short children notation with a single root object
+                Map.Entry<String, JsonNode> rootField = shellDefinition.getFields().next();
+                transformationWorkingContext = create(context, rootField.getKey(), rootField.getValue());
+            } else
+                // we are using oldSchool children notation
+                transformationWorkingContext = create(context, null, shellDefinition);
             if (formObject != null)
                 embeddingService.embed(formObject, transformationWorkingContext);
             return transformationWorkingContext;

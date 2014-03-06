@@ -107,6 +107,11 @@ public class TransformerTest {
         test_form_creation(transformer.createFormFromResource("/net/milanaleksic/baobab/TransformerTest_ShortChildrenNotation.gui", null, null));
     }
 
+    @Test
+    public void form_creation_short_notation_fully() {
+        test_form_creation(transformer.createFormFromResource("/net/milanaleksic/baobab/TransformerTest_fullyShortChildrenNotation.gui", null, null));
+    }
+
     private void test_form_creation(TransformationContext context) {
         Shell form = context.getRoot();
         assertThat(form, not(nullValue()));
