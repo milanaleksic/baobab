@@ -18,3 +18,4 @@ target/
 *.releaseBackup
 release.properties
 *.versionsBackup
+atlassian-ide-plugin.xml
