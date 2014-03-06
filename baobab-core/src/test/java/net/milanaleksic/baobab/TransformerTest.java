@@ -150,4 +150,13 @@ public class TransformerTest {
         assertThat(((Label) children[4]).getForeground(), equalTo(Display.getDefault().getSystemColor(SWT.COLOR_RED)));
     }
 
+    @Test
+    public void data_fields() {
+        TransformationContext dataFields = transformer.createFormFromResource("/net/milanaleksic/baobab/TransformerTest_dataFields.gui", null, null);
+        Optional<Button> aButton = dataFields.getMappedObject("aButton");
+        assertThat(aButton.isPresent(), equalTo(true));
+        assertThat((String) aButton.get().getData("stringField"), equalTo("aString"));
+        assertThat((long) aButton.get().getData("numberField"), equalTo(123L));
+        assertThat((Shell) aButton.get().getData("referenceField"), equalTo(dataFields.<Shell>getRoot()));
+    }
 }

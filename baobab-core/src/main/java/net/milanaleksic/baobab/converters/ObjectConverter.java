@@ -9,11 +9,15 @@ import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.Widget;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,6 +38,7 @@ public class ObjectConverter implements Converter {
     static final String KEY_SPECIAL_CHILDREN = "_children"; //NON-NLS
     static final String KEY_SPECIAL_NAME = "_name"; //NON-NLS
     static final String KEY_SPECIAL_STYLE = "_style"; //NON-NLS
+    static final String KEY_SPECIAL_DATA = "_data"; //NON-NLS
     static final String KEY_SPECIAL_COMMENT = "__comment"; //NON-NLS
 
     static final Set<String> SPECIAL_KEYS = ImmutableSet
@@ -43,6 +48,7 @@ public class ObjectConverter implements Converter {
             .add(KEY_SPECIAL_NAME)
             .add(KEY_SPECIAL_STYLE)
             .add(KEY_SPECIAL_COMMENT)
+            .add(KEY_SPECIAL_DATA)
             .build();
 
     @Inject
@@ -111,8 +117,7 @@ public class ObjectConverter implements Converter {
                 context.mapObject(builderContext.getName(), builderContext.getBuiltElement());
             return builderContext.getBuiltElement();
         }
-
-        throw new TransformerException("Invalid syntax for object definition - " + originalValue);
+        return node.asText();
     }
 
     private Object provideObjectFromDIContainer(TransformationWorkingContext mappedObjects, String magicName) {
@@ -126,10 +131,41 @@ public class ObjectConverter implements Converter {
         Iterator<Map.Entry<String, JsonNode>> fields = jsonNode.getFields();
         while (fields.hasNext()) {
             Map.Entry<String, JsonNode> field = fields.next();
-            if (field.getKey().equals(ObjectConverter.KEY_SPECIAL_CHILDREN))
-                transformChildren(context, field.getValue());
+            String key = field.getKey();
+            JsonNode value = field.getValue();
+            switch (key) {
+                case ObjectConverter.KEY_SPECIAL_CHILDREN:
+                    transformChildren(context, value);
+                    break;
+                case ObjectConverter.KEY_SPECIAL_DATA:
+                    transformDataFields(context, value);
+                    break;
+                default:
+                    nodeProcessor.visitSingleField(context, key, value);
+            }
+        }
+    }
+
+    private void transformDataFields(TransformationWorkingContext context, JsonNode dataFieldsMapping) {
+        final Object workItem = context.getWorkItem();
+        if (!(workItem instanceof Widget))
+            throw new IllegalStateException("Can not set data fields for object which is not Widget (" + workItem.getClass().getName() + " in this case)");
+        final Widget widget = (Widget) workItem;
+        Iterator<Map.Entry<String, JsonNode>> fields = dataFieldsMapping.getFields();
+        while (fields.hasNext()) {
+            Map.Entry<String, JsonNode> field = fields.next();
+            String key = field.getKey();
+            JsonNode value = field.getValue();
+            if (value.isTextual())
+                widget.setData(key, getValueFromJson(context, value));
+            else if (value.isBoolean())
+                widget.setData(key, value.asBoolean());
+            else if (value.isFloatingPointNumber())
+                widget.setData(key, value.asDouble());
+            else if (value.isIntegralNumber())
+                widget.setData(key, value.asLong());
             else
-                nodeProcessor.visitSingleField(context, field.getKey(), field.getValue());
+                throw new IllegalStateException("Node conversion not supported: " + value);
         }
     }
 

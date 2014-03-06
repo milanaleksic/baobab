@@ -1,0 +1,13 @@
+{
+    "_type" : "shell",
+    "_name" : "myShell",
+    "_children" : {
+        "button(aButton)" : {
+            "_data": {
+                "stringField" : "aString",
+                "numberField" : 123,
+                "referenceField" : "(myShell)"
+            }
+        }
+    }
+}
