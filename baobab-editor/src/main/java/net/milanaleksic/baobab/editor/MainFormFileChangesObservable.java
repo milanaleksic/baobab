@@ -7,6 +7,7 @@ import net.milanaleksic.baobab.editor.messages.ApplicationError;
 import javax.inject.Inject;
 import java.io.*;
 import java.nio.file.*;
+import java.util.List;
 import java.util.Observable;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -19,8 +20,6 @@ import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
  */
 public class MainFormFileChangesObservable extends Observable {
 
-    public static final int DELAY_BETWEEN_EVENTS = 100;
-
     private final AtomicReference<WatchKey> currentFileExternalChangesWatchKey = new AtomicReference<>(null);
     private final EventBus eventBus;
 
@@ -28,33 +27,38 @@ public class MainFormFileChangesObservable extends Observable {
 
     private class ExternalWatcherThread extends Thread {
 
+        private long lastUpdated = Long.MIN_VALUE;
+
         @SuppressWarnings("unchecked")
         @Override
         public void run() {
             try {
-                long lastUpdated = 0;
                 while (true) {
                     WatchKey localizedWatchKey = currentFileExternalChangesWatchKey.get();
                     if (localizedWatchKey == null) {
                         Thread.sleep(500);
                         continue;
                     }
-                    for (WatchEvent<?> event : localizedWatchKey.pollEvents()) {
-                        if (event.kind() == OVERFLOW)
-                            continue;
+                    List<WatchEvent<?>> watchEvents = localizedWatchKey.pollEvents();
+                    if (watchEvents.isEmpty())
+                        Thread.sleep(100);
+                    else {
+                        for (WatchEvent<?> event : watchEvents) {
+                            if (event.kind() == OVERFLOW)
+                                continue;
 
-                        WatchEvent<Path> ev = (WatchEvent<Path>) event;
-                        Path fullFilename = ((Path) localizedWatchKey.watchable()).resolve(ev.context());
-
-                        if (System.currentTimeMillis() - lastUpdated > DELAY_BETWEEN_EVENTS) {
-                            lastUpdated = System.currentTimeMillis();
-                            informListeners(fullFilename);
+                            WatchEvent<Path> ev = (WatchEvent<Path>) event;
+                            Path fullFilename = ((Path) localizedWatchKey.watchable()).resolve(ev.context());
+                            long fileUpdatedTimestamp = fullFilename.toFile().lastModified();
+                            if (fileUpdatedTimestamp != lastUpdated) {
+                                // avoiding double event trigger handling
+                                lastUpdated = fileUpdatedTimestamp;
+                                informListeners(fullFilename);
+                            }
                         }
                     }
-                    boolean valid = localizedWatchKey.reset();
-                    if (!valid) {
-                        currentFileExternalChangesWatchKey.set(null);
-                    }
+                    if (!localizedWatchKey.reset())
+                        localizedWatchKey.cancel();
                 }
             } catch (InterruptedException ignored) {
             }

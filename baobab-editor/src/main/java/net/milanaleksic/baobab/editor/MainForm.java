@@ -11,6 +11,8 @@ import net.milanaleksic.baobab.providers.ResourceBundleProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.dnd.*;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 
 import javax.annotation.Nullable;
@@ -48,7 +50,7 @@ public class MainForm implements Observer {
     private MainFormModel model;
 
     /* editor's own context */
-    private Shell shell;
+    private Shell editorShell;
     private ResourceBundle resourceBundle;
     private MainFormFileChangesObservable fileChangesObservable;
 
@@ -83,8 +85,7 @@ public class MainForm implements Observer {
     public void update(Observable o, Object filename) {
         if (!filename.equals(model.getCurrentFile().toPath()))
             return;
-        System.out.println("File to be reloaded: " + filename);
-        shell.getDisplay().asyncExec(new Runnable() {
+        editorShell.getDisplay().asyncExec(new Runnable() {
             @Override
             public void run() {
                 openFile(model.getCurrentFile());
@@ -109,17 +110,11 @@ public class MainForm implements Observer {
             if (Strings.isNullOrEmpty(text))
                 return;
             try {
-                TransformationContext nonManagedForm = editorTransformer.createFormFromString(editor.getText(), shell);
-                Shell newShell = nonManagedForm.getShell();
-                newShell.setLocation(20, 20);
-
-                removePreviousShell();
-
-                setSizeOverride(newShell);
-                model.setCurrentShell(newShell);
-                newShell.open();
-
-                model.setActiveWidgets(nonManagedForm.getMappedObjects());
+                Shell prototypeShell = createNewPrototypeShell();
+                prototypeShell.setLocation(20, 20);
+                setSizeOverride(prototypeShell);
+                model.setPrototypeShell(prototypeShell);
+                prototypeShell.open();
             } catch (TransformerException e) {
                 model.clearActiveWidgets();
                 model.showInformation(String.format(resourceBundle.getString("mainForm.transformationError"), e.getMessage()), e);
@@ -131,13 +126,32 @@ public class MainForm implements Observer {
             }
         }
 
-        private void removePreviousShell() {
-            if (model.getCurrentShell() == null)
-                return;
-            Shell shell = model.getCurrentShell();
-            if (!shell.isDisposed())
-                shell.dispose();
-            model.setCurrentShell(null);
+        private Shell createNewPrototypeShell() {
+            Shell prototypeShell = model.getPrototypeShell();
+            if (prototypeShell != null) {
+                if (!prototypeShell.isDisposed())
+                    prototypeShell.dispose();
+            }
+            // we might decide to promote ghost shell to prototype (visible) shell
+            // if the root of hierarchy is not a Shell
+            Shell ghostShell = createGhostShell();
+            TransformationContext nonManagedForm = editorTransformer.createFormFromString(editor.getText(), ghostShell);
+            model.setActiveWidgets(nonManagedForm.getMappedObjects());
+            Composite prototypeRoot = nonManagedForm.getRoot();
+
+            if (prototypeRoot instanceof Shell)
+                return (Shell) prototypeRoot;
+            else {
+                prototypeRoot.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+                return ghostShell;
+            }
+        }
+
+        private Shell createGhostShell() {
+            Shell ghostShell = new Shell(editorShell, SWT.SHELL_TRIM);
+            ghostShell.setLayout(new GridLayout(1, true));
+            ghostShell.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+            return ghostShell;
         }
 
         private void setSizeOverride(Shell shell) {
@@ -188,7 +202,7 @@ public class MainForm implements Observer {
 
     @EmbeddedEventListener(component = "btnOpen", event = SWT.Selection)
     private void btnOpenSelectionListener() {
-        FileDialog dlg = new FileDialog(shell, SWT.OPEN);
+        FileDialog dlg = new FileDialog(editorShell, SWT.OPEN);
         dlg.setFilterNames(new String[]{resourceBundle.getString("mainForm.openFilters")});
         dlg.setFilterExtensions(new String[]{"*.gui"}); //NON-NLS
         final String selectedFile = dlg.open();
@@ -219,7 +233,7 @@ public class MainForm implements Observer {
 
     @EmbeddedEventListener(component = "btnExit", event = SWT.Selection)
     private void btnExitSelectionListener() {
-        shell.close();
+        editorShell.close();
     }
 
     @EmbeddedEventListener(component = "shell", event = SWT.Close)
@@ -228,7 +242,7 @@ public class MainForm implements Observer {
             if (!model.isModified())
                 return;
             int style = SWT.APPLICATION_MODAL | SWT.YES | SWT.NO | SWT.CANCEL | SWT.ICON_QUESTION;
-            MessageBox messageBox = new MessageBox(shell, style);
+            MessageBox messageBox = new MessageBox(editorShell, style);
             messageBox.setText(resourceBundle.getString("mainForm.information"));
             messageBox.setMessage(resourceBundle.getString("mainForm.saveBeforeClosing"));
             switch (messageBox.open()) {
@@ -279,7 +293,7 @@ public class MainForm implements Observer {
     }
 
     private void saveDocumentAs() {
-        FileDialog dlg = new FileDialog(shell, SWT.SAVE);
+        FileDialog dlg = new FileDialog(editorShell, SWT.SAVE);
         dlg.setFilterNames(new String[]{resourceBundle.getString("mainForm.openFilters")});
         dlg.setFilterExtensions(new String[]{"*.gui"}); //NON-NLS
         final String selectedFile = dlg.open();
@@ -291,7 +305,7 @@ public class MainForm implements Observer {
 
     private void setCurrentFile(@Nullable File file) {
         model.setCurrentFile(file);
-        shell.setText(String.format("%s - [%s]",  //NON-NLS
+        editorShell.setText(String.format("%s - [%s]",  //NON-NLS
                 resourceBundle.getString("mainForm.title"),
                 file == null
                         ? resourceBundle.getString("mainForm.newFile")
@@ -303,7 +317,7 @@ public class MainForm implements Observer {
     public void entryPoint() {
         resourceBundle = resourceBundleProvider.getResourceBundle();
         final TransformationContext transformationContext = transformer.fillManagedForm(this);
-        this.shell = transformationContext.getShell();
+        this.editorShell = transformationContext.getRoot();
         postTransformation(transformationContext);
         transformationContext.showAndAwaitClosed();
     }

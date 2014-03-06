@@ -18,16 +18,17 @@ public class TransformationContext {
 
     private final ImmutableMap<String, Object> mappedObjects;
 
-    private final Shell shell;
+    private final Composite root;
 
-    public TransformationContext(Shell shell, Map<String, Object> mappedObjects, ModelBindingMetaData modelBindingMetaData) {
-        this.shell = shell;
+    public TransformationContext(Composite root, Map<String, Object> mappedObjects, ModelBindingMetaData modelBindingMetaData) {
+        this.root = root;
         this.modelBindingMetaData = modelBindingMetaData;
         this.mappedObjects = ImmutableMap.copyOf(mappedObjects);
     }
 
-    public Shell getShell() {
-        return shell;
+    @SuppressWarnings("unchecked")
+    public <T extends Composite> T getRoot() {
+        return (T) root;
     }
 
     @SuppressWarnings("unchecked")
@@ -52,14 +53,16 @@ public class TransformationContext {
         return "TransformationContext{" +
                 "modelBindingMetaData=" + modelBindingMetaData +
                 ", mappedObjects=" + mappedObjects +
-                ", shell=" + shell +
+                ", root=" + root +
                 '}';
     }
 
     public void showAndAwaitClosed() {
-        shell.open();
+        if (!(root instanceof Shell))
+            throw new IllegalStateException("Root must be of type Shell for you to execute this call");
+        ((Shell) root).open();
         Display display = Display.getDefault();
-        while (!shell.isDisposed()) {
+        while (!root.isDisposed()) {
             if (!display.readAndDispatch())
                 display.sleep();
         }

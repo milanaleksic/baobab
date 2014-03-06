@@ -1,10 +1,12 @@
 package net.milanaleksic.baobab.converters;
 
-import com.google.common.base.*;
-import com.google.common.collect.*;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import net.milanaleksic.baobab.TransformationContext;
 import net.milanaleksic.baobab.model.ModelBindingMetaData;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Composite;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -53,8 +55,8 @@ public class TransformationWorkingContext {
     }
 
     public TransformationContext createTransformationContext() {
-        Preconditions.checkArgument(workItem instanceof Shell, "You can't create TransformationContext for a non-Shell hierarchy root, class=" + workItem.getClass().getName());
-        return new TransformationContext((Shell) workItem, getMutableRootMappedObjects(), modelBindingMetaData);
+        Preconditions.checkArgument(workItem instanceof Composite, "You can't create TransformationContext if root of your hierarchy is a non-Composite class, in this case: " + workItem.getClass().getName());
+        return new TransformationContext((Composite) workItem, getMutableRootMappedObjects(), modelBindingMetaData);
     }
 
     public ModelBindingMetaData getModelBindingMetaData() {

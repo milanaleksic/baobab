@@ -34,7 +34,7 @@ public class MainFormModel {
 
     /* editing context */
     @TransformerIgnoredProperty
-    private Shell currentShell = null;
+    private Shell prototypeShell = null;
 
     @TransformerIgnoredProperty
     private File currentFile = null;
@@ -94,12 +94,12 @@ public class MainFormModel {
         activeWidgets = newWidgets.toArray(new String[newWidgets.size()]);
     }
 
-    public Shell getCurrentShell() {
-        return currentShell;
+    public Shell getPrototypeShell() {
+        return prototypeShell;
     }
 
-    public void setCurrentShell(Shell currentShell) {
-        this.currentShell = currentShell;
+    public void setPrototypeShell(Shell prototypeShell) {
+        this.prototypeShell = prototypeShell;
     }
 
     public File getCurrentFile() {

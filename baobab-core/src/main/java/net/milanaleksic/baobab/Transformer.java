@@ -2,12 +2,13 @@ package net.milanaleksic.baobab;
 
 import net.milanaleksic.baobab.converters.*;
 import net.milanaleksic.baobab.providers.ResourceBundleProvider;
-import net.milanaleksic.baobab.util.*;
+import net.milanaleksic.baobab.util.ReaderLoaner;
+import net.milanaleksic.baobab.util.StreamUtil;
 import org.eclipse.swt.widgets.Composite;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
-import java.io.*;
+import java.io.Reader;
 import java.util.ResourceBundle;
 
 /**

@@ -1,0 +1,13 @@
+{
+    "_type" : "sashForm",
+    "_style" : "{horizontal}",
+    "_children" : {
+        "sashForm(leftSide,{vertical})" : {
+            "_children" : {
+                "text(inputSchema,{multi}|{wrap}|{v_scroll}|{border})":{},
+                "text(input,{multi}|{wrap}|{v_scroll}|{border})":{}
+            }
+        },
+        "text(output,{multi}|{wrap}|{v_scroll}|{border}|{read_only})":{}
+    }
+}

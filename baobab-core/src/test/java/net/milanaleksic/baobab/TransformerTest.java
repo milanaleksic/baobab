@@ -108,7 +108,7 @@ public class TransformerTest {
     }
 
     private void test_form_creation(TransformationContext context) {
-        Shell form = context.getShell();
+        Shell form = context.getRoot();
         assertThat(form, not(nullValue()));
         assertThat(form.getText(), equalTo("Delete movie"));
         assertThat(form.getSize(), equalTo(new Point(431, 154)));
