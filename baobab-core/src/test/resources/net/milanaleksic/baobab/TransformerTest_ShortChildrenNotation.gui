@@ -1,44 +1,46 @@
 {
-    "_type" : "shell",
-    "layout" : {
-        "_type" : "gridLayout",
-        "numColumns" : 2
-    },
-    "text" : "[delete.deleteAMovie]",
-    "size" : "431,154",
-    "_children" : {
-        "canvas(canvas)" : {
-            "layoutData" : {
-                "_type" : "gridData",
-                "verticalSpan" : 2,
-                "heightHint" : 64,
-                "widthHint" : 64
-            },
-            "background":"color_widget_background"
+    "shell(_shell)": {
+        "layout": {
+            "gridLayout(_1)": {
+                "numColumns": 2
+            }
         },
-        "label(label1)" : {
-            "layoutData" : {
-                "_type" : "[gridData](center,begin,true,false)",
-                "grabExcessHorizontalSpace" : true
+        "text": "[delete.deleteAMovie]",
+        "size": "431,154",
+        "_children": {
+            "canvas(canvas)": {
+                "layoutData": {
+                    "gridData(_)": {
+                        "verticalSpan": 2,
+                        "heightHint": 64,
+                        "widthHint": 64
+                    }
+                },
+                "background": "color_widget_background"
             },
-            "font" : {
-                "style" : "bold",
-                "height" : 12
+            "label(label1)": {
+                "layoutData": {
+                    "[gridData](center,begin,true,false)(_)": {
+                        "grabExcessHorizontalSpace": true
+                    }
+                },
+                "font": {
+                    "style": "bold",
+                    "height": 12
+                },
+                "text": "[delete.doYouReallyWishToDeleteMovie]",
+                "foreground": "#ff0000"
             },
-            "text" : "[delete.doYouReallyWishToDeleteMovie]",
-            "foreground" : "#ff0000"
-        },
-        "label(labFilmName, {wrap}|{shadow_out}|{horizontal}|{center})" : {
-            "layoutData" : "[gridData](center,begin,true,false)"
-        },
-        "label(label2)" : {},
-        "org.eclipse.swt.graphics.Cursor(handCursor, {cursor_hand})" : {},
-        "[label]({wrap}|{center}, infoLabel)(infoLabel)" : {
-            "foreground" : "#ff0000",
-            "layoutData" : {
-                "_type" : "[gridData](fill,end,true,false)"
+            "label(labFilmName, {wrap}|{shadow_out}|{horizontal}|{center})": {
+                "layoutData": "[gridData](center,begin,true,false)"
             },
-            "cursor" : "(handCursor)"
+            "label(label2)": {},
+            "org.eclipse.swt.graphics.Cursor(handCursor, {cursor_hand})": {},
+            "[label]({wrap}|{center}, infoLabel)(infoLabel)": {
+                "foreground": "#ff0000",
+                "layoutData": "[gridData](fill,end,true,false)",
+                "cursor": "(handCursor)"
+            }
         }
     }
 }

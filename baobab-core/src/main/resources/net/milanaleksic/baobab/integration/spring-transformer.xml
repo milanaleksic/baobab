@@ -18,8 +18,6 @@
 
     <bean class="net.milanaleksic.baobab.integration.loader.impl.SpringLoader" />
 
-    <bean class="net.milanaleksic.baobab.converters.OldSchoolObjectCreator" />
-
     <bean class="net.milanaleksic.baobab.converters.ShortHandObjectCreator" />
 
     <bean class="net.milanaleksic.baobab.converters.ObjectConverter" />

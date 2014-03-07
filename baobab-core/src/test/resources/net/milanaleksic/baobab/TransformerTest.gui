@@ -1,8 +1,9 @@
 {
-    "_type" : "shell",
-    "_children" : {
-        "button(buttonFieldBinding)" : {},
-        "button(buttonMethodBindingWithParam)" : {},
-        "button(buttonMethodBindingWithoutParam)" : {}
+    "shell(_shell)": {
+        "_children": {
+            "button(buttonFieldBinding)": {},
+            "button(buttonMethodBindingWithParam)": {},
+            "button(buttonMethodBindingWithoutParam)": {}
+        }
     }
 }

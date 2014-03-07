@@ -1,33 +1,34 @@
 {
-    "_type" : "shell",
-    "_style" : "{dialog_trim}",
-    "_name" : "myFormShell",
-    "text" : "[title]",
-    "size" : "300,120",
-    "layout" : {
-        "_type" : "gridLayout",
-        "numColumns" : 2
-    },
-    "_children" : {
-        "label(_1)" : {
-            "text" : "[username]",
-            "layoutData" : "[gridData](end,center,true,false)"
+    "shell(myFormShell, {dialog_trim})": {
+        "text": "[title]",
+        "size": "300,120",
+        "layout": {
+            "gridLayout(_)": {
+                "numColumns": 2
+            }
         },
-        "text(usernameBox, {border})" : {
-            "layoutData" : "[gridData](fill,center,true,false)"
-        },
-        "label(_2)" : {
-            "text" : "[password]",
-            "layoutData" : "[gridData](end,center,true,false)"
-        },
-        "text(passwordBox, {border}|{password})" : {
-            "layoutData" : "[gridData](fill,center,true,false)"
-        },
-        "button(btnLogin, {push})" : {
-            "text" : "[buttonTitle]",
-            "layoutData" : {
-                "_type" : "[gridData](center,center,true,false,2,1)",
-                "widthHint" : 150
+        "_children": {
+            "label(_1)": {
+                "text": "[username]",
+                "layoutData": "[gridData](end,center,true,false)"
+            },
+            "text(usernameBox, {border})": {
+                "layoutData": "[gridData](fill,center,true,false)"
+            },
+            "label(_2)": {
+                "text": "[password]",
+                "layoutData": "[gridData](end,center,true,false)"
+            },
+            "text(passwordBox, {border}|{password})": {
+                "layoutData": "[gridData](fill,center,true,false)"
+            },
+            "button(btnLogin, {push})": {
+                "text": "[buttonTitle]",
+                "layoutData": {
+                    "[gridData](center,center,true,false,2,1)": {
+                        "widthHint": 150
+                    }
+                }
             }
         }
     }

@@ -1,22 +1,20 @@
 {
-    "_type" : "shell",
-    "_style" : "{shell_trim}|{application_modal}",
-    "_name" : "shell",
-    "layout" : {
-        "_type" : "gridLayout",
-        "numColumns" : 1
-    },
-    "text" : "[mainForm.title]",
-    "size" : "750,350",
-    "_children" : {
-        "text(text,{multi}|{wrap}|{border}|{v_scroll}|{read_only})" : {
-            "background" : "color_widget_background",
-            "layoutData" : {
-                "_type" : "[gridData](fill,fill,true,true)"
-            },
-            "font" : {
-                "name" : "Courier New",
-                "height" : 8
+    "shell(shell, {shell_trim}|{application_modal})": {
+        "layout": {
+            "gridLayout(_)": {
+                "numColumns": 1
+            }
+        },
+        "text": "[mainForm.title]",
+        "size": "750,350",
+        "_children": {
+            "text(text,{multi}|{wrap}|{border}|{v_scroll}|{read_only})": {
+                "background": "color_widget_background",
+                "layoutData": "[gridData](fill,fill,true,true)",
+                "font": {
+                    "name": "Courier New",
+                    "height": 8
+                }
             }
         }
     }

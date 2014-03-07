@@ -1,25 +1,28 @@
 {
     "shell(myShell)": {
         "layout": {
-            "_type": "gridLayout",
-            "numColumns": 2
+            "gridLayout(_1)": {
+                "numColumns": 2
+            }
         },
         "text": "[delete.deleteAMovie]",
         "size": "431,154",
         "_children": {
             "canvas(canvas)": {
                 "layoutData": {
-                    "_type": "gridData",
-                    "verticalSpan": 2,
-                    "heightHint": 64,
-                    "widthHint": 64
+                    "gridData(_)": {
+                        "verticalSpan": 2,
+                        "heightHint": 64,
+                        "widthHint": 64
+                    }
                 },
                 "background": "color_widget_background"
             },
             "label(label1)": {
                 "layoutData": {
-                    "_type": "[gridData](center,begin,true,false)",
-                    "grabExcessHorizontalSpace": true
+                    "[gridData](center,begin,true,false)(_)" : {
+                        "grabExcessHorizontalSpace": true
+                    }
                 },
                 "font": {
                     "style": "bold",
@@ -35,9 +38,7 @@
             "org.eclipse.swt.graphics.Cursor(handCursor, {cursor_hand})": {},
             "[label]({wrap}|{center}, infoLabel)(infoLabel)": {
                 "foreground": "#ff0000",
-                "layoutData": {
-                    "_type": "[gridData](fill,end,true,false)"
-                },
+                "layoutData": "[gridData](fill,end,true,false)",
                 "cursor": "(handCursor)"
             }
         }

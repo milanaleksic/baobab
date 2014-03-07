@@ -1,5 +1,6 @@
 package net.milanaleksic.baobab.converters;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import net.milanaleksic.baobab.TransformerException;
 import net.milanaleksic.baobab.builders.BuilderContext;
@@ -34,19 +35,13 @@ public class ObjectConverter implements Converter {
 
     private final ObjectMapper mapper;
 
-    static final String KEY_SPECIAL_TYPE = "_type"; //NON-NLS
     static final String KEY_SPECIAL_CHILDREN = "_children"; //NON-NLS
-    static final String KEY_SPECIAL_NAME = "_name"; //NON-NLS
-    static final String KEY_SPECIAL_STYLE = "_style"; //NON-NLS
     static final String KEY_SPECIAL_DATA = "_data"; //NON-NLS
     static final String KEY_SPECIAL_COMMENT = "__comment"; //NON-NLS
 
     static final Set<String> SPECIAL_KEYS = ImmutableSet
             .<String>builder()
-            .add(KEY_SPECIAL_TYPE)
             .add(KEY_SPECIAL_CHILDREN)
-            .add(KEY_SPECIAL_NAME)
-            .add(KEY_SPECIAL_STYLE)
             .add(KEY_SPECIAL_COMMENT)
             .add(KEY_SPECIAL_DATA)
             .build();
@@ -68,14 +63,10 @@ public class ObjectConverter implements Converter {
     public TransformationWorkingContext createHierarchy(Object formObject, TransformationWorkingContext context, Reader content) {
         try {
             final JsonNode shellDefinition = mapper.readValue(content, JsonNode.class);
+            Preconditions.checkArgument(shellDefinition.size() == 1, "Hierarchy must be defined with a single root element");
+            Map.Entry<String, JsonNode> rootField = shellDefinition.getFields().next();
             final TransformationWorkingContext transformationWorkingContext;
-            if (shellDefinition.size() == 1 && !shellDefinition.has(KEY_SPECIAL_TYPE)) {
-                // we are using short children notation with a single root object
-                Map.Entry<String, JsonNode> rootField = shellDefinition.getFields().next();
-                transformationWorkingContext = create(context, rootField.getKey(), rootField.getValue());
-            } else
-                // we are using oldSchool children notation
-                transformationWorkingContext = create(context, null, shellDefinition);
+            transformationWorkingContext = create(context, rootField.getKey(), rootField.getValue());
             if (formObject != null)
                 embeddingService.embed(formObject, transformationWorkingContext);
             return transformationWorkingContext;
@@ -109,8 +100,11 @@ public class ObjectConverter implements Converter {
     }
 
     private Object getValueFromJson(TransformationWorkingContext context, JsonNode node) {
-        if (!node.isTextual()) {
-            final TransformationWorkingContext widgetFromNode = create(context, null, node);
+        if (node.isObject()) {
+            Preconditions.checkArgument(node.size() == 1, "Hierarchy must be defined with a single root element");
+            Iterator<Map.Entry<String, JsonNode>> fields = node.getFields();
+            Map.Entry<String, JsonNode> subRoot = fields.next();
+            final TransformationWorkingContext widgetFromNode = create(context, subRoot.getKey(), subRoot.getValue());
             return widgetFromNode.getWorkItem();
         }
         String originalValue = node.asText();

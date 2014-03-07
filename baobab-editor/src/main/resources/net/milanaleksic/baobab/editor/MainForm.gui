@@ -1,142 +1,148 @@
 {
-    "_type" : "shell",
-    "_style" : "{shell_trim}|{application_modal}",
-    "_name" : "shell",
-    "layout" : {
-        "_type" : "gridLayout",
-        "numColumns" : 1
-    },
-    "text" : "[mainForm.title]",
-    "size" : "705,500",
-    "_children" : {
-        "toolBar(_,{flat})" : {
-            "_children" : {
-                "toolItem(btnNew,{push})" : {
-                    "text" : "[mainForm.toolBar.new]"
-                },
-                "toolItem(btnOpen,{push})" : {
-                    "text" : "[mainForm.toolBar.open]"
-                },
-                "toolItem(btnSave,{push})" : {
-                    "text" : "[mainForm.toolBar.save]"
-                },
-                "toolItem(btnSaveAs,{push})" : {
-                    "text" : "[mainForm.toolBar.saveAs]"
-                },
-                "toolItem(btnFindText,{push})" : {
-                    "text" : "[mainForm.toolBar.findText]"
-                },
-                "toolItem(btnFindNext,{push})" : {
-                    "text" : "[mainForm.toolBar.findNext]"
-                },
-                "toolItem(btnExit,{push})" : {
-                    "text" : "[mainForm.toolBar.exit]"
-                }
+    "shell(shell, {shell_trim}|{application_modal})": {
+        "layout": {
+            "gridLayout(_)": {
+                "numColumns": 1
             }
         },
-
-        "sashForm(_,{smooth})" : {
-            "__comment" : "to set sashForm's weights you need to wait until components have been added",
-            "layout" : {
-                "_type" : "gridLayout",
-                "numColumns" : 2
-            },
-            "layoutData" : "[gridData](fill,fill,true,true)",
-            "_children" : {
-                "styledText(editor,{multi}|{wrap}|{border}|{v_scroll})" : {
-                    "layoutData" : "[gridData](fill,fill,true,true)",
-                    "font" : {
-                        "name" : "Courier New",
-                        "height" : 9
+        "text": "[mainForm.title]",
+        "size": "705,500",
+        "_children": {
+            "toolBar(_,{flat})": {
+                "_children": {
+                    "toolItem(btnNew,{push})": {
+                        "text": "[mainForm.toolBar.new]"
                     },
-                    "text" : "[mainForm.editorDefaultContents]",
-                    "_children" : {
-                        "dropTarget(editorDropTarget,{dnd.drop_default}|{dnd.drop_copy}|{dnd.drop_link}|{dnd.drop_move})" : {}
+                    "toolItem(btnOpen,{push})": {
+                        "text": "[mainForm.toolBar.open]"
+                    },
+                    "toolItem(btnSave,{push})": {
+                        "text": "[mainForm.toolBar.save]"
+                    },
+                    "toolItem(btnSaveAs,{push})": {
+                        "text": "[mainForm.toolBar.saveAs]"
+                    },
+                    "toolItem(btnFindText,{push})": {
+                        "text": "[mainForm.toolBar.findText]"
+                    },
+                    "toolItem(btnFindNext,{push})": {
+                        "text": "[mainForm.toolBar.findNext]"
+                    },
+                    "toolItem(btnExit,{push})": {
+                        "text": "[mainForm.toolBar.exit]"
+                    }
+                }
+            },
+
+            "sashForm(_,{smooth})": {
+                "__comment": "to set sashForm's weights you need to wait until components have been added",
+                "layout": {
+                    "gridLayout(_)": {
+                        "numColumns": 2
                     }
                 },
-                "composite(_)" : {
-                    "layout" : {
-                        "_type" : "gridLayout",
-                        "numColumns" : 1,
-                        "marginWidth" : 0,
-                        "marginHeight" : 0
-                    },
-                    "layoutData" : {
-                        "_type" : "[gridData](fill,fill,false,true)",
-                        "widthHint" : "150"
-                    },
-                    "_children" : {
-                        "label(_)" : {
-                            "text": "[mainForm.widgetsInContext]"
+                "layoutData": "[gridData](fill,fill,true,true)",
+                "_children": {
+                    "styledText(editor,{multi}|{wrap}|{border}|{v_scroll})": {
+                        "layoutData": "[gridData](fill,fill,true,true)",
+                        "font": {
+                            "name": "Courier New",
+                            "height": 9
                         },
-                        "list(contextWidgets,{v_scroll}|{multi}|{border}|{read_only})" : {
-                            "layoutData" : "[gridData](fill,fill,true,true)"
+                        "text": "[mainForm.editorDefaultContents]",
+                        "_children": {
+                            "dropTarget(editorDropTarget,{dnd.drop_default}|{dnd.drop_copy}|{dnd.drop_link}|{dnd.drop_move})": {}
+                        }
+                    },
+                    "composite(_)": {
+                        "layout": {
+                            "gridLayout(_)": {
+                                "numColumns": 1,
+                                "marginWidth": 0,
+                                "marginHeight": 0
+                            }
                         },
-                        "composite(_)" : {
-                            "layout" : {
-                                "_type" : "gridLayout",
-                                "numColumns" : 1,
-                                "marginHeight" : 0
+                        "layoutData": {
+                            "[gridData](fill,fill,false,true)(_)": {
+                                "widthHint": "150"
+                            }
+                        },
+                        "_children": {
+                            "label(_)": {
+                                "text": "[mainForm.widgetsInContext]"
                             },
-                            "layoutData" : "[gridData](fill,fill,true,false)",
-                            "_children" : {
-                                "composite(_1)" : {
-                                    "layout" : {
-                                        "_type" : "gridLayout",
-                                        "numColumns" : 4,
-                                        "marginWidth" : 0,
-                                        "marginHeight" : 0
-                                    },
-                                    "layoutData" : "[gridData](fill,fill,true,false)",
-                                    "_children" : {
-                                        "label(_1)" : {
-                                            "text":"[mainForm.setSize] X="
-                                        },
-                                        "text(textWidth,{border})" : {
-                                            "layoutData" : "[gridData](fill,fill,true,false)",
-                                            "text" : "400"
-                                        },
-                                        "label(_2)" : {
-                                            "text":"Y="
-                                        },
-                                        "text(textHeight,{border})" : {
-                                            "layoutData" : "[gridData](fill,fill,true,false)",
-                                            "text" : "200"
-                                        }
+                            "list(contextWidgets,{v_scroll}|{multi}|{border}|{read_only})": {
+                                "layoutData": "[gridData](fill,fill,true,true)"
+                            },
+                            "composite(_)": {
+                                "layout": {
+                                    "gridLayout(_)": {
+                                        "numColumns": 2,
+                                        "marginHeight": 0
                                     }
                                 },
-                                "composite(_2)" : {
-                                    "layout" : {
-                                        "_type" : "gridLayout",
-                                        "numColumns" : 2,
-                                        "marginWidth" : 0,
-                                        "marginHeight" : 0
-                                    },
-                                    "layoutData" : "[gridData](fill,fill,true,false)",
-                                    "_children" : {
-                                        "label(_)" : {
-                                            "text": "[mainForm.carret]",
-                                            "layoutData" : "[gridData](begin,end,false,false)"
+                                "layoutData": "[gridData](fill,fill,true,false)",
+                                "_children": {
+                                    "composite(_1)": {
+                                        "layout": {
+                                            "gridLayout(_)": {
+                                                "numColumns": 4,
+                                                "marginWidth": 0,
+                                                "marginHeight": 0
+                                            }
                                         },
-                                        "label(caretPositionLabel)" : {
-                                            "text": "1x1",
-                                            "layoutData" : "[gridData](fill,end,true,false)"
+                                        "layoutData": "[gridData](fill,fill,true,false)",
+                                        "_children": {
+                                            "label(_1)": {
+                                                "text": "[mainForm.setSize] X="
+                                            },
+                                            "text(textWidth,{border})": {
+                                                "layoutData": "[gridData](fill,fill,true,false)",
+                                                "text": "400"
+                                            },
+                                            "label(_2)": {
+                                                "text": "Y="
+                                            },
+                                            "text(textHeight,{border})": {
+                                                "layoutData": "[gridData](fill,fill,true,false)",
+                                                "text": "200"
+                                            }
+                                        }
+                                    },
+                                    "composite(_2)": {
+                                        "layout": {
+                                            "gridLayout(_)": {
+                                                "numColumns": 2,
+                                                "marginWidth": 0,
+                                                "marginHeight": 0
+                                            }
+                                        },
+                                        "layoutData": "[gridData](fill,fill,true,false)",
+                                        "_children": {
+                                            "label(_)": {
+                                                "text": "[mainForm.carret]",
+                                                "layoutData": "[gridData](begin,end,false,false)"
+                                            },
+                                            "label(caretPositionLabel)": {
+                                                "text": "1x1",
+                                                "layoutData": "[gridData](fill,end,true,false)"
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
                     }
-                }
+                },
+                "weights": [ 2, 1 ]
             },
-            "weights" : [ 2, 1 ]
-        },
 
-        "cursor(handCursor,{cursor_hand})" : {},
-        "label(infoLabel)" : {
-            "foreground" : "#ff0000",
-            "layoutData" : "[gridData](fill,end,true,false)",
-            "cursor" : "(handCursor)"
+            "cursor(handCursor,{cursor_hand})": {},
+            "label(infoLabel)": {
+                "foreground": "#ff0000",
+                "layoutData": "[gridData](fill,end,true,false)",
+                "cursor": "(handCursor)"
+            }
         }
     }
 }

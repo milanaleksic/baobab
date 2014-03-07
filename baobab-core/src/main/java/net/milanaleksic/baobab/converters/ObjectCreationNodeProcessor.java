@@ -31,17 +31,12 @@ public class ObjectCreationNodeProcessor implements NodeProcessor {
     private BuilderProvider builderProvider;
 
     @Inject
-    private OldSchoolObjectCreator oldSchoolObjectCreator;
-
-    @Inject
     private ShortHandObjectCreator shortHandObjectCreator;
 
     @Override
     public TransformationWorkingContext visitHierarchyItem(TransformationWorkingContext context, String key, JsonNode value) {
         if (shortHandObjectCreator.isEligibleForItem(key, value))
             return shortHandObjectCreator.create(context, key, value);
-        else if (oldSchoolObjectCreator.isEligibleForItem(key, value))
-            return oldSchoolObjectCreator.create(context, key, value);
         throw new TransformerException("No creator eligible for key=" + key + ", value=" + value);
     }
 

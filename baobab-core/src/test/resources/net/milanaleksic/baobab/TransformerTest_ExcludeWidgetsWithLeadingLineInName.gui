@@ -1,17 +1,19 @@
 {
-    "_type" : "shell",
-    "layout" : {
-        "_type" : "gridLayout",
-        "numColumns" : 2
-    },
-    "text" : "[delete.deleteAMovie]",
-    "size" : "431,154",
-    "_children" : {
-        "label(test)" : {
-            "text" : "this should show up in context"
+    "shell(_shell)": {
+        "layout": {
+            "gridLayout(_1)": {
+                "numColumns": 2
+            }
         },
-        "label(_test)" : {
-            "text" : "this should NOT show up in context"
+        "text": "[delete.deleteAMovie]",
+        "size": "431,154",
+        "_children": {
+            "label(test)": {
+                "text": "this should show up in context"
+            },
+            "label(_test)": {
+                "text": "this should NOT show up in context"
+            }
         }
     }
 }

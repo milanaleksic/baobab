@@ -1,6 +1,5 @@
 package net.milanaleksic.baobab.converters;
 
-import com.google.common.base.Preconditions;
 import net.milanaleksic.baobab.TransformerException;
 import net.milanaleksic.baobab.providers.ConverterProvider;
 import net.milanaleksic.baobab.providers.ShortcutsProvider;
@@ -37,12 +36,6 @@ public abstract class ObjectCreator {
         } catch (VerifyError error) {
             throw new TransformerException("Code generation verify error encountered while processing widget creation, widgetClass=" + widgetClass.getName() + ", parent=" + parent + ", style=" + style, error);
         }
-    }
-
-    protected Class<?> deduceClassFromNode(JsonNode valueNode) {
-        Preconditions.checkArgument(valueNode.has(ObjectConverter.KEY_SPECIAL_TYPE), "Item definition does not define type");
-        String classIdentifier = valueNode.get(ObjectConverter.KEY_SPECIAL_TYPE).asText();
-        return deduceClassFromNode(classIdentifier);
     }
 
     protected Class<?> deduceClassFromNode(String classIdentifier) {

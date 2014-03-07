@@ -1,58 +1,59 @@
 {
-    "_type" : "shell",
-    "layout" : {
-        "_type" : "gridLayout",
-        "numColumns" : 2
-    },
-    "text" : "[delete.deleteAMovie]",
-    "size" : "431,154",
-    "_children" : [
-        {
-            "_type" : "canvas",
-            "_name" : "canvas",
-            "layoutData" : {
-                "_type" : "gridData",
-                "verticalSpan" : 2,
-                "heightHint" : 64,
-                "widthHint" : 64
+    "shell(_shell)": {
+        "layout": {
+            "gridLayout(_1)": {
+                "numColumns": 2
+            }
+        },
+        "text": "[delete.deleteAMovie]",
+        "size": "431,154",
+        "_children": [
+            {
+                "canvas(canvas)": {
+                    "layoutData": {
+                        "gridData(_)": {
+                            "verticalSpan": 2,
+                            "heightHint": 64,
+                            "widthHint": 64
+                        }
+                    },
+                    "background": "color_widget_background"
+                }
             },
-            "background":"color_widget_background"
-        },
-        {
-            "_type" : "label",
-            "layoutData" : {
-                "_type" : "[gridData](center,begin,true,false)",
-                "grabExcessHorizontalSpace" : true
+            {
+                "label(_)" : {
+                    "layoutData": {
+                        "[gridData](center,begin,true,false)(_)" : {
+                            "grabExcessHorizontalSpace": true
+                        }
+                    },
+                    "font": {
+                        "style": "bold",
+                        "height": 12
+                    },
+                    "text": "[delete.doYouReallyWishToDeleteMovie]",
+                    "foreground": "#ff0000"
+                }
             },
-            "font" : {
-                "style" : "bold",
-                "height" : 12
+            {
+                "label(labFilmName, {wrap}|{shadow_out}|{horizontal}|{center})": {
+                    "layoutData": "[gridData](center,begin,true,false)"
+                }
             },
-            "text" : "[delete.doYouReallyWishToDeleteMovie]",
-            "foreground" : "#ff0000"
-        },
-        {
-            "_type" : "label",
-            "_style" : "{wrap}|{shadow_out}|{horizontal}|{center}",
-            "_name" : "labFilmName",
-            "layoutData" : "[gridData](center,begin,true,false)"
-        },
-        {
-            "_type" : "label"
-        },
+            {
+                "label(_)": {}
+            },
 
-        {
-            "_type" : "org.eclipse.swt.graphics.Cursor",
-            "_style" : "{cursor_hand}",
-            "_name" : "handCursor"
-        },
-        {
-            "_type" : "[label]({wrap}|{center}, infoLabel)",
-            "foreground" : "#ff0000",
-            "layoutData" : {
-                "_type" : "[gridData](fill,end,true,false)"
+            {
+                "org.eclipse.swt.graphics.Cursor(handCursor, {cursor_hand})" : {}
             },
-            "cursor" : "(handCursor)"
-        }
-    ]
+            {
+                "[label]({wrap}|{center}, infoLabel)(_)": {
+                    "foreground": "#ff0000",
+                    "layoutData": "[gridData](fill,end,true,false)(_)",
+                    "cursor": "(handCursor)"
+                }
+            }
+        ]
+    }
 }

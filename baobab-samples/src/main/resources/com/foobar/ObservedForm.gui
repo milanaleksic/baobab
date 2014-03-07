@@ -1,27 +1,28 @@
 {
-    "_type" : "shell",
-    "_style" : "{dialog_trim}",
-    "text" : "Text reverser",
-    "size" : "600,150",
-    "layout" : {
-        "_type" : "gridLayout",
-        "numColumns" : 1
-    },
-    "_children" : {
-        "label(_1)" : {
-            "text" : "Type some text here:",
-            "layoutData" : "[gridData](center,center,true,false)"
+    "shell(_,{dialog_trim})": {
+        "text": "Text reverser",
+        "size": "600,150",
+        "layout": {
+            "gridLayout(_)": {
+                "numColumns": 1
+            }
         },
-        "text(text1, {border})" : {
-            "layoutData" : "[gridData](fill,center,true,false)"
-        },
-        "label(_spacer)" : {},
-        "label(_2)" : {
-            "text" : "And the reverse will be shown here:",
-            "layoutData" : "[gridData](center,center,true,false)"
-        },
-        "text(text2, {border}|{read_only})" : {
-            "layoutData" : "[gridData](fill,center,true,false)"
+        "_children": {
+            "label(_1)": {
+                "text": "Type some text here:",
+                "layoutData": "[gridData](center,center,true,false)"
+            },
+            "text(text1, {border})": {
+                "layoutData": "[gridData](fill,center,true,false)"
+            },
+            "label(_spacer)": {},
+            "label(_2)": {
+                "text": "And the reverse will be shown here:",
+                "layoutData": "[gridData](center,center,true,false)"
+            },
+            "text(text2, {border}|{read_only})": {
+                "layoutData": "[gridData](fill,center,true,false)"
+            }
         }
     }
 }

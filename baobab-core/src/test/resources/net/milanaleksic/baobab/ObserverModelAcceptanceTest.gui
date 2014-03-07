@@ -1,12 +1,13 @@
 {
-    "_type" : "shell",
-    "_children" : {
-        "text(text1)" : {
-            "text" : "test value"
-        },
-        "text(numericalValue)" : {
-            "text" : "175"
-        },
-        "list(aList)" : {}
+    "shell(_shell)": {
+        "_children": {
+            "text(text1)": {
+                "text": "test value"
+            },
+            "text(numericalValue)": {
+                "text": "175"
+            },
+            "list(aList)": {}
+        }
     }
 }
