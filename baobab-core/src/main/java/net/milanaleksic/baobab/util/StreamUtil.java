@@ -1,5 +1,7 @@
 package net.milanaleksic.baobab.util;
 
+import com.google.common.base.Preconditions;
+
 import java.io.*;
 
 /**
@@ -12,7 +14,9 @@ public class StreamUtil {
     public static <T> T loanResourceReader(String resourceName, ReaderLoaner<T> loaner) {
         Reader contentAsReader = null;
         try {
-            contentAsReader = new InputStreamReader(StreamUtil.class.getResourceAsStream(resourceName));
+            InputStream resourceAsStream = StreamUtil.class.getResourceAsStream(resourceName);
+            Preconditions.checkNotNull(resourceAsStream, "Resource does not exist: %s", resourceName);
+            contentAsReader = new InputStreamReader(resourceAsStream);
             return loaner.loan(contentAsReader);
         } finally {
             try {
