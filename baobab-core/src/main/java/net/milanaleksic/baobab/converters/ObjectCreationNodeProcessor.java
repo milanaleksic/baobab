@@ -46,7 +46,7 @@ public class ObjectCreationNodeProcessor implements NodeProcessor {
         final Builder<?> builder = builderProvider.provideBuilderForName(builderName);
         if (builder == null)
             throw new TransformerException("Builder is not registered: " + builderName);
-        return builder.create(context.getWorkItem(), params);
+        return builder.create(context, params);
     }
 
     @Override
@@ -60,14 +60,14 @@ public class ObjectCreationNodeProcessor implements NodeProcessor {
             if (method.isPresent()) {
                 Class<?> argType = method.get().getParameterTypes()[0];
                 Converter converter = converterProvider.provideConverterForClass(argType);
-                Object value = converter.getValueFromJson(context.getWorkItem(), propertyNode, context.getMutableRootMappedObjects());
+                Object value = converter.getValueFromJson(context, propertyNode);
                 method.get().invoke(context.getWorkItem(), value);
             } else {
                 Optional<Field> fieldByName = getFieldByName(context.getWorkItem(), propertyName);
                 if (fieldByName.isPresent()) {
                     Class<?> argType = fieldByName.get().getType();
                     Converter converter = converterProvider.provideConverterForClass(argType);
-                    Object value = converter.getValueFromJson(context.getWorkItem(), propertyNode, context.getMutableRootMappedObjects());
+                    Object value = converter.getValueFromJson(context, propertyNode);
                     fieldByName.get().set(context.getWorkItem(), value);
                 } else
                     throw new TransformerException("No setter nor field " + propertyName + " could be found in class " + context.getWorkItem().getClass().getName() + "; context: " + propertyNode);

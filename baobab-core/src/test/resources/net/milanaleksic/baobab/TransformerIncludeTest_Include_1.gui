@@ -1,0 +1,7 @@
+{
+    "composite(canvasParent)": {
+        "_children": {
+            "[include](TransformerIncludeTest_Include_1_1.gui)(_1)": {}
+        }
+    }
+}

@@ -60,15 +60,15 @@ public class ObjectConverter implements Converter {
         this.mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
     }
 
-    public TransformationWorkingContext createHierarchy(Object formObject, TransformationWorkingContext context, Reader content) {
+    public TransformationWorkingContext createHierarchy(TransformationWorkingContext context, Reader content) {
         try {
             final JsonNode shellDefinition = mapper.readValue(content, JsonNode.class);
             Preconditions.checkArgument(shellDefinition.size() == 1, "Hierarchy must be defined with a single root element");
             Map.Entry<String, JsonNode> rootField = shellDefinition.getFields().next();
             final TransformationWorkingContext transformationWorkingContext;
             transformationWorkingContext = create(context, rootField.getKey(), rootField.getValue());
-            if (formObject != null)
-                embeddingService.embed(formObject, transformationWorkingContext);
+            if (context.getFormObject() != null)
+                embeddingService.embed(context.getFormObject(), transformationWorkingContext);
             return transformationWorkingContext;
         } catch (IOException e) {
             throw new TransformerException("IO Error while trying to find and parse required form", e);
@@ -92,14 +92,7 @@ public class ObjectConverter implements Converter {
     }
 
     @Override
-    public Object getValueFromJson(Object targetObject, JsonNode value, Map<String, Object> mappedObjects) {
-        final TransformationWorkingContext transformationWorkingContext = new TransformationWorkingContext();
-        transformationWorkingContext.setWorkItem(targetObject);
-        transformationWorkingContext.mapAll(mappedObjects);
-        return getValueFromJson(transformationWorkingContext, value);
-    }
-
-    private Object getValueFromJson(TransformationWorkingContext context, JsonNode node) {
+    public Object getValueFromJson(TransformationWorkingContext context, JsonNode node) {
         if (node.isObject()) {
             Preconditions.checkArgument(node.size() == 1, "Hierarchy must be defined with a single root element");
             Iterator<Map.Entry<String, JsonNode>> fields = node.getFields();

@@ -46,6 +46,7 @@ class ShortHandObjectCreator extends ObjectCreator {
 
         final TransformationWorkingContext ofTheJedi = new TransformationWorkingContext(context);
         final BuilderContext<?> builderContext = nodeProcessor.visitBuilderNotationItem(context, builderName, builderParams);
+        Preconditions.checkNotNull(builderContext, "Builders must not return null values (builder \"%s\" for params \"%s\")", builderName, builderParams);
         if (builderContext.getName() != null)
             ofTheJedi.mapObject(builderContext.getName(), builderContext.getBuiltElement());
         ofTheJedi.setWorkItem(builderContext.getBuiltElement());

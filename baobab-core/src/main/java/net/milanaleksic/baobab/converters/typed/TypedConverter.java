@@ -1,6 +1,7 @@
 package net.milanaleksic.baobab.converters.typed;
 
 import net.milanaleksic.baobab.converters.Converter;
+import net.milanaleksic.baobab.converters.TransformationWorkingContext;
 import org.codehaus.jackson.JsonNode;
 
 import java.util.Map;
@@ -13,7 +14,7 @@ import java.util.Map;
 public abstract class TypedConverter<T> implements Converter {
 
     @Override
-    public Object getValueFromJson(Object targetObject, JsonNode value, Map<String, Object> mappedObjects) {
+    public Object getValueFromJson(TransformationWorkingContext context, JsonNode value) {
         return getValueFromJson(value);
     }
 

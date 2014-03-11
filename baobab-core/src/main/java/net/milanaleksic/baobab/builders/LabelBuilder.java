@@ -1,6 +1,7 @@
 package net.milanaleksic.baobab.builders;
 
 import net.milanaleksic.baobab.TransformerException;
+import net.milanaleksic.baobab.converters.TransformationWorkingContext;
 import net.milanaleksic.baobab.converters.typed.IntegerConverter;
 import org.eclipse.swt.widgets.*;
 
@@ -18,7 +19,8 @@ public class LabelBuilder implements Builder<Label> {
     private IntegerConverter integerConverter;
 
     @Override
-    public BuilderContext<Label> create(Object parent, List<String> parameters) {
+    public BuilderContext<Label> create(TransformationWorkingContext context, List<String> parameters) {
+        Object parent = context.getWorkItem();
         if (parameters.size() != 2)
             throw new TransformerException("Label builder supports only two parameters (style and text)!");
         int styleParameter = integerConverter.getValueFromString(parameters.get(0));

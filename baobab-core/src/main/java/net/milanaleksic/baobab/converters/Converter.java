@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public interface Converter {
 
-    public Object getValueFromJson(Object targetObject, JsonNode value, Map<String, Object> mappedObjects);
+    public Object getValueFromJson(TransformationWorkingContext context, JsonNode value);
 
     void cleanUp();
 

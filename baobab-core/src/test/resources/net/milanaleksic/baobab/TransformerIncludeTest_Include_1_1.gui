@@ -1,0 +1,12 @@
+{
+    "canvas(canvas)": {
+        "layoutData": {
+            "gridData(_)": {
+                "verticalSpan": 2,
+                "heightHint": 64,
+                "widthHint": 64
+            }
+        },
+        "background": "color_widget_background"
+    }
+}

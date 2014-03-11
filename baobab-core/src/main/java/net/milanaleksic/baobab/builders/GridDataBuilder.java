@@ -2,6 +2,7 @@ package net.milanaleksic.baobab.builders;
 
 import com.google.common.collect.ImmutableMap;
 import net.milanaleksic.baobab.TransformerException;
+import net.milanaleksic.baobab.converters.TransformationWorkingContext;
 import org.eclipse.swt.layout.GridData;
 
 import java.util.*;
@@ -23,7 +24,7 @@ public class GridDataBuilder implements Builder<GridData> {
                     .build();
 
     @Override
-    public BuilderContext<GridData> create(Object parent, List<String> parameters) {
+    public BuilderContext<GridData> create(TransformationWorkingContext context, List<String> parameters) {
         if (parameters.size() == 4)
             return new BuilderContext<>(createGridDataBasedOn4Params(parameters));
         if (parameters.size() == 6)

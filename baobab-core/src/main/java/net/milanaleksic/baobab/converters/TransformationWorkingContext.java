@@ -32,6 +32,9 @@ public class TransformationWorkingContext {
     private Object workItem;
 
     private final TransformationWorkingContext parentContext;
+    private ObjectConverter objectConverter;
+    private Object formObject;
+    private String formLocation;
 
     public TransformationWorkingContext() {
         this(null);
@@ -39,7 +42,13 @@ public class TransformationWorkingContext {
 
     public TransformationWorkingContext(@Nullable TransformationWorkingContext parentContext) {
         this.parentContext = parentContext;
-        mappedObjects = parentContext == null ? Maps.<String, Object>newHashMap() : ImmutableMap.<String, Object>of();
+        if (parentContext == null) {
+            this.mappedObjects = Maps.newHashMap();
+        } else {
+            this.mappedObjects = ImmutableMap.of();
+            this.formLocation = parentContext.formLocation;
+            this.objectConverter = parentContext.objectConverter;
+        }
     }
 
     public void setDoNotCreateModalDialogs(boolean doNotCreateModalDialogs) {
@@ -97,4 +106,27 @@ public class TransformationWorkingContext {
         return parentContext;
     }
 
+    public void setObjectConverter(ObjectConverter objectConverter) {
+        this.objectConverter = objectConverter;
+    }
+
+    public ObjectConverter getObjectConverter() {
+        return objectConverter;
+    }
+
+    public Object getFormObject() {
+        return formObject;
+    }
+
+    public void setFormObject(Object formObject) {
+        this.formObject = formObject;
+    }
+
+    public void setFormLocation(String formLocation) {
+        this.formLocation = formLocation;
+    }
+
+    public String getFormLocation() {
+        return formLocation;
+    }
 }

@@ -34,7 +34,7 @@ public class Transformer {
         return StreamUtil.loanStringStream(definition, new ReaderLoaner<TransformationContext>() {
             @Override
             public TransformationContext loan(Reader reader) {
-                return createContextFromReader(reader, parent, null);
+                return createContextFromReader(null, reader, parent, null);
             }
         });
     }
@@ -49,21 +49,31 @@ public class Transformer {
 
     public TransformationContext createFormFromResource(final String formResourceLocation, @Nullable final Composite parent,
                                                         @Nullable final Object formObject) {
+        final String unixFormatLocation = formResourceLocation == null ? "" : formResourceLocation.replaceAll("\\\\", "/");
         return StreamUtil.loanResourceReader(formResourceLocation, new ReaderLoaner<TransformationContext>() {
             @Override
             public TransformationContext loan(Reader reader) {
-                return createContextFromReader(reader, parent, formObject);
+                return createContextFromReader(unixFormatLocation, reader, parent, formObject);
             }
         });
     }
 
-    private TransformationContext createContextFromReader(Reader definitionStream, Composite parent, Object formObject) {
+    private TransformationContext createContextFromReader(String formResourceLocation, Reader definitionStream, Composite parent, Object formObject) {
         TransformationWorkingContext context = new TransformationWorkingContext();
         mapResourceBundleIfExists(context);
         context.setDoNotCreateModalDialogs(doNotCreateModalDialogs);
         context.setWorkItem(parent);
-        context = objectConverter.createHierarchy(formObject, context, definitionStream);
-        return context.createTransformationContext();
+        context.setObjectConverter(objectConverter);
+        context.setFormObject(formObject);
+        context.setFormLocation(getParentLocation(formResourceLocation));
+        return objectConverter
+                .createHierarchy(context, definitionStream)
+                .createTransformationContext();
+    }
+
+    private String getParentLocation(String formResourceLocation) {
+        int lastSlash = formResourceLocation.lastIndexOf('/');
+        return lastSlash == -1 ? formResourceLocation : formResourceLocation.substring(0, lastSlash + 1);
     }
 
     private String getFullNameOfResource(Object formObject) {

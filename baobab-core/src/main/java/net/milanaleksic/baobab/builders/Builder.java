@@ -1,5 +1,7 @@
 package net.milanaleksic.baobab.builders;
 
+import net.milanaleksic.baobab.converters.TransformationWorkingContext;
+
 import java.util.List;
 
 /**
@@ -9,6 +11,6 @@ import java.util.List;
  */
 public interface Builder<T> {
 
-    BuilderContext<T> create(Object parent, List<String> parameters);
+    BuilderContext<T> create(TransformationWorkingContext context, List<String> parameters);
 
 }

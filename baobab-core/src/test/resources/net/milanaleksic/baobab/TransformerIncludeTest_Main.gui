@@ -1,0 +1,8 @@
+{
+    "shell(root)": {
+        "_children": {
+            "[include](TransformerIncludeTest_Include_1.gui)(_1)": {},
+            "[include](TransformerIncludeTest_Include_2.gui)(_1)": {}
+        }
+    }
+}

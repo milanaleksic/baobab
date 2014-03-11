@@ -3,6 +3,8 @@ package net.milanaleksic.baobab.util;
 import com.google.common.base.Preconditions;
 
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * User: Milan Aleksic
@@ -39,4 +41,25 @@ public class StreamUtil {
         }
     }
 
+    public static <T> T loanRelativeResource(String parentResourceLocation, String relativeLocation, ReaderLoaner<T> loaner) {
+        Reader contentAsReader = null;
+        try {
+            InputStream childResource = StreamUtil.class.getResourceAsStream(parentResourceLocation + relativeLocation);
+            if (childResource != null) {
+                contentAsReader = new InputStreamReader(childResource);
+            } else {
+                File childFileResource = Paths.get(parentResourceLocation, relativeLocation).toFile();
+                Preconditions.checkArgument(childFileResource.exists(), "Resource %s could not be found relative to %s", relativeLocation, parentResourceLocation);
+                contentAsReader = new FileReader(childFileResource);
+            }
+            return loaner.loan(contentAsReader);
+        } catch (FileNotFoundException ignored) {
+            throw new IllegalStateException(ignored);
+        } finally {
+            try {
+                if (contentAsReader != null) contentAsReader.close();
+            } catch (Exception ignored) {
+            }
+        }
+    }
 }
