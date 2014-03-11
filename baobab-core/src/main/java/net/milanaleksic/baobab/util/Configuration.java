@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import net.milanaleksic.baobab.TransformerException;
 import net.milanaleksic.baobab.integration.loader.Loader;
 
 import java.util.Map;
@@ -24,7 +25,7 @@ public class Configuration {
             try {
                 builder.put(entry.getKey(), Class.forName(entry.getValue().toString()));
             } catch (ClassNotFoundException e) {
-                throw new RuntimeException("Configuration could not be loaded for entry: " + entry.getKey(), e);
+                throw new TransformerException("Configuration could not be loaded for entry: " + entry.getKey(), e);
             }
         return builder.build();
     }
@@ -43,7 +44,7 @@ public class Configuration {
                 // To be both Guice- and Spring- able, class must be initialized via no-arg constructor
                 // thus, it is not allowed to use constructor injection, only property injection
                 if (clazz.getConstructor() == null)
-                    throw new RuntimeException("Transformer supports only extension classes with default constructor");
+                    throw new TransformerException("Transformer supports only extension classes with default constructor");
                 T raw = (T) ObjectUtil.createInstanceForType(clazz);
                 if (loader.isPresent())
                     loader.get().load(raw);
@@ -54,7 +55,7 @@ public class Configuration {
                     builder.put(classWhichIsMaybeWrapper, raw);
                 }
             } catch (Exception e) {
-                throw new RuntimeException("Configuration could not be loaded for entry: " + entry.getKey(), e);
+                throw new TransformerException("Configuration could not be loaded for entry: " + entry.getKey(), e);
             }
         }
         return builder.build();
@@ -73,7 +74,7 @@ public class Configuration {
                     loader.get().load(raw);
                 builder.put(entry.getKey(), raw);
             } catch (Exception e) {
-                throw new RuntimeException("Configuration could not be loaded for entry: " + entry.getKey(), e);
+                throw new TransformerException("Configuration could not be loaded for entry: " + entry.getKey(), e);
             }
         }
         return builder.build();

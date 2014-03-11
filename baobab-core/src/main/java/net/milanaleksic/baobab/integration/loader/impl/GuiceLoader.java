@@ -1,6 +1,7 @@
 package net.milanaleksic.baobab.integration.loader.impl;
 
-import com.google.inject.*;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 import net.milanaleksic.baobab.integration.loader.Loader;
 
 public class GuiceLoader implements Loader {

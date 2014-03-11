@@ -3,7 +3,8 @@ package net.milanaleksic.baobab.builders;
 import net.milanaleksic.baobab.TransformerException;
 import net.milanaleksic.baobab.converters.TransformationWorkingContext;
 import net.milanaleksic.baobab.converters.typed.IntegerConverter;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 
 import javax.inject.Inject;
 import java.util.List;

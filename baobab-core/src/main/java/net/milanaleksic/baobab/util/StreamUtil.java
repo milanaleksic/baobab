@@ -1,9 +1,9 @@
 package net.milanaleksic.baobab.util;
 
 import com.google.common.base.Preconditions;
+import net.milanaleksic.baobab.TransformerException;
 
 import java.io.*;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
@@ -54,7 +54,7 @@ public class StreamUtil {
             }
             return loaner.loan(contentAsReader);
         } catch (FileNotFoundException ignored) {
-            throw new IllegalStateException(ignored);
+            throw new TransformerException("File not found", ignored);
         } finally {
             try {
                 if (contentAsReader != null) contentAsReader.close();

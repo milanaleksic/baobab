@@ -2,8 +2,6 @@ package net.milanaleksic.baobab.converters;
 
 import org.codehaus.jackson.JsonNode;
 
-import java.util.Map;
-
 /**
  * User: Milan Aleksic
  * Date: 4/19/12

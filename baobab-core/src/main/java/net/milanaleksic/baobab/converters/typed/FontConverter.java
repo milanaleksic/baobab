@@ -3,7 +3,8 @@ package net.milanaleksic.baobab.converters.typed;
 import net.milanaleksic.baobab.TransformerException;
 import org.codehaus.jackson.JsonNode;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Display;
 
 /**

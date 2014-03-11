@@ -6,7 +6,7 @@ import net.milanaleksic.baobab.converters.Converter;
 import net.milanaleksic.baobab.converters.typed.TypedConverter;
 import net.milanaleksic.baobab.integration.loader.Loader;
 import net.milanaleksic.baobab.providers.ConverterProvider;
-import net.milanaleksic.baobab.util.*;
+import net.milanaleksic.baobab.util.Configuration;
 
 import javax.inject.Inject;
 import java.util.concurrent.atomic.AtomicReference;

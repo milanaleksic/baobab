@@ -1,10 +1,13 @@
 package net.milanaleksic.baobab.converters;
 
-import net.milanaleksic.baobab.model.*;
+import net.milanaleksic.baobab.model.FieldMapping;
+import net.milanaleksic.baobab.model.ModelBindingMetaData;
 import net.milanaleksic.baobab.util.ObjectUtil;
 
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Map;
 
 import static net.milanaleksic.baobab.util.ObjectUtil.allowOperationOnField;
 

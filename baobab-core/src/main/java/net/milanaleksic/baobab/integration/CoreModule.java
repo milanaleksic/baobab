@@ -1,8 +1,8 @@
 package net.milanaleksic.baobab.integration;
 
 import com.google.inject.*;
-import net.milanaleksic.baobab.converters.ObjectCreationNodeProcessor;
 import net.milanaleksic.baobab.converters.NodeProcessor;
+import net.milanaleksic.baobab.converters.ObjectCreationNodeProcessor;
 import net.milanaleksic.baobab.integration.loader.Loader;
 import net.milanaleksic.baobab.integration.loader.impl.GuiceLoader;
 import net.milanaleksic.baobab.providers.*;

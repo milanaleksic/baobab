@@ -5,10 +5,10 @@ import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.widgets.*;
 import org.objectweb.asm.*;
 import org.objectweb.asm.Label;
-import org.objectweb.asm.Type;
 
-import java.lang.reflect.*;
-import java.util.concurrent.*;
+import java.lang.reflect.Constructor;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -53,7 +53,7 @@ public abstract class WidgetCreator<T> {
             WidgetCreator<T> previousCreator = (WidgetCreator<T>) cachedCreatorMap.putIfAbsent(type, creator);
             return previousCreator == null ? creator : previousCreator;
         } catch (Exception ex) {
-            throw new RuntimeException("Error constructing constructor access class: " + targetCreatorType.getClassName(), ex);
+            throw new TransformerException("Error constructing constructor access class: " + targetCreatorType.getClassName(), ex);
         }
     }
 

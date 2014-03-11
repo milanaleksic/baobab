@@ -2,7 +2,8 @@ package net.milanaleksic.baobab.providers.impl;
 
 import net.milanaleksic.baobab.providers.ImageProvider;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 
 /**

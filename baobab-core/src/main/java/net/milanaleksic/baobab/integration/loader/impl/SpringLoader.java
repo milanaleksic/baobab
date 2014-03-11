@@ -5,7 +5,8 @@ import net.milanaleksic.baobab.integration.loader.Loader;
 import net.milanaleksic.baobab.util.ObjectUtil;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.context.*;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 import javax.inject.Inject;
 import java.lang.reflect.Field;

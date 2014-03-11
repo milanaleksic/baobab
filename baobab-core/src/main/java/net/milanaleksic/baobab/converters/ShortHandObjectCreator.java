@@ -2,6 +2,7 @@ package net.milanaleksic.baobab.converters;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import net.milanaleksic.baobab.TransformerException;
 import net.milanaleksic.baobab.builders.BuilderContext;
 import net.milanaleksic.baobab.converters.typed.IntegerConverter;
 import org.codehaus.jackson.JsonNode;
@@ -41,7 +42,7 @@ class ShortHandObjectCreator extends ObjectCreator {
         String styleDefinition = matcher.group(4);
 
         if (!Strings.isNullOrEmpty(styleDefinition))
-            throw new IllegalStateException("When using short-hand syntax + builder notation for object creation, you can't set styles " +
+            throw new TransformerException("When using short-hand syntax + builder notation for object creation, you can't set styles " +
                     "as parameter for short-hand constructor - styling must be set in builder");
 
         final TransformationWorkingContext ofTheJedi = new TransformationWorkingContext(context);

@@ -1,13 +1,14 @@
 package net.milanaleksic.baobab.converters.typed;
 
 import com.google.common.base.Strings;
-import net.milanaleksic.baobab.*;
+import net.milanaleksic.baobab.TransformerException;
 import net.milanaleksic.baobab.providers.ResourceBundleProvider;
 import org.codehaus.jackson.JsonNode;
 
 import javax.inject.Inject;
-import java.util.*;
-import java.util.regex.*;
+import java.util.MissingResourceException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * User: Milan Aleksic

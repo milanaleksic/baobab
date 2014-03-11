@@ -5,7 +5,8 @@ import net.milanaleksic.baobab.TransformerException;
 import net.milanaleksic.baobab.converters.TransformationWorkingContext;
 import org.eclipse.swt.layout.GridData;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 /**
  * User: Milan Aleksic
@@ -56,7 +57,7 @@ public class GridDataBuilder implements Builder<GridData> {
     private int convertAlignment(String value) {
         final Integer ofTheJedi = stringToAlignmentConversionTable.get(value);
         if (ofTheJedi == null)
-            throw new IllegalArgumentException("Could not convert expected alignment magic value: "+value+", supported are: center,begin,end,fill");
+            throw new TransformerException("Could not convert expected alignment magic value: "+value+", supported are: center,begin,end,fill");
         return ofTheJedi;
     }
 

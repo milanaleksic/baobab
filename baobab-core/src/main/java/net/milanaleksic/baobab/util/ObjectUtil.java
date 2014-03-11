@@ -1,14 +1,17 @@
 package net.milanaleksic.baobab.util;
 
 import com.esotericsoftware.reflectasm.ConstructorAccess;
-import com.google.common.base.*;
-import com.google.common.collect.*;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
 import net.milanaleksic.baobab.TransformerException;
 
-import javax.annotation.*;
+import javax.annotation.Nullable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Locale;
 import java.util.concurrent.ConcurrentMap;
 
 /**
@@ -39,7 +42,7 @@ public class ObjectUtil {
             method.setAccessible(true);
             return (Class) method.invoke(WidgetCreator.class.getClassLoader(), className, bytes, 0, bytes.length);
         } catch (Exception e) {
-            throw new RuntimeException("Failure while defining widget creator class", e);
+            throw new TransformerException("Failure while defining widget creator class", e);
         }
     }
 
@@ -107,7 +110,7 @@ public class ObjectUtil {
             @Override
             public boolean apply(@Nullable Field field) {
                 if (field == null)
-                    throw new IllegalStateException("field is null");
+                    throw new TransformerException("field is null");
                 return field.getAnnotation(annotation) != null;
             }
         });

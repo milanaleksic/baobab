@@ -4,8 +4,6 @@ import net.milanaleksic.baobab.converters.Converter;
 import net.milanaleksic.baobab.converters.TransformationWorkingContext;
 import org.codehaus.jackson.JsonNode;
 
-import java.util.Map;
-
 /**
  * User: Milan Aleksic
  * Date: 4/19/12

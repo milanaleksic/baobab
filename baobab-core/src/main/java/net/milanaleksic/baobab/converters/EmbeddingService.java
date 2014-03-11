@@ -42,7 +42,7 @@ class EmbeddingService {
                 name = field.getName();
             final Object mappedObject = transformationContext.getMappedObject(name);
             if (mappedObject == null)
-                throw new IllegalStateException("Field marked as embedded could not be found: " + targetObject.getClass().getName() + "." + field.getName());
+                throw new TransformerException("Field marked as embedded could not be found: " + targetObject.getClass().getName() + "." + field.getName());
             setFieldValueOnObject(field, targetObject, mappedObject);
         }
     }
@@ -65,7 +65,7 @@ class EmbeddingService {
                         ? Optional.of(transformationContext.getWorkItem())
                         : transformationContext.getMappedObject(componentName);
                 if (mappedObject == null)
-                    throw new IllegalStateException("Event source could not be found in the GUI definition: " + targetObject.getClass().getName() + "." + field.getName());
+                    throw new TransformerException("Event source could not be found in the GUI definition: " + targetObject.getClass().getName() + "." + field.getName());
                 allowOperationOnField(field, new OperationOnField() {
                     @Override
                     public void operate(Field field) throws ReflectiveOperationException {
@@ -94,13 +94,13 @@ class EmbeddingService {
                         ? transformationContext.getWorkItem()
                         : transformationContext.getMappedObject(componentName);
                 if (mappedObject == null)
-                    throw new IllegalStateException("Event source could not be found in the GUI definition: " + targetObject.getClass().getName() + "." + method.getName());
+                    throw new TransformerException("Event source could not be found in the GUI definition: " + targetObject.getClass().getName() + "." + method.getName());
                 if (!void.class.equals(method.getReturnType()))
-                    throw new IllegalStateException("Method event listeners must be with void return type " + targetObject.getClass().getName() + "." + method.getName());
+                    throw new TransformerException("Method event listeners must be with void return type " + targetObject.getClass().getName() + "." + method.getName());
                 final Class<?>[] parameterTypes = method.getParameterTypes();
                 if (parameterTypes.length > 0) {
                     if (parameterTypes.length != 1 || !Event.class.isAssignableFrom(parameterTypes[0]))
-                        throw new IllegalStateException("Method event listeners must have exactly one parameter, of type org.eclipse.swt.widgets.Event: " + targetObject.getClass().getName() + "." + method.getName());
+                        throw new TransformerException("Method event listeners must have exactly one parameter, of type org.eclipse.swt.widgets.Event: " + targetObject.getClass().getName() + "." + method.getName());
                 }
                 handleSingleEventToMethodListenerDelegation(transformationContext, targetObject, method, listenerAnnotation.event(), (Widget) mappedObject);
             }
@@ -123,12 +123,12 @@ class EmbeddingService {
                     if (methodEventListenerExceptionHandler != null)
                         methodEventListenerExceptionHandler.handleException((Shell) transformationContext.getWorkItem(), (Exception) invocationException.getCause());
                     else
-                        throw new RuntimeException("Transformer event delegation got an exception: " + invocationException.getCause().getMessage(), invocationException.getCause());
+                        throw new TransformerException("Transformer event delegation got an exception: " + invocationException.getCause().getMessage(), invocationException.getCause());
                 } catch (Exception e) {
                     if (methodEventListenerExceptionHandler != null)
                         methodEventListenerExceptionHandler.handleException((Shell) transformationContext.getWorkItem(), e);
                     else
-                        throw new RuntimeException("Transformer event delegation got an exception: " + e.getMessage(), e);
+                        throw new TransformerException("Transformer event delegation got an exception: " + e.getMessage(), e);
                 } finally {
                     if (!wasPublic)
                         method.setAccessible(false);
@@ -251,7 +251,7 @@ class EmbeddingService {
             Shell parentShell = (workItem != null && workItem instanceof Shell) ? (Shell) workItem : null;
             methodEventListenerExceptionHandler.handleException(parentShell, e);
         } else
-            throw new RuntimeException("Transformer event delegation got an exception: " + e.getMessage(), e);
+            throw new TransformerException("Transformer event delegation got an exception: " + e.getMessage(), e);
     }
 
     private ModelBindingMetaData createBindingMetaData(Class<?> modelClazz, TransformationWorkingContext transformationContext) {
@@ -284,7 +284,7 @@ class EmbeddingService {
 
         Object mappedObject = transformationContext.getMappedObject(name);
         if (mappedObject == null)
-            throw new IllegalStateException("Mapped object could not be found: " + name);
+            throw new TransformerException("Mapped object could not be found: " + name);
         builder.setComponent(mappedObject);
 
         Method getterMethod = mappedObject.getClass().getMethod("get" + propertyNameSentenceCase, new Class[0]);

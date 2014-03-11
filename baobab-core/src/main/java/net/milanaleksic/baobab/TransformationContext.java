@@ -59,7 +59,7 @@ public class TransformationContext {
 
     public void showAndAwaitClosed() {
         if (!(root instanceof Shell))
-            throw new IllegalStateException("Root must be of type Shell for you to execute this call");
+            throw new TransformerException("Root must be of type Shell for you to execute this call");
         ((Shell) root).open();
         Display display = Display.getDefault();
         while (!root.isDisposed()) {

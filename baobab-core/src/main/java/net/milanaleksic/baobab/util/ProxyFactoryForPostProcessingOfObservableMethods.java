@@ -1,5 +1,6 @@
 package net.milanaleksic.baobab.util;
 
+import net.milanaleksic.baobab.TransformerException;
 import org.objectweb.asm.*;
 
 import java.lang.reflect.Method;
@@ -44,7 +45,7 @@ public class ProxyFactoryForPostProcessingOfObservableMethods {
             }
             return (T) classDefinition.getConstructors()[0].newInstance(methodPostProcessor);
         } catch (Exception ex) {
-            throw new RuntimeException("Error constructing constructor access class: " + proxyType.getClassName(), ex);
+            throw new TransformerException("Error constructing constructor access class: " + proxyType.getClassName(), ex);
         }
     }
 
