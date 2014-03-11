@@ -1,6 +1,5 @@
 package net.milanaleksic.baobab.util;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -8,6 +7,7 @@ import net.milanaleksic.baobab.TransformerException;
 import net.milanaleksic.baobab.integration.loader.Loader;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * User: Milan Aleksic

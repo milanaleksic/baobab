@@ -1,9 +1,9 @@
 package net.milanaleksic.baobab.converters.typed;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Strings;
 import net.milanaleksic.baobab.TransformerException;
 import net.milanaleksic.baobab.providers.ResourceBundleProvider;
-import org.codehaus.jackson.JsonNode;
 
 import javax.inject.Inject;
 import java.util.MissingResourceException;

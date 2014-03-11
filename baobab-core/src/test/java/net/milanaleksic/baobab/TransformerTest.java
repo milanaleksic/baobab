@@ -1,6 +1,5 @@
 package net.milanaleksic.baobab;
 
-import com.google.common.base.Optional;
 import net.milanaleksic.baobab.test.GuiceRunner;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
@@ -11,6 +10,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
+
+import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;

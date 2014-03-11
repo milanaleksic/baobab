@@ -1,7 +1,7 @@
 package net.milanaleksic.baobab.converters.typed;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import net.milanaleksic.baobab.providers.ImageProvider;
-import org.codehaus.jackson.JsonNode;
 import org.eclipse.swt.graphics.Image;
 
 import javax.inject.Inject;

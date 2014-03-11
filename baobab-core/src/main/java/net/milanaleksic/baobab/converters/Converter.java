@@ -1,6 +1,6 @@
 package net.milanaleksic.baobab.converters;
 
-import org.codehaus.jackson.JsonNode;
+import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * User: Milan Aleksic

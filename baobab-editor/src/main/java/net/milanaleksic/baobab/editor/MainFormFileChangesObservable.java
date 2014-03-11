@@ -1,14 +1,12 @@
 package net.milanaleksic.baobab.editor;
 
-import com.google.common.base.Optional;
 import com.google.common.eventbus.EventBus;
 import net.milanaleksic.baobab.editor.messages.ApplicationError;
 
 import javax.inject.Inject;
 import java.io.*;
 import java.nio.file.*;
-import java.util.List;
-import java.util.Observable;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
@@ -23,7 +21,7 @@ public class MainFormFileChangesObservable extends Observable {
     private final AtomicReference<WatchKey> currentFileExternalChangesWatchKey = new AtomicReference<>(null);
     private final EventBus eventBus;
 
-    private Optional<WatchService> fileExternalChangesWatcher = Optional.absent();
+    private Optional<WatchService> fileExternalChangesWatcher = Optional.empty();
 
     private class ExternalWatcherThread extends Thread {
 

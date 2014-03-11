@@ -1,9 +1,9 @@
 package net.milanaleksic.baobab.converters.typed;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import net.milanaleksic.baobab.TransformerException;
-import org.codehaus.jackson.JsonNode;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;

@@ -11,6 +11,7 @@ import org.eclipse.swt.widgets.*;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.List;
+import java.util.Optional;
 
 import static net.milanaleksic.baobab.util.ObjectUtil.*;
 import static net.milanaleksic.baobab.util.ProxyFactoryForPostProcessingOfObservableMethods.MethodPostProcessor;

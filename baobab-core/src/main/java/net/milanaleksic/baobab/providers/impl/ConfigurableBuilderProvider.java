@@ -1,6 +1,5 @@
 package net.milanaleksic.baobab.providers.impl;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import net.milanaleksic.baobab.builders.Builder;
 import net.milanaleksic.baobab.integration.loader.Loader;
@@ -8,6 +7,7 @@ import net.milanaleksic.baobab.providers.BuilderProvider;
 import net.milanaleksic.baobab.util.Configuration;
 
 import javax.inject.Inject;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ConfigurableBuilderProvider implements BuilderProvider {

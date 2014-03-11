@@ -1,8 +1,8 @@
 package net.milanaleksic.baobab.converters.typed;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import net.milanaleksic.baobab.converters.Converter;
 import net.milanaleksic.baobab.converters.TransformationWorkingContext;
-import org.codehaus.jackson.JsonNode;
 
 /**
  * User: Milan Aleksic

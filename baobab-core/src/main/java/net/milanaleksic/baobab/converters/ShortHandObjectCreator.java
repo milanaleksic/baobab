@@ -1,11 +1,11 @@
 package net.milanaleksic.baobab.converters;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import net.milanaleksic.baobab.TransformerException;
 import net.milanaleksic.baobab.builders.BuilderContext;
 import net.milanaleksic.baobab.converters.typed.IntegerConverter;
-import org.codehaus.jackson.JsonNode;
 import org.eclipse.swt.widgets.Shell;
 
 import java.util.regex.Matcher;

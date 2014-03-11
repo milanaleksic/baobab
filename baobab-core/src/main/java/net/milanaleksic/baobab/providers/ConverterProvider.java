@@ -1,8 +1,9 @@
 package net.milanaleksic.baobab.providers;
 
-import com.google.common.base.Optional;
 import net.milanaleksic.baobab.converters.Converter;
 import net.milanaleksic.baobab.converters.typed.TypedConverter;
+
+import java.util.Optional;
 
 public interface ConverterProvider {
 

@@ -1,10 +1,10 @@
 package net.milanaleksic.baobab.converters;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import net.milanaleksic.baobab.TransformerException;
 import net.milanaleksic.baobab.providers.ConverterProvider;
 import net.milanaleksic.baobab.providers.ShortcutsProvider;
 import net.milanaleksic.baobab.util.WidgetCreator;
-import org.codehaus.jackson.JsonNode;
 import org.eclipse.swt.SWT;
 
 import javax.annotation.Nullable;

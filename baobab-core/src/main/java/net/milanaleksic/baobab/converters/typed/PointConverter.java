@@ -1,6 +1,6 @@
 package net.milanaleksic.baobab.converters.typed;
 
-import org.codehaus.jackson.JsonNode;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.eclipse.swt.graphics.Point;
 
 /**
