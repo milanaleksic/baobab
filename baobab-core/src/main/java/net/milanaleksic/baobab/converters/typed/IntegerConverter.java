@@ -18,7 +18,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 4/19/12
  * Time: 3:23 PM
  */
-@SuppressWarnings({"HardCodedStringLiteral"})
 public class IntegerConverter extends TypedConverter<Integer> {
 
     private static final Pattern magicConstantsValue = Pattern.compile("\\{(.*)\\}");

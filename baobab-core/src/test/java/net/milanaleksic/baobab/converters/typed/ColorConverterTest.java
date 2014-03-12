@@ -1,6 +1,6 @@
 package net.milanaleksic.baobab.converters.typed;
 
-import org.codehaus.jackson.node.TextNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import org.eclipse.swt.graphics.Color;
 import org.junit.Test;
 
