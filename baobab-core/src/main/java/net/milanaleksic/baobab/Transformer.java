@@ -72,6 +72,8 @@ public class Transformer {
     }
 
     private String getParentLocation(String formResourceLocation) {
+        if (formResourceLocation == null)
+            return null;
         int lastSlash = formResourceLocation.lastIndexOf('/');
         return lastSlash == -1 ? formResourceLocation : formResourceLocation.substring(0, lastSlash + 1);
     }
