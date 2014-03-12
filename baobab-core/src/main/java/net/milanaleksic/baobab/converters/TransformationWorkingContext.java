@@ -32,7 +32,6 @@ public class TransformationWorkingContext {
     private Object workItem;
 
     private final TransformationWorkingContext parentContext;
-    private ObjectConverter objectConverter;
     private Object formObject;
     private String formLocation;
 
@@ -47,7 +46,6 @@ public class TransformationWorkingContext {
         } else {
             this.mappedObjects = ImmutableMap.of();
             this.formLocation = parentContext.formLocation;
-            this.objectConverter = parentContext.objectConverter;
         }
     }
 
@@ -104,14 +102,6 @@ public class TransformationWorkingContext {
 
     TransformationWorkingContext getParentContext() {
         return parentContext;
-    }
-
-    public void setObjectConverter(ObjectConverter objectConverter) {
-        this.objectConverter = objectConverter;
-    }
-
-    public ObjectConverter getObjectConverter() {
-        return objectConverter;
     }
 
     public Object getFormObject() {

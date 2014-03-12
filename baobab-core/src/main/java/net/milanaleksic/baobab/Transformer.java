@@ -63,7 +63,6 @@ public class Transformer {
         mapResourceBundleIfExists(context);
         context.setDoNotCreateModalDialogs(doNotCreateModalDialogs);
         context.setWorkItem(parent);
-        context.setObjectConverter(objectConverter);
         context.setFormObject(formObject);
         context.setFormLocation(getParentLocation(formResourceLocation));
         return objectConverter
