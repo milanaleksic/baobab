@@ -2,7 +2,6 @@ package net.milanaleksic.baobab;
 
 import net.milanaleksic.baobab.converters.*;
 import net.milanaleksic.baobab.providers.ResourceBundleProvider;
-import net.milanaleksic.baobab.util.ReaderLoaner;
 import net.milanaleksic.baobab.util.StreamUtil;
 import org.eclipse.swt.widgets.Composite;
 
@@ -31,12 +30,7 @@ public class Transformer {
     }
 
     public TransformationContext createFormFromString(String definition, @Nullable final Composite parent) {
-        return StreamUtil.loanStringStream(definition, new ReaderLoaner<TransformationContext>() {
-            @Override
-            public TransformationContext loan(Reader reader) {
-                return createContextFromReader(null, reader, parent, null);
-            }
-        });
+        return StreamUtil.loanStringStream(definition, reader -> createContextFromReader(null, reader, parent, null));
     }
 
     public TransformationContext fillManagedForm(Object formObject) {
@@ -50,12 +44,8 @@ public class Transformer {
     public TransformationContext createFormFromResource(final String formResourceLocation, @Nullable final Composite parent,
                                                         @Nullable final Object formObject) {
         final String unixFormatLocation = formResourceLocation == null ? "" : formResourceLocation.replaceAll("\\\\", "/");
-        return StreamUtil.loanResourceReader(formResourceLocation, new ReaderLoaner<TransformationContext>() {
-            @Override
-            public TransformationContext loan(Reader reader) {
-                return createContextFromReader(unixFormatLocation, reader, parent, formObject);
-            }
-        });
+        return StreamUtil.loanResourceReader(formResourceLocation,
+                reader -> createContextFromReader(unixFormatLocation, reader, parent, formObject));
     }
 
     private TransformationContext createContextFromReader(String formResourceLocation, Reader definitionStream, Composite parent, Object formObject) {

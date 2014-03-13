@@ -1,20 +1,26 @@
 package net.milanaleksic.baobab.converters;
 
-import com.google.common.base.*;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.*;
-import net.milanaleksic.baobab.*;
+import net.milanaleksic.baobab.EmbeddedComponent;
+import net.milanaleksic.baobab.EmbeddedEventListener;
+import net.milanaleksic.baobab.EmbeddedEventListeners;
+import net.milanaleksic.baobab.TransformerException;
 import net.milanaleksic.baobab.model.*;
-import net.milanaleksic.baobab.util.ObjectUtil.*;
 import net.milanaleksic.baobab.util.ProxyFactoryForPostProcessingOfObservableMethods;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Widget;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
-import java.util.List;
-import java.util.Optional;
 
 import static net.milanaleksic.baobab.util.ObjectUtil.*;
-import static net.milanaleksic.baobab.util.ProxyFactoryForPostProcessingOfObservableMethods.MethodPostProcessor;
 
 class EmbeddingService {
 
@@ -34,10 +40,10 @@ class EmbeddingService {
 
     private void embedComponents(final Object targetObject, TransformationWorkingContext transformationContext) {
         Field[] fields = targetObject.getClass().getDeclaredFields();
-        for (Field field : fields) {
+        Arrays.asList(fields).forEach(field -> {
             EmbeddedComponent annotation = field.getAnnotation(EmbeddedComponent.class);
             if (annotation == null)
-                continue;
+                return;
             String name = annotation.name();
             if (name.isEmpty())
                 name = field.getName();
@@ -45,7 +51,7 @@ class EmbeddingService {
             if (mappedObject == null)
                 throw new TransformerException("Field marked as embedded could not be found: " + targetObject.getClass().getName() + "." + field.getName());
             setFieldValueOnObject(field, targetObject, mappedObject);
-        }
+        });
     }
 
     private void embedEventListenersAsFields(final Object targetObject, TransformationWorkingContext transformationContext) {
@@ -67,12 +73,8 @@ class EmbeddingService {
                         : transformationContext.getMappedObject(componentName);
                 if (mappedObject == null)
                     throw new TransformerException("Event source could not be found in the GUI definition: " + targetObject.getClass().getName() + "." + field.getName());
-                allowOperationOnField(field, new OperationOnField() {
-                    @Override
-                    public void operate(Field field) throws ReflectiveOperationException {
-                        ((Widget) mappedObject).addListener(listenerAnnotation.event(), (Listener) field.get(targetObject));
-                    }
-                });
+                allowOperationOnField(field, safeField ->
+                        ((Widget) mappedObject).addListener(listenerAnnotation.event(), (Listener) field.get(targetObject)));
             }
         }
     }
@@ -89,7 +91,7 @@ class EmbeddingService {
                 if (annotation != null)
                     allListeners.add(annotation);
             }
-            for (EmbeddedEventListener listenerAnnotation : allListeners) {
+            allListeners.forEach(listenerAnnotation -> {
                 String componentName = listenerAnnotation.component();
                 Object mappedObject = componentName.isEmpty()
                         ? transformationContext.getWorkItem()
@@ -104,36 +106,33 @@ class EmbeddingService {
                         throw new TransformerException("Method event listeners must have exactly one parameter, of type org.eclipse.swt.widgets.Event: " + targetObject.getClass().getName() + "." + method.getName());
                 }
                 handleSingleEventToMethodListenerDelegation(transformationContext, targetObject, method, listenerAnnotation.event(), (Widget) mappedObject);
-            }
+            });
         }
     }
 
-    private void handleSingleEventToMethodListenerDelegation(final TransformationWorkingContext transformationContext, final Object targetObject, final Method method, int event, Widget mappedObject) {
-        mappedObject.addListener(event, new Listener() {
-            @Override
-            public void handleEvent(Event event) {
-                final boolean wasPublic = Modifier.isPublic(method.getModifiers());
-                try {
-                    if (!wasPublic)
-                        method.setAccessible(true);
-                    if (method.getParameterTypes().length > 0)
-                        method.invoke(targetObject, event);
-                    else
-                        method.invoke(targetObject);
-                } catch (InvocationTargetException invocationException) {
-                    if (methodEventListenerExceptionHandler != null)
-                        methodEventListenerExceptionHandler.handleException((Shell) transformationContext.getWorkItem(), (Exception) invocationException.getCause());
-                    else
-                        throw new TransformerException("Transformer event delegation got an exception: " + invocationException.getCause().getMessage(), invocationException.getCause());
-                } catch (Exception e) {
-                    if (methodEventListenerExceptionHandler != null)
-                        methodEventListenerExceptionHandler.handleException((Shell) transformationContext.getWorkItem(), e);
-                    else
-                        throw new TransformerException("Transformer event delegation got an exception: " + e.getMessage(), e);
-                } finally {
-                    if (!wasPublic)
-                        method.setAccessible(false);
-                }
+    private void handleSingleEventToMethodListenerDelegation(final TransformationWorkingContext transformationContext, final Object targetObject, final Method method, int eventId, Widget mappedObject) {
+        mappedObject.addListener(eventId, event -> {
+            final boolean wasPublic = Modifier.isPublic(method.getModifiers());
+            try {
+                if (!wasPublic)
+                    method.setAccessible(true);
+                if (method.getParameterTypes().length > 0)
+                    method.invoke(targetObject, event);
+                else
+                    method.invoke(targetObject);
+            } catch (InvocationTargetException invocationException) {
+                if (methodEventListenerExceptionHandler != null)
+                    methodEventListenerExceptionHandler.handleException((Shell) transformationContext.getWorkItem(), (Exception) invocationException.getCause());
+                else
+                    throw new TransformerException("Transformer event delegation got an exception: " + invocationException.getCause().getMessage(), invocationException.getCause());
+            } catch (Exception e) {
+                if (methodEventListenerExceptionHandler != null)
+                    methodEventListenerExceptionHandler.handleException((Shell) transformationContext.getWorkItem(), e);
+                else
+                    throw new TransformerException("Transformer event delegation got an exception: " + e.getMessage(), e);
+            } finally {
+                if (!wasPublic)
+                    method.setAccessible(false);
             }
         });
     }
@@ -174,42 +173,25 @@ class EmbeddingService {
     private <T> T createObservableModel(final Class<T> modelType, final ModelBindingMetaData bindingMetaData) {
         return ProxyFactoryForPostProcessingOfObservableMethods.wrapMethodCalls(
                 modelType, getObservableMethods(modelType, bindingMetaData),
-                new MethodPostProcessor<T>() {
-                    public void postProcess(T target) {
-                        FormUpdater.updateFormFromModel(target, bindingMetaData);
-                    }
-                }
+                target -> FormUpdater.updateFormFromModel(target, bindingMetaData)
         );
     }
 
     private Set<Method> getObservableMethods(final Class<?> type, ModelBindingMetaData bindingMetaData) {
-        final ImmutableListMultimap<String, Method> methods = Multimaps.index(Arrays.asList(getAllAvailableDeclaredMethodsForClass(type)), new Function<Method, String>() {
-            public String apply(Method input) {
-                return input.getName();
-            }
-        });
+        final ImmutableListMultimap<String, Method> methods =
+                Multimaps.index(Arrays.asList(getAllAvailableDeclaredMethodsForClass(type)), Method::getName);
         return Sets.union(FluentIterable
                 .from(bindingMetaData.getFieldMapping().keySet())
-                .filter(new Predicate<Field>() {
-                    @Override
-                    public boolean apply(Field input) {
-                        return input.getAnnotation(TransformerIgnoredProperty.class) == null &&
-                                methods.keySet().contains(getSetterForField(input.getName()));
-                    }
-                }).transform(new Function<Field, Method>() {
-                    @Override
-                    public Method apply(Field input) {
-                        ImmutableList<Method> matchedMethods = methods.get(getSetterForField(input.getName()));
-                        Preconditions.checkState(matchedMethods.size() == 1, "could not make an unique match for setter method");
-                        return matchedMethods.get(0);
-                    }
-                }).toSet(),
-                Sets.filter(Sets.newHashSet(methods.values()), new Predicate<Method>() {
-                    @Override
-                    public boolean apply(Method method) {
-                        return method.getAnnotation(TransformerFireUpdate.class) != null;
-                    }
-                }));
+                .filter(input ->
+                        input.getAnnotation(TransformerIgnoredProperty.class) == null && methods.keySet().contains(getSetterForField(input.getName())))
+                .transform(matchedField -> {
+                    ImmutableList<Method> matchedMethods = methods.get(getSetterForField(matchedField.getName()));
+                    Preconditions.checkState(matchedMethods.size() == 1, "could not make an unique match for setter method");
+                    return matchedMethods.get(0);
+                })
+                .toSet(),
+                Sets.filter(Sets.newHashSet(methods.values()), method -> method.getAnnotation(TransformerFireUpdate.class) != null)
+        );
     }
 
     private void mapOnChangeListeners(final Object model, final TransformationWorkingContext transformationContext) throws ReflectiveOperationException {
@@ -221,13 +203,10 @@ class EmbeddingService {
             Method addListener = component.getClass().getMethod("addListener", new Class[]{int.class, Listener.class});
 
             for (int eventType : fieldMapping.getEvents()) {
-                addListener.invoke(component, eventType, new Listener() {
-                    @Override
-                    public void handleEvent(Event event) {
-                        if (modelBindingMetaData.isFormIsBeingUpdatedFromModelRightNow())
-                            return;
-                        setModelFieldValue(model, field, component, modelBindingMetaData, transformationContext);
-                    }
+                addListener.invoke(component, eventType, (Listener) event -> {
+                    if (modelBindingMetaData.isFormIsBeingUpdatedFromModelRightNow())
+                        return;
+                    setModelFieldValue(model, field, component, modelBindingMetaData, transformationContext);
                 });
             }
         }
