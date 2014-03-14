@@ -34,8 +34,8 @@
         <sourceEncoding>UTF-8</sourceEncoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <swt.version>4.2</swt.version>
-        <guava.version>14.0.1</guava.version>
-        <jackson.version>1.9.12</jackson.version>
+        <guava.version>16.0.1</guava.version>
+        <jackson.version>2.3.2</jackson.version>
         <guice.version>3.0</guice.version>
         <spring.version>3.1.1.RELEASE</spring.version>
     </properties>
@@ -65,57 +65,58 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>3.1</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>2.0</version>
-                <configuration>
-                    <minimizeJar>false</minimizeJar>
-                    <shadedArtifactAttached>true</shadedArtifactAttached>
-                    <shadedClassifierName>all</shadedClassifierName>
-                    <relocations>
-                        <relocation>
-                            <pattern>com.typesafe.config</pattern>
-                            <shadedPattern>net.milanaleksic.baobab.shaded.com.typesafe.config</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>org.objectweb.asm</pattern>
-                            <shadedPattern>net.milanaleksic.baobab.shaded.org.objectweb.asm</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>com.esotericsoftware.reflectasm</pattern>
-                            <shadedPattern>
-                                net.milanaleksic.baobab.shaded.com.esotericsoftware.reflectasm
-                            </shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>org.codehaus.jackson</pattern>
-                            <shadedPattern>net.milanaleksic.baobab.shaded.org.codehaus.jackson
-                            </shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>com.google.common</pattern>
-                            <shadedPattern>net.milanaleksic.baobab.shaded.com.google.common</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>org.aopalliance</pattern>
-                            <shadedPattern>net.milanaleksic.baobab.shaded.org.aopalliance</shadedPattern>
-                        </relocation>
-                    </relocations>
-                    <artifactSet>
-                        <excludes>
-                            <exclude>org.eclipse.swt:*</exclude>
-                        </excludes>
-                    </artifactSet>
-                </configuration>
-            </plugin>
+            <!-- Awaiting moment when Apache delivers the JDK 8 compatible shade plugin -->
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-shade-plugin</artifactId>-->
+                <!--<version>2.2</version>-->
+                <!--<configuration>-->
+                    <!--<minimizeJar>false</minimizeJar>-->
+                    <!--<shadedArtifactAttached>true</shadedArtifactAttached>-->
+                    <!--<shadedClassifierName>all</shadedClassifierName>-->
+                    <!--<relocations>-->
+                        <!--<relocation>-->
+                            <!--<pattern>com.typesafe.config</pattern>-->
+                            <!--<shadedPattern>net.milanaleksic.baobab.shaded.com.typesafe.config</shadedPattern>-->
+                        <!--</relocation>-->
+                        <!--<relocation>-->
+                            <!--<pattern>org.objectweb.asm</pattern>-->
+                            <!--<shadedPattern>net.milanaleksic.baobab.shaded.org.objectweb.asm</shadedPattern>-->
+                        <!--</relocation>-->
+                        <!--<relocation>-->
+                            <!--<pattern>com.esotericsoftware.reflectasm</pattern>-->
+                            <!--<shadedPattern>-->
+                                <!--net.milanaleksic.baobab.shaded.com.esotericsoftware.reflectasm-->
+                            <!--</shadedPattern>-->
+                        <!--</relocation>-->
+                        <!--<relocation>-->
+                            <!--<pattern>org.codehaus.jackson</pattern>-->
+                            <!--<shadedPattern>net.milanaleksic.baobab.shaded.org.codehaus.jackson-->
+                            <!--</shadedPattern>-->
+                        <!--</relocation>-->
+                        <!--<relocation>-->
+                            <!--<pattern>com.google.common</pattern>-->
+                            <!--<shadedPattern>net.milanaleksic.baobab.shaded.com.google.common</shadedPattern>-->
+                        <!--</relocation>-->
+                        <!--<relocation>-->
+                            <!--<pattern>org.aopalliance</pattern>-->
+                            <!--<shadedPattern>net.milanaleksic.baobab.shaded.org.aopalliance</shadedPattern>-->
+                        <!--</relocation>-->
+                    <!--</relocations>-->
+                    <!--<artifactSet>-->
+                        <!--<excludes>-->
+                            <!--<exclude>org.eclipse.swt:*</exclude>-->
+                        <!--</excludes>-->
+                    <!--</artifactSet>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
         </plugins>
         <extensions>
             <extension>
@@ -154,5 +155,20 @@
             </snapshots>
         </repository>
     </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>snapshots@sonatype</id>
+            <name>snapshots @ sonatype</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <layout>default</layout>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
 
 </project>

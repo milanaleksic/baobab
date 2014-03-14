@@ -3,11 +3,9 @@ package net.milanaleksic.baobab.builders;
 import com.google.common.base.Preconditions;
 import net.milanaleksic.baobab.converters.ObjectConverter;
 import net.milanaleksic.baobab.converters.TransformationWorkingContext;
-import net.milanaleksic.baobab.util.ReaderLoaner;
 import net.milanaleksic.baobab.util.StreamUtil;
 
 import javax.inject.Inject;
-import java.io.Reader;
 import java.util.List;
 
 /**
@@ -22,14 +20,10 @@ public class IncludeBuilder implements Builder<Object> {
     @Override
     public BuilderContext<Object> create(final TransformationWorkingContext context, List<String> parameters) {
         Preconditions.checkArgument(parameters.size() == 1, "Include builder supports only one parameter: location of the GUI definition file");
-        return new BuilderContext<>(StreamUtil.loanRelativeResource(context.getFormLocation(), parameters.get(0), new ReaderLoaner<Object>() {
-            @Override
-            public Object loan(Reader definitionStream) {
-                return objectConverter
+        return new BuilderContext<>(StreamUtil.loanRelativeResource(context.getFormLocation(), parameters.get(0),
+                definitionStream -> objectConverter
                         .createHierarchy(context, definitionStream)
-                        .getWorkItem();
-            }
-        }));
+                        .getWorkItem()));
     }
 
 }

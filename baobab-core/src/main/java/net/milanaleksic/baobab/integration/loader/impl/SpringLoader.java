@@ -1,6 +1,5 @@
 package net.milanaleksic.baobab.integration.loader.impl;
 
-import com.google.common.base.Optional;
 import net.milanaleksic.baobab.integration.loader.Loader;
 import net.milanaleksic.baobab.util.ObjectUtil;
 import org.springframework.beans.BeansException;
@@ -10,6 +9,7 @@ import org.springframework.context.ApplicationContextAware;
 
 import javax.inject.Inject;
 import java.lang.reflect.Field;
+import java.util.Optional;
 
 /**
  * User: Milan Aleksic
@@ -18,7 +18,7 @@ import java.lang.reflect.Field;
  */
 public class SpringLoader implements Loader, ApplicationContextAware {
 
-    private Optional<ApplicationContext> applicationContext = Optional.absent();
+    private Optional<ApplicationContext> applicationContext = Optional.empty();
 
     @Override
     public void load(Object raw) {

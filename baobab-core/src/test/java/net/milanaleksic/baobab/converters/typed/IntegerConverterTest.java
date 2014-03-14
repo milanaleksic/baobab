@@ -1,6 +1,6 @@
 package net.milanaleksic.baobab.converters.typed;
 
-import org.codehaus.jackson.node.TextNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import org.eclipse.swt.SWT;
 import org.junit.Test;
 
@@ -13,7 +13,6 @@ import static org.junit.Assert.fail;
  * Date: 4/20/12
  * Time: 9:44 AM
  */
-@SuppressWarnings({"HardCodedStringLiteral"})
 public class IntegerConverterTest {
 
     @Test

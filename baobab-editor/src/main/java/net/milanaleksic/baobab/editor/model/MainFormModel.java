@@ -1,6 +1,5 @@
 package net.milanaleksic.baobab.editor.model;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.*;
 import net.milanaleksic.baobab.model.TransformerFireUpdate;
 import net.milanaleksic.baobab.model.*;
@@ -43,7 +42,7 @@ public class MainFormModel {
     private boolean modified = false;
 
     @TransformerIgnoredProperty
-    private Optional<Exception> lastException = Optional.absent();
+    private Optional<Exception> lastException = Optional.empty();
 
     @TransformerIgnoredProperty
     private String lastSearchString = null;
@@ -134,7 +133,7 @@ public class MainFormModel {
         infoText = infoText.replaceAll("\r", "");
         infoText = infoText.replaceAll("\n", "");
         setInfoText(infoText);
-        this.lastException = Optional.fromNullable(exception);
+        this.lastException = Optional.ofNullable(exception);
     }
 
     @TransformerFireUpdate

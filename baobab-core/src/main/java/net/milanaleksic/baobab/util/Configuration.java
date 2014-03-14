@@ -1,13 +1,12 @@
 package net.milanaleksic.baobab.util;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import net.milanaleksic.baobab.TransformerException;
 import net.milanaleksic.baobab.integration.loader.Loader;
 
-import java.util.Map;
+import java.util.Optional;
 
 /**
  * User: Milan Aleksic
@@ -21,12 +20,13 @@ public class Configuration {
     public static ImmutableMap<String, Class<?>> loadStringToClassMapping(String configName) {
         ImmutableMap.Builder<String, Class<?>> builder = ImmutableMap.builder();
         final Config configuration = reference.getConfig(configName);
-        for (Map.Entry<String, Object> entry : configuration.root().unwrapped().entrySet())
+        configuration.root().unwrapped().entrySet().forEach(entry -> {
             try {
                 builder.put(entry.getKey(), Class.forName(entry.getValue().toString()));
             } catch (ClassNotFoundException e) {
                 throw new TransformerException("Configuration could not be loaded for entry: " + entry.getKey(), e);
             }
+        });
         return builder.build();
     }
 
@@ -36,7 +36,7 @@ public class Configuration {
         final Config configuration = reference.getConfig(configName);
         if (configuration.isEmpty())
             return ImmutableMap.of();
-        for (Map.Entry<String, Object> entry : configuration.root().unwrapped().entrySet()) {
+        configuration.root().unwrapped().entrySet().forEach(entry -> {
             try {
                 final Class<?> classWhichIsMaybeWrapper = Class.forName(entry.getKey());
                 final Class<?> clazz = Class.forName(entry.getValue().toString());
@@ -57,7 +57,7 @@ public class Configuration {
             } catch (Exception e) {
                 throw new TransformerException("Configuration could not be loaded for entry: " + entry.getKey(), e);
             }
-        }
+        });
         return builder.build();
     }
 
@@ -67,7 +67,7 @@ public class Configuration {
         final Config configuration = reference.getConfig(configName);
         if (configuration.isEmpty())
             return ImmutableMap.of();
-        for (Map.Entry<String, Object> entry : configuration.root().unwrapped().entrySet()) {
+        configuration.root().unwrapped().entrySet().forEach(entry -> {
             try {
                 T raw = (T) ObjectUtil.createInstanceForType(Class.forName(entry.getValue().toString()));
                 if (loader.isPresent())
@@ -76,7 +76,7 @@ public class Configuration {
             } catch (Exception e) {
                 throw new TransformerException("Configuration could not be loaded for entry: " + entry.getKey(), e);
             }
-        }
+        });
         return builder.build();
     }
 }

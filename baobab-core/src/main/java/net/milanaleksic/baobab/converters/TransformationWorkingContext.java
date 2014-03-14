@@ -78,10 +78,6 @@ public class TransformationWorkingContext {
         return getMutableRootMappedObjects().get(key);
     }
 
-    public void mapAll(Map<String, Object> mappedObjects) {
-        getMutableRootMappedObjects().putAll(mappedObjects);
-    }
-
     public void mapObject(String key, Object object) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(key), "Object is not named");
         if (key.startsWith("_"))

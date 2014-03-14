@@ -1,6 +1,6 @@
 package net.milanaleksic.baobab.converters;
 
-import com.google.common.base.Optional;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import net.milanaleksic.baobab.TransformerException;
@@ -8,12 +8,12 @@ import net.milanaleksic.baobab.builders.Builder;
 import net.milanaleksic.baobab.builders.BuilderContext;
 import net.milanaleksic.baobab.providers.BuilderProvider;
 import net.milanaleksic.baobab.providers.ConverterProvider;
-import org.codehaus.jackson.JsonNode;
 
 import javax.inject.Inject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Optional;
 
 import static net.milanaleksic.baobab.util.ObjectUtil.*;
 

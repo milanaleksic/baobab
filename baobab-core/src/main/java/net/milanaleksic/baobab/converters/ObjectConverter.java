@@ -1,13 +1,13 @@
 package net.milanaleksic.baobab.converters;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import net.milanaleksic.baobab.TransformerException;
 import net.milanaleksic.baobab.builders.BuilderContext;
 import net.milanaleksic.baobab.providers.ObjectProvider;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.swt.widgets.*;
 
 import javax.annotation.Nullable;
@@ -60,7 +60,7 @@ public class ObjectConverter implements Converter {
         try {
             final JsonNode shellDefinition = mapper.readValue(content, JsonNode.class);
             Preconditions.checkArgument(shellDefinition.size() == 1, "Hierarchy must be defined with a single root element");
-            Map.Entry<String, JsonNode> rootField = shellDefinition.getFields().next();
+            Map.Entry<String, JsonNode> rootField = shellDefinition.fields().next();
             final TransformationWorkingContext transformationWorkingContext;
             transformationWorkingContext = create(context, rootField.getKey(), rootField.getValue());
             if (context.getFormObject() != null)
@@ -91,7 +91,7 @@ public class ObjectConverter implements Converter {
     public Object getValueFromJson(TransformationWorkingContext context, JsonNode node) {
         if (node.isObject()) {
             Preconditions.checkArgument(node.size() == 1, "Hierarchy must be defined with a single root element");
-            Iterator<Map.Entry<String, JsonNode>> fields = node.getFields();
+            Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
             Map.Entry<String, JsonNode> subRoot = fields.next();
             final TransformationWorkingContext widgetFromNode = create(context, subRoot.getKey(), subRoot.getValue());
             return widgetFromNode.getWorkItem();
@@ -118,7 +118,7 @@ public class ObjectConverter implements Converter {
     }
 
     private void transformNodeToProperties(TransformationWorkingContext context, JsonNode jsonNode) {
-        Iterator<Map.Entry<String, JsonNode>> fields = jsonNode.getFields();
+        Iterator<Map.Entry<String, JsonNode>> fields = jsonNode.fields();
         while (fields.hasNext()) {
             Map.Entry<String, JsonNode> field = fields.next();
             String key = field.getKey();
@@ -141,7 +141,7 @@ public class ObjectConverter implements Converter {
         if (!(workItem instanceof Widget))
             throw new TransformerException("Can not set data fields for object which is not Widget (" + workItem.getClass().getName() + " in this case)");
         final Widget widget = (Widget) workItem;
-        Iterator<Map.Entry<String, JsonNode>> fields = dataFieldsMapping.getFields();
+        Iterator<Map.Entry<String, JsonNode>> fields = dataFieldsMapping.fields();
         while (fields.hasNext()) {
             Map.Entry<String, JsonNode> field = fields.next();
             String key = field.getKey();
@@ -169,7 +169,7 @@ public class ObjectConverter implements Converter {
     }
 
     private void transformChildrenUsingShortHandSyntax(TransformationWorkingContext context, JsonNode childrenNodes) {
-        final Iterator<String> fieldNames = childrenNodes.getFieldNames();
+        final Iterator<String> fieldNames = childrenNodes.fieldNames();
         while (fieldNames.hasNext()) {
             final String field = fieldNames.next();
             create(context, field, childrenNodes.get(field));

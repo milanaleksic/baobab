@@ -1,17 +1,17 @@
 package net.milanaleksic.baobab.util;
 
 import com.esotericsoftware.reflectasm.ConstructorAccess;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import net.milanaleksic.baobab.TransformerException;
 
-import javax.annotation.Nullable;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
 
 /**
@@ -22,12 +22,7 @@ import java.util.concurrent.ConcurrentMap;
 public class ObjectUtil {
 
     public static void setFieldValueOnObject(Field field, final Object targetObject, final Object valueOfField) {
-        allowOperationOnField(field, new OperationOnField() {
-            @Override
-            public void operate(Field field) throws ReflectiveOperationException {
-                field.set(targetObject, valueOfField);
-            }
-        });
+        allowOperationOnField(field, safeField -> safeField.set(targetObject, valueOfField));
     }
 
     public static String getInternalNameForClass(String className) {
@@ -70,7 +65,7 @@ public class ObjectUtil {
                 return Optional.of(field);
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     public static Optional<Method> getSetterByName(Object object, String setterName) {
@@ -79,7 +74,7 @@ public class ObjectUtil {
                 return Optional.of(method);
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     private static ConcurrentMap<Class<?>, Method[]> availablePublicAndInheritedMethodsForClass = Maps.newConcurrentMap();
@@ -106,13 +101,10 @@ public class ObjectUtil {
     }
 
     public static Iterable<Field> getFieldsWithAnnotation(Class<?> clazz, final Class<? extends Annotation> annotation) {
-        return Iterables.filter(Arrays.asList(clazz.getDeclaredFields()), new Predicate<Field>() {
-            @Override
-            public boolean apply(@Nullable Field field) {
-                if (field == null)
-                    throw new TransformerException("field is null");
-                return field.getAnnotation(annotation) != null;
-            }
+        return Iterables.filter(Arrays.asList(clazz.getDeclaredFields()), field -> {
+            if (field == null)
+                throw new TransformerException("field is null");
+            return field.getAnnotation(annotation) != null;
         });
     }
 

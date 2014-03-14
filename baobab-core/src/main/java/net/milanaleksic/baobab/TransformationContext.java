@@ -1,11 +1,11 @@
 package net.milanaleksic.baobab;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import net.milanaleksic.baobab.model.ModelBindingMetaData;
 import org.eclipse.swt.widgets.*;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * User: Milan Aleksic
@@ -35,7 +35,7 @@ public class TransformationContext {
     public <T> Optional<T> getMappedObject(String name) {
         Object object = mappedObjects.get(name);
         if (object == null)
-            return Optional.absent();
+            return Optional.empty();
         else
             return Optional.of((T) object);
     }
