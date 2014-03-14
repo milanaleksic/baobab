@@ -29,14 +29,11 @@ public class ConfigurableConverterProvider implements ConverterProvider {
                         Optional.of(loader)
                 )
         );
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                for (Converter converter : mapping.get().values()) {
-                    converter.cleanUp();
-                }
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            for (Converter converter : mapping.get().values()) {
+                converter.cleanUp();
             }
-        });
+        }));
     }
 
     @SuppressWarnings("unchecked")
