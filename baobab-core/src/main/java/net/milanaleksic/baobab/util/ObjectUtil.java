@@ -6,12 +6,8 @@ import com.google.common.collect.Maps;
 import net.milanaleksic.baobab.TransformerException;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Optional;
+import java.lang.reflect.*;
+import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 
 /**
@@ -41,17 +37,13 @@ public class ObjectUtil {
         }
     }
 
-    public interface OperationOnField {
-        void operate(Field field) throws ReflectiveOperationException;
-    }
-
-    public static void allowOperationOnField(Field field, OperationOnField operation) {
+    public static void allowOperationOnField(Field field, ReflectiveCheckedConsumer<Field> operation) {
         boolean wasPublic = Modifier.isPublic(field.getModifiers());
         if (!wasPublic)
             field.setAccessible(true);
         try {
-            operation.operate(field);
-        } catch (Exception e) {
+            operation.accept(field);
+        } catch (ReflectiveOperationException e) {
             throw new TransformerException("Error while operating on field named " + field.getName(), e);
         } finally {
             if (!wasPublic)

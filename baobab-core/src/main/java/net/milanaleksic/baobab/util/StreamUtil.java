@@ -5,6 +5,7 @@ import net.milanaleksic.baobab.TransformerException;
 
 import java.io.*;
 import java.nio.file.Paths;
+import java.util.function.Function;
 
 /**
  * User: Milan Aleksic
@@ -13,13 +14,13 @@ import java.nio.file.Paths;
  */
 public class StreamUtil {
 
-    public static <T> T loanResourceReader(String resourceName, ReaderLoaner<T> loaner) {
+    public static <T> T loanResourceReader(String resourceName, Function<Reader, T> loaner) {
         Reader contentAsReader = null;
         try {
             InputStream resourceAsStream = StreamUtil.class.getResourceAsStream(resourceName);
             Preconditions.checkNotNull(resourceAsStream, "Resource does not exist: %s", resourceName);
             contentAsReader = new InputStreamReader(resourceAsStream);
-            return loaner.loan(contentAsReader);
+            return loaner.apply(contentAsReader);
         } finally {
             try {
                 if (contentAsReader != null) contentAsReader.close();
@@ -28,11 +29,11 @@ public class StreamUtil {
         }
     }
 
-    public static <T> T loanStringStream(String content, ReaderLoaner<T> loaner) {
+    public static <T> T loanStringStream(String content, Function<Reader, T> loaner) {
         Reader contentAsReader = null;
         try {
             contentAsReader = new StringReader(content);
-            return loaner.loan(contentAsReader);
+            return loaner.apply(contentAsReader);
         } finally {
             try {
                 if (contentAsReader != null) contentAsReader.close();
@@ -41,7 +42,7 @@ public class StreamUtil {
         }
     }
 
-    public static <T> T loanRelativeResource(String parentResourceLocation, String relativeLocation, ReaderLoaner<T> loaner) {
+    public static <T> T loanRelativeResource(String parentResourceLocation, String relativeLocation, Function<Reader, T> loaner) {
         Reader contentAsReader = null;
         try {
             InputStream childResource = StreamUtil.class.getResourceAsStream(parentResourceLocation + relativeLocation);
@@ -52,7 +53,7 @@ public class StreamUtil {
                 Preconditions.checkArgument(childFileResource.exists(), "Resource %s could not be found relative to %s", relativeLocation, parentResourceLocation);
                 contentAsReader = new FileReader(childFileResource);
             }
-            return loaner.loan(contentAsReader);
+            return loaner.apply(contentAsReader);
         } catch (FileNotFoundException ignored) {
             throw new TransformerException("File not found", ignored);
         } finally {

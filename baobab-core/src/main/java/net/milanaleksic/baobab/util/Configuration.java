@@ -31,7 +31,7 @@ public class Configuration {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> ImmutableMap<Class<?>, T> loadClassToInstanceMapping(String configName, Optional<Loader> loader) {
+    public static <T> ImmutableMap<Class<?>, T> loadClassToInstanceMapping(String configName, Optional<Loader> maybeLoader) {
         ImmutableMap.Builder<Class<?>, T> builder = ImmutableMap.builder();
         final Config configuration = reference.getConfig(configName);
         if (configuration.isEmpty())
@@ -46,8 +46,7 @@ public class Configuration {
                 if (clazz.getConstructor() == null)
                     throw new TransformerException("Transformer supports only extension classes with default constructor");
                 T raw = (T) ObjectUtil.createInstanceForType(clazz);
-                if (loader.isPresent())
-                    loader.get().load(raw);
+                maybeLoader.ifPresent(loader -> loader.load(raw));
                 try {
                     Class primitiveClass = (Class) classWhichIsMaybeWrapper.getField("TYPE").get(null);
                     builder.put(primitiveClass, raw);
@@ -62,7 +61,7 @@ public class Configuration {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> ImmutableMap<String, T> loadStringToInstanceMapping(String configName, Optional<Loader> loader) {
+    public static <T> ImmutableMap<String, T> loadStringToInstanceMapping(String configName, Optional<Loader> maybeLoader) {
         ImmutableMap.Builder builder = new ImmutableMap.Builder();
         final Config configuration = reference.getConfig(configName);
         if (configuration.isEmpty())
@@ -70,8 +69,7 @@ public class Configuration {
         configuration.root().unwrapped().entrySet().forEach(entry -> {
             try {
                 T raw = (T) ObjectUtil.createInstanceForType(Class.forName(entry.getValue().toString()));
-                if (loader.isPresent())
-                    loader.get().load(raw);
+                maybeLoader.ifPresent(loader -> loader.load(raw));
                 builder.put(entry.getKey(), raw);
             } catch (Exception e) {
                 throw new TransformerException("Configuration could not be loaded for entry: " + entry.getKey(), e);
