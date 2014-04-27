@@ -1,6 +1,6 @@
 package net.milanaleksic.baobab.util;
 
 @FunctionalInterface
-public interface ReflectiveCheckedConsumer<T> extends CheckedConsumer<T, ReflectiveOperationException> {
+public interface ReflectiveCheckedConsumer<T> {
     void accept(T t) throws ReflectiveOperationException;
 }
