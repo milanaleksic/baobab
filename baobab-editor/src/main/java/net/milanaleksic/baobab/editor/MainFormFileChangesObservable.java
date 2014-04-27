@@ -41,19 +41,19 @@ public class MainFormFileChangesObservable extends Observable {
                     if (watchEvents.isEmpty())
                         Thread.sleep(100);
                     else {
-                        for (WatchEvent<?> event : watchEvents) {
-                            if (event.kind() == OVERFLOW)
-                                continue;
-
-                            WatchEvent<Path> ev = (WatchEvent<Path>) event;
-                            Path fullFilename = ((Path) localizedWatchKey.watchable()).resolve(ev.context());
-                            long fileUpdatedTimestamp = fullFilename.toFile().lastModified();
-                            if (fileUpdatedTimestamp != lastUpdated) {
-                                // avoiding double event trigger handling
-                                lastUpdated = fileUpdatedTimestamp;
-                                informListeners(fullFilename);
-                            }
-                        }
+                        watchEvents
+                                .stream()
+                                .filter(event -> event.kind() != OVERFLOW)
+                                .forEach(event -> {
+                                    WatchEvent<Path> ev = (WatchEvent<Path>) event;
+                                    Path fullFilename = ((Path) localizedWatchKey.watchable()).resolve(ev.context());
+                                    long fileUpdatedTimestamp = fullFilename.toFile().lastModified();
+                                    if (fileUpdatedTimestamp != lastUpdated) {
+                                        // avoiding double event trigger handling
+                                        lastUpdated = fileUpdatedTimestamp;
+                                        informListeners(fullFilename);
+                                    }
+                                });
                     }
                     if (!localizedWatchKey.reset())
                         localizedWatchKey.cancel();
