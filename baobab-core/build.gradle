@@ -1,0 +1,20 @@
+dependencies {
+    compile "com.google.guava:guava:${guavaVersion}"
+    compile "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
+    compile "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+    compile "javax.inject:javax.inject:1"
+    compile "com.google.code.findbugs:jsr305:2.0.1"
+    compile "com.esotericsoftware.reflectasm:reflectasm:1.09"
+    compile "org.ow2.asm:asm:5.0.3"
+    compile "com.typesafe:config:1.2.0"
+
+    compile "com.google.inject:guice:${guiceVersion}"
+    compile "com.google.inject.extensions:guice-multibindings:${guiceVersion}"
+    compile "org.springframework:spring-context:${springVersion}"
+    compile "org.springframework:spring-beans:${springVersion}"
+    compile "org.springframework:spring-core:${springVersion}"
+
+    testCompile "junit:junit-dep:4.10"
+    testCompile "org.hamcrest:hamcrest-core:1.2.1"
+    testCompile "org.hamcrest:hamcrest-library:1.2.1"
+}
