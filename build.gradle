@@ -30,18 +30,6 @@ allprojects {
     version = baobabVersion
     description = 'Baobab toolkit for building interfaces in SWT using JSON'
 
-//    <developers>
-//    <developer>
-//    <name>Milan Aleksic</name>
-//            <email>milanaleksic@gmail.com</email>
-//    <roles>
-//    <role>architect</role>
-//                <role>developer</role>
-//    </roles>
-//            <timezone>+1</timezone>
-//    </developer>
-//    </developers>
-
     sourceCompatibility = sourceVersion
     targetCompatibility = sourceVersion
 
@@ -83,27 +71,5 @@ allprojects {
         linux64 "org.eclipse.swt:org.eclipse.swt.gtk.linux.x86_64:$swtVersion"
     }
 
-    apply plugin: 'maven'
-    uploadArchives {
-        configurations { deployerJars }
-        dependencies {
-            deployerJars "org.springframework.build.aws:org.springframework.build.aws.maven:3.0.0.RELEASE"
-        }
-
-        repositories.mavenDeployer { deployer ->
-            def repositoryUrl = 's3://maven.milanaleksic.net'
-
-            description += repositoryUrl
-            configuration = configurations.deployerJars
-            // these properties ('s3AccessKey', 's3SecretAccessKey') should be defined in
-            // 'gradle.properties' in $HOME/.gradle/gradle.properties
-            def s3credentials = [
-                    userName: project.properties.s3AccessKey,
-                    passphrase: project.properties.s3SecretAccessKey
-            ]
-            repository(url: "$repositoryUrl/release/") { authentication(s3credentials) }
-            snapshotRepository(url: "$repositoryUrl/snapshots/") { authentication(s3credentials) }
-        }
-
-    }
+    apply from: "$rootDir/deployment.gradle"
 }

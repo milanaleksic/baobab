@@ -1,0 +1,44 @@
+apply plugin: 'maven'
+
+uploadArchives {
+    configurations { deployerJars }
+    dependencies {
+        deployerJars "org.springframework.build.aws:org.springframework.build.aws.maven:3.0.0.RELEASE"
+    }
+
+    repositories.mavenDeployer { deployer ->
+        def repositoryUrl = 's3://maven.milanaleksic.net'
+
+        description += repositoryUrl
+        configuration = configurations.deployerJars
+        // these properties ('s3AccessKey', 's3SecretAccessKey') should be defined in
+        // 'gradle.properties' in $HOME/.gradle/gradle.properties
+        def s3credentials = [
+                userName: project.properties.s3AccessKey,
+                passphrase: project.properties.s3SecretAccessKey
+        ]
+        repository(url: "$repositoryUrl/release/") { authentication(s3credentials) }
+        snapshotRepository(url: "$repositoryUrl/snapshots/") { authentication(s3credentials) }
+
+        configurePom(deployer.pom)
+    }
+
+}
+
+def configurePom(def pom) {
+    pom.project {
+        licenses {
+            license {
+                name 'The Apache Software License, Version 2.0'
+                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                distribution 'repo'
+            }
+        }
+        developers {
+            developer {
+                name 'Milan Aleksic'
+                email 'milanaleksic@gmail.com'
+            }
+        }
+    }
+}
