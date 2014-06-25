@@ -156,6 +156,31 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.gmaven</groupId>
+                <artifactId>gmaven-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <properties>
+                                <hello>world</hello>
+                            </properties>
+                            <source>
+                                def version = "java -d64 -version".execute().text
+                                if (version.contains("not support"))
+                                    project.properties["vm-type"] = "32"
+                                else
+                                    project.properties["vm-type"] = "64"
+                            </source>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -165,8 +190,11 @@
             <activation>
                 <os>
                     <family>windows</family>
-                    <arch>x86</arch>
                 </os>
+                <property>
+                    <name>vm-type</name>
+                    <value>32</value>
+                </property>
             </activation>
             <dependencies>
                 <dependency>
@@ -181,24 +209,11 @@
             <activation>
                 <os>
                     <family>windows</family>
-                    <arch>x86_64</arch>
                 </os>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>org.eclipse.swt</groupId>
-                    <artifactId>org.eclipse.swt.win32.win32.x86_64</artifactId>
-                    <version>${swt.version}</version>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <id>windows64amd</id>
-            <activation>
-                <os>
-                    <family>windows</family>
-                    <arch>amd64</arch>
-                </os>
+                <property>
+                    <name>vm-type</name>
+                    <value>64</value>
+                </property>
             </activation>
             <dependencies>
                 <dependency>
@@ -213,8 +228,11 @@
             <activation>
                 <os>
                     <family>linux</family>
-                    <arch>x86</arch>
                 </os>
+                <property>
+                    <name>vm-type</name>
+                    <value>32</value>
+                </property>
             </activation>
             <dependencies>
                 <dependency>
@@ -229,8 +247,11 @@
             <activation>
                 <os>
                     <family>linux</family>
-                    <arch>x86_64</arch>
                 </os>
+                <property>
+                    <name>vm-type</name>
+                    <value>64</value>
+                </property>
             </activation>
             <dependencies>
                 <dependency>
@@ -241,20 +262,7 @@
             </dependencies>
         </profile>
         <profile>
-            <id>linux64amd</id>
-            <activation>
-                <os>
-                    <family>linux</family>
-                    <arch>amd64</arch>
-                </os>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>org.eclipse.swt</groupId>
-                    <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
-                    <version>${swt.version}</version>
-                </dependency>
-            </dependencies>
+            <id>default</id>
         </profile>
     </profiles>
 
