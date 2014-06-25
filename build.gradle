@@ -42,14 +42,6 @@ allprojects {
 //    </developer>
 //    </developers>
 
-//    <distributionManagement>
-//    <repository>
-//    <id>milanaleksicnet-maven</id>
-//            <name>MilanAleksic.Net Amazon S3 repository</name>
-//    <url>s3://maven.milanaleksic.net/release</url>
-//    </repository>
-//    </distributionManagement>
-
     sourceCompatibility = sourceVersion
     targetCompatibility = sourceVersion
 
@@ -74,7 +66,7 @@ allprojects {
     [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
     multiplatform {
-        version = version
+        version = project.version
 
         dependencyMappings {
             dependencyMapping('win32', FAMILY_WINDOWS, ARCH_X86)
@@ -89,5 +81,29 @@ allprojects {
         win64 "org.eclipse.swt:org.eclipse.swt.win32.win32.x86_64:$swtVersion"
         linux32 "org.eclipse.swt:org.eclipse.swt.gtk.linux.x86:$swtVersion"
         linux64 "org.eclipse.swt:org.eclipse.swt.gtk.linux.x86_64:$swtVersion"
+    }
+
+    apply plugin: 'maven'
+    uploadArchives {
+        configurations { deployerJars }
+        dependencies {
+            deployerJars "org.springframework.build.aws:org.springframework.build.aws.maven:3.0.0.RELEASE"
+        }
+
+        repositories.mavenDeployer { deployer ->
+            def repositoryUrl = 's3://maven.milanaleksic.net'
+
+            description += repositoryUrl
+            configuration = configurations.deployerJars
+            // these properties ('s3AccessKey', 's3SecretAccessKey') should be defined in
+            // 'gradle.properties' in $HOME/.gradle/gradle.properties
+            def s3credentials = [
+                    userName: project.properties.s3AccessKey,
+                    passphrase: project.properties.s3SecretAccessKey
+            ]
+            repository(url: "$repositoryUrl/release/") { authentication(s3credentials) }
+            snapshotRepository(url: "$repositoryUrl/snapshots/") { authentication(s3credentials) }
+        }
+
     }
 }

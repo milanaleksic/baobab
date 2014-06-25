@@ -1,5 +1,3 @@
-rootProject.name = 'Baobab'
-
 include 'baobab-core'
 include 'baobab-editor'
 include 'baobab-samples'
