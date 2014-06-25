@@ -84,11 +84,11 @@ public class ProxyFactoryForPostProcessingOfObservableMethods {
             if (opCode == LLOAD || opCode == DLOAD)
                 noOfParams++;
         }
-        mv.visitMethodInsn(INVOKESPECIAL, modelType.getInternalName(), method.getName(), Type.getMethodDescriptor(method));
+        mv.visitMethodInsn(INVOKESPECIAL, modelType.getInternalName(), method.getName(), Type.getMethodDescriptor(method), false);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitFieldInsn(GETFIELD, proxyType.getInternalName(), "postProcessor", postProcessorType.getDescriptor());
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKEINTERFACE, postProcessorType.getInternalName(), "postProcess", "(Ljava/lang/Object;)V");
+        mv.visitMethodInsn(INVOKEINTERFACE, postProcessorType.getInternalName(), "postProcess", "(Ljava/lang/Object;)V", true);
         mv.visitInsn(RETURN);
         mv.visitMaxs(1 + noOfParams, 1 + noOfParams);
         mv.visitEnd();
@@ -100,7 +100,7 @@ public class ProxyFactoryForPostProcessingOfObservableMethods {
                 "(L" + postProcessorType.getInternalName() + "<" + modelType.getDescriptor() + ">;)V", null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, modelType.getInternalName(), "<init>", "()V");
+        mv.visitMethodInsn(INVOKESPECIAL, modelType.getInternalName(), "<init>", "()V", false);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, 1);
         mv.visitFieldInsn(PUTFIELD, proxyType.getInternalName(), "postProcessor", postProcessorType.getDescriptor());

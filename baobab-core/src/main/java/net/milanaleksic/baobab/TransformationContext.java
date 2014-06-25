@@ -33,11 +33,7 @@ public class TransformationContext {
 
     @SuppressWarnings("unchecked")
     public <T> Optional<T> getMappedObject(String name) {
-        Object object = mappedObjects.get(name);
-        if (object == null)
-            return Optional.empty();
-        else
-            return Optional.of((T) object);
+        return Optional.ofNullable((T) mappedObjects.get(name));
     }
 
     public Map<String, Object> getMappedObjects() {

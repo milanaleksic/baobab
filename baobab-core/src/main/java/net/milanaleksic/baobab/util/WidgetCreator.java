@@ -91,7 +91,7 @@ public abstract class WidgetCreator<T> {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, thisType.getInternalName(), "<init>", "()V");
+        mv.visitMethodInsn(INVOKESPECIAL, thisType.getInternalName(), "<init>", "()V", false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(1, 1);
         mv.visitEnd();
@@ -115,7 +115,7 @@ public abstract class WidgetCreator<T> {
         mv.visitCode();
         mv.visitTypeInsn(NEW, classNameInternal);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, classNameInternal, "<init>", "()V");
+        mv.visitMethodInsn(INVOKESPECIAL, classNameInternal, "<init>", "()V", false);
         mv.visitInsn(ARETURN);
         mv.visitMaxs(2, 3);
         mv.visitEnd();
@@ -131,7 +131,7 @@ public abstract class WidgetCreator<T> {
         mv.visitInsn(DUP);
         mv.visitVarInsn(ALOAD, 3);
         mv.visitVarInsn(ILOAD, 2);
-        mv.visitMethodInsn(INVOKESPECIAL, classNameInternal, "<init>", "(L" + firstParameterInternal + ";I)V");
+        mv.visitMethodInsn(INVOKESPECIAL, classNameInternal, "<init>", "(L" + firstParameterInternal + ";I)V", false);
         mv.visitInsn(ARETURN);
         mv.visitMaxs(4, 4);
         mv.visitEnd();
@@ -146,7 +146,7 @@ public abstract class WidgetCreator<T> {
         mv.visitTypeInsn(NEW, "net/milanaleksic/baobab/TransformerException");
         mv.visitInsn(DUP);
         mv.visitLdcInsn("Null parent widget detected!");
-        mv.visitMethodInsn(INVOKESPECIAL, "net/milanaleksic/baobab/TransformerException", "<init>", "(Ljava/lang/String;)V");
+        mv.visitMethodInsn(INVOKESPECIAL, "net/milanaleksic/baobab/TransformerException", "<init>", "(Ljava/lang/String;)V", false);
         mv.visitInsn(ATHROW);
         mv.visitLabel(l0);
         mv.visitFrame(F_SAME, 0, null, 0, null);
@@ -156,9 +156,9 @@ public abstract class WidgetCreator<T> {
         mv.visitTypeInsn(NEW, classNameInternal);
         mv.visitInsn(DUP);
         mv.visitVarInsn(ALOAD, 3);
-        mv.visitMethodInsn(INVOKEVIRTUAL, "org/eclipse/swt/widgets/Widget", "getDisplay", "()Lorg/eclipse/swt/widgets/Display;");
+        mv.visitMethodInsn(INVOKEVIRTUAL, "org/eclipse/swt/widgets/Widget", "getDisplay", "()Lorg/eclipse/swt/widgets/Display;", false);
         mv.visitVarInsn(ILOAD, 2);
-        mv.visitMethodInsn(INVOKESPECIAL, classNameInternal, "<init>", "(L" + firstParameterInternal + ";I)V");
+        mv.visitMethodInsn(INVOKESPECIAL, classNameInternal, "<init>", "(L" + firstParameterInternal + ";I)V", false);
         mv.visitInsn(ARETURN);
         mv.visitMaxs(4, 4);
     }

@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static net.milanaleksic.baobab.util.ObjectUtil.*;
+import static net.milanaleksic.baobab.util.lambda.Safe.safe;
+import static net.milanaleksic.baobab.util.lambda.Safe.safeFunction;
 
 /**
  * User: Milan Aleksic

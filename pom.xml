@@ -36,7 +36,7 @@
         <swt.version>4.2</swt.version>
         <guava.version>16.0.1</guava.version>
         <jackson.version>2.3.2</jackson.version>
-        <guice.version>3.0</guice.version>
+        <guice.version>4.0-beta4</guice.version>
         <spring.version>3.1.1.RELEASE</spring.version>
     </properties>
 
