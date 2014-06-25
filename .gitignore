@@ -1,21 +1,8 @@
 *.class
-
-# Package Files #
-*.jar
-*.war
-*.ear
-
 *.iml
 .idea
-out
-baobab-core/target/
-baobab-editor/target/
-target/
+out/
+build/
+.gradle/
 *.ipr
 *.iws
-
-# maven release plugin #
-*.releaseBackup
-release.properties
-*.versionsBackup
-atlassian-ide-plugin.xml
