@@ -10,8 +10,10 @@ buildscript {
     }
 }
 
-import static net.milanaleksic.gradle.multiplatform.MultiPlatformAppPlugin.*
-import static org.apache.tools.ant.taskdefs.condition.Os.*
+import static net.milanaleksic.gradle.multiplatform.MultiPlatformAppPlugin.ARCH_X86
+import static net.milanaleksic.gradle.multiplatform.MultiPlatformAppPlugin.ARCH_X86_64
+import static org.apache.tools.ant.taskdefs.condition.Os.FAMILY_UNIX
+import static org.apache.tools.ant.taskdefs.condition.Os.FAMILY_WINDOWS
 
 apply plugin: 'java'
 apply plugin: 'idea'
@@ -26,7 +28,6 @@ allprojects {
 
     apply plugin: 'multiplatform'
 
-    name = 'baobab'
     group = 'net.milanaleksic.baobab'
     version = baobabVersion
     description = 'Baobab toolkit for building interfaces in SWT using JSON'
