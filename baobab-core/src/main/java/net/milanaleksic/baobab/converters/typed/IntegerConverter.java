@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import net.milanaleksic.baobab.TransformerException;
+import net.milanaleksic.baobab.util.lambda.ExtraCollectors;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -438,19 +440,17 @@ public class IntegerConverter extends TypedConverter<Integer> {
 
     public Integer getValueFromString(String input) {
         checkNotNull(input);
-        String[] values = input.split("\\|");
-        int ofTheJedi = 0;
-        for (String value : values) {
-            Matcher matcher = magicConstantsValue.matcher(value);
-            if (matcher.matches()) {
-                Integer matchedMagicConstantValue = magicConstants.get(matcher.group(1));
-                if (matchedMagicConstantValue == null)
-                    throw new TransformerException("Magic constant does not exist - " + matcher.group(1));
-                ofTheJedi |= matchedMagicConstantValue;
-            } else
-                ofTheJedi |= Integer.parseInt(value);
-        }
-        return ofTheJedi;
+        return Arrays.asList(input.split("\\|"))
+                .stream().reduce(0, (identity, value) -> {
+                    Matcher matcher = magicConstantsValue.matcher(value);
+                    if (matcher.matches()) {
+                        Integer matchedMagicConstantValue = magicConstants.get(matcher.group(1));
+                        if (matchedMagicConstantValue == null)
+                            throw new TransformerException("Magic constant does not exist - " + matcher.group(1));
+                        return identity | matchedMagicConstantValue;
+                    } else
+                        return identity | Integer.parseInt(value);
+                }, ExtraCollectors::intOrCollect);
     }
 
 }

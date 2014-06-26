@@ -1,8 +1,6 @@
 package net.milanaleksic.baobab.converters;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
 import net.milanaleksic.baobab.TransformerException;
 import net.milanaleksic.baobab.builders.Builder;
 import net.milanaleksic.baobab.builders.BuilderContext;
@@ -12,12 +10,12 @@ import net.milanaleksic.baobab.providers.ConverterProvider;
 import javax.inject.Inject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static net.milanaleksic.baobab.util.ObjectUtil.*;
-import static net.milanaleksic.baobab.util.lambda.Safe.safe;
-import static net.milanaleksic.baobab.util.lambda.Safe.safeFunction;
 
 /**
  * User: Milan Aleksic
@@ -44,7 +42,8 @@ public class ObjectCreationNodeProcessor implements NodeProcessor {
 
     @Override
     public BuilderContext<?> visitBuilderNotationItem(TransformationWorkingContext context, String builderName, String parameters) {
-        final List<String> params = Lists.newArrayList(Splitter.on(",").trimResults().split(parameters));
+        List<String> params = Arrays.asList(parameters.split(",")).stream()
+                .map(String::trim).collect(Collectors.toList());
         final Builder<?> builder = builderProvider.provideBuilderForName(builderName);
         if (builder == null)
             throw new TransformerException("Builder is not registered: " + builderName);

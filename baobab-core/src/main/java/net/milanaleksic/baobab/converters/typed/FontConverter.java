@@ -2,16 +2,14 @@ package net.milanaleksic.baobab.converters.typed;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import net.milanaleksic.baobab.TransformerException;
+import net.milanaleksic.baobab.util.lambda.ExtraCollectors;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Display;
 
-/**
- * User: Milan Aleksic
- * Date: 4/20/12
- * Time: 10:18 AM
- */
+import java.util.Arrays;
+
 public class FontConverter extends TypedConverter<Font> {
 
     private static final String FIELD_NAME = "name"; //NON-NLS
@@ -47,24 +45,19 @@ public class FontConverter extends TypedConverter<Font> {
 
     private int parseStyle(FontData systemFontData, JsonNode node) {
         int ofTheJedi = systemFontData.getStyle();
-        if (!node.has(FIELD_STYLE)) {
+        if (!node.has(FIELD_STYLE))
             return ofTheJedi;
-        }
-
-        String[] styles = node.get(FIELD_STYLE).asText().split("\\|");
-        for (String style : styles) {
-            switch (style) {
-                case FIELD_STYLE_BOLD:
-                    ofTheJedi |= SWT.BOLD;
-                    break;
-                case FIELD_STYLE_ITALIC:
-                    ofTheJedi |= SWT.ITALIC;
-                    break;
-                default:
-                    throw new TransformerException("Unrecognized field style - " + style);
-            }
-        }
-        return ofTheJedi;
+        return Arrays.asList(node.get(FIELD_STYLE).asText().split("\\|"))
+                .stream().reduce(ofTheJedi, (identity, style) -> {
+                    switch (style) {
+                        case FIELD_STYLE_BOLD:
+                            return identity | SWT.BOLD;
+                        case FIELD_STYLE_ITALIC:
+                            return identity | SWT.ITALIC;
+                        default:
+                            throw new TransformerException("Unrecognized field style - " + style);
+                    }
+                }, ExtraCollectors::intOrCollect);
     }
 
 }
