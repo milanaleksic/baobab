@@ -26,6 +26,7 @@ allprojects {
 
     apply plugin: 'multiplatform'
 
+    name = 'baobab'
     group = 'net.milanaleksic.baobab'
     version = baobabVersion
     description = 'Baobab toolkit for building interfaces in SWT using JSON'
