@@ -5,15 +5,9 @@ package net.milanaleksic.baobab.editor.messages;
  * Date: 7/11/13
  * Time: 9:44 AM
  */
-public class ErrorMessage {
-
-    private final String message;
+public class ErrorMessage extends Message {
 
     public ErrorMessage(String message) {
-        this.message = message;
-    }
-
-    public String getMessage() {
-        return message;
+        super(message);
     }
 }

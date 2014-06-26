@@ -1,6 +1,5 @@
 dependencies {
     compile project(":baobab-core")
-
     compile "org.springframework:spring-context:${springVersion}"
     compile "org.springframework:spring-beans:${springVersion}"
     compile "org.springframework:spring-core:${springVersion}"

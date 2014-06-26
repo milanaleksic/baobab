@@ -1,6 +1,5 @@
 package net.milanaleksic.baobab.editor;
 
-import com.google.common.eventbus.EventBus;
 import net.milanaleksic.baobab.*;
 import net.milanaleksic.baobab.editor.model.FindDialogModel;
 import net.milanaleksic.baobab.model.TransformerModel;
@@ -18,9 +17,6 @@ public class FindDialog {
 
     @Inject
     private Transformer transformer;
-
-    @Inject
-    private EventBus eventBus;
 
     @TransformerModel(observe = true)
     private FindDialogModel model;

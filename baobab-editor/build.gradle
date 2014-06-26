@@ -1,7 +1,6 @@
 dependencies {
     compile project(":baobab-integration-guice")
-    compile "com.google.inject:guice:${guiceVersion}"
-    compile "com.google.inject.extensions:guice-multibindings:${guiceVersion}"
+    compile 'net.engio:mbassador:1.1.10'
 }
 
 task uberjar(type: Jar, dependsOn: assemble) {

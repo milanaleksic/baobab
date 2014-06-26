@@ -1,9 +1,10 @@
 package net.milanaleksic.baobab.editor;
 
-import com.google.common.eventbus.EventBus;
+import net.engio.mbassy.bus.MBassador;
 import net.milanaleksic.baobab.*;
 import net.milanaleksic.baobab.editor.messages.ApplicationError;
 import net.milanaleksic.baobab.editor.messages.EditorErrorShowDetails;
+import net.milanaleksic.baobab.editor.messages.Message;
 import net.milanaleksic.baobab.editor.model.MainFormModel;
 import net.milanaleksic.baobab.model.TransformerModel;
 import net.milanaleksic.baobab.providers.ResourceBundleProvider;
@@ -30,7 +31,7 @@ public class MainForm implements Observer {
     private Transformer editorTransformer;
 
     @Inject
-    private EventBus eventBus;
+    private MBassador<Message> bus;
 
     @Inject
     private FindDialog findDialog;
@@ -73,7 +74,7 @@ public class MainForm implements Observer {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         model.getLastException().get().printStackTrace(pw);
-        eventBus.post(new EditorErrorShowDetails(sw.toString()));
+        bus.publish(new EditorErrorShowDetails(sw.toString()));
     }
 
     @Override
@@ -158,7 +159,7 @@ public class MainForm implements Observer {
                     return;
                 shell.setSize(widthAsInt, heightAsInt);
             } catch (Exception e) {
-                eventBus.post(new ApplicationError("Invalid size parameters: " + e, e));
+                bus.publish(new ApplicationError("Invalid size parameters: " + e, e));
             }
         }
     }
@@ -262,7 +263,7 @@ public class MainForm implements Observer {
             editor.setText(com.google.common.io.Files.toString(targetFile, StringUtil.UTF8));
             setCurrentFile(targetFile);
         } catch (IOException e) {
-            eventBus.post(new ApplicationError(String.format(resourceBundle.getString("mainForm.ioError.open"),
+            bus.publish(new ApplicationError(String.format(resourceBundle.getString("mainForm.ioError.open"),
                     targetFile.getAbsolutePath()), e));
         }
     }
@@ -278,7 +279,7 @@ public class MainForm implements Observer {
         try {
             com.google.common.io.Files.write(editor.getText(), currentFile, StringUtil.UTF8);
         } catch (IOException e) {
-            eventBus.post(new ApplicationError(String.format(resourceBundle.getString("mainForm.ioError.save"),
+            bus.publish(new ApplicationError(String.format(resourceBundle.getString("mainForm.ioError.save"),
                     currentFile.getAbsolutePath()), e));
         }
         model.setModified(false);
@@ -358,7 +359,7 @@ public class MainForm implements Observer {
             }
             editor.setSelection(loc, loc + model.getLastSearchString().length());
         } catch (Throwable t) {
-            eventBus.post(new ApplicationError("Search failed: " + t.getMessage(), t));
+            bus.publish(new ApplicationError("Search failed: " + t.getMessage(), t));
         }
     }
 }

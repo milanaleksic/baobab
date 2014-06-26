@@ -1,12 +1,16 @@
 package net.milanaleksic.baobab.editor;
 
-import com.google.common.eventbus.EventBus;
+import net.engio.mbassy.bus.MBassador;
 import net.milanaleksic.baobab.editor.messages.ApplicationError;
+import net.milanaleksic.baobab.editor.messages.Message;
 
 import javax.inject.Inject;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.*;
-import java.util.*;
+import java.util.List;
+import java.util.Observable;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
@@ -19,7 +23,7 @@ import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 public class MainFormFileChangesObservable extends Observable {
 
     private final AtomicReference<WatchKey> currentFileExternalChangesWatchKey = new AtomicReference<>(null);
-    private final EventBus eventBus;
+    private final MBassador<Message> bus;
 
     private Optional<WatchService> fileExternalChangesWatcher = Optional.empty();
 
@@ -69,15 +73,15 @@ public class MainFormFileChangesObservable extends Observable {
     }
 
     @Inject
-    public MainFormFileChangesObservable(EventBus eventBus) {
-        this.eventBus = eventBus;
+    public MainFormFileChangesObservable(MBassador<Message> bus) {
+        this.bus = bus;
         try {
             fileExternalChangesWatcher = Optional.of(FileSystems.getDefault().newWatchService());
             ExternalWatcherThread externalWatcherThread = new ExternalWatcherThread();
             externalWatcherThread.setDaemon(true);
             externalWatcherThread.start();
         } catch (IOException e) {
-            eventBus.post(new ApplicationError("Watcher could not have been set", e));
+            bus.publish(new ApplicationError("Watcher could not have been set", e));
         }
     }
 
@@ -87,7 +91,7 @@ public class MainFormFileChangesObservable extends Observable {
             try {
                 fileExternalChangesWatcher.get().close();
             } catch (IOException e) {
-                eventBus.post(new ApplicationError("Watcher problem", e));
+                bus.publish(new ApplicationError("Watcher problem", e));
             }
         }
     }
@@ -108,7 +112,7 @@ public class MainFormFileChangesObservable extends Observable {
                 currentFileExternalChangesWatchKey.set(null);
             }
         } catch (IOException e) {
-            eventBus.post(new ApplicationError("Watcher problem", e));
+            bus.publish(new ApplicationError("Watcher problem", e));
         }
     }
 

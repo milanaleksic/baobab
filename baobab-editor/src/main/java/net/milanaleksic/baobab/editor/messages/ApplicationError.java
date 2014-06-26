@@ -5,18 +5,13 @@ package net.milanaleksic.baobab.editor.messages;
  * Date: 8/12/13
  * Time: 5:12 PM
  */
-public class ApplicationError {
+public class ApplicationError extends Message {
 
-    private final String message;
     private final Throwable throwable;
 
     public ApplicationError(String message, Throwable t) {
-        this.message = message;
+        super(message);
         this.throwable = t;
-    }
-
-    public String getMessage() {
-        return message;
     }
 
     public Throwable getThrowable() {
