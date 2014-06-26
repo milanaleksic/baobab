@@ -1,6 +1,5 @@
 package net.milanaleksic.baobab.editor;
 
-import com.google.common.base.*;
 import com.google.common.eventbus.EventBus;
 import net.milanaleksic.baobab.*;
 import net.milanaleksic.baobab.editor.messages.ApplicationError;
@@ -8,6 +7,7 @@ import net.milanaleksic.baobab.editor.messages.EditorErrorShowDetails;
 import net.milanaleksic.baobab.editor.model.MainFormModel;
 import net.milanaleksic.baobab.model.TransformerModel;
 import net.milanaleksic.baobab.providers.ResourceBundleProvider;
+import net.milanaleksic.baobab.util.StringUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.dnd.*;
@@ -20,11 +20,6 @@ import javax.inject.*;
 import java.io.*;
 import java.util.*;
 
-/**
- * User: Milan Aleksic
- * Date: 5/14/12
- * Time: 3:00 PM
- */
 public class MainForm implements Observer {
 
     @Inject
@@ -85,13 +80,10 @@ public class MainForm implements Observer {
     public void update(Observable o, Object filename) {
         if (!filename.equals(model.getCurrentFile().toPath()))
             return;
-        editorShell.getDisplay().asyncExec(new Runnable() {
-            @Override
-            public void run() {
-                openFile(model.getCurrentFile());
-                if (!model.getLastException().isPresent())
-                    model.showInformation("File modification externally, reloaded!", null);
-            }
+        editorShell.getDisplay().asyncExec(() -> {
+            openFile(model.getCurrentFile());
+            if (!model.getLastException().isPresent())
+                model.showInformation("File modification externally, reloaded!", null);
         });
     }
 
@@ -107,7 +99,7 @@ public class MainForm implements Observer {
         private void reCreateForm() {
             model.showInformation("", null);
             String text = editor.getText();
-            if (Strings.isNullOrEmpty(text))
+            if (StringUtil.isNullOrEmpty(text))
                 return;
             try {
                 Shell prototypeShell = createNewPrototypeShell();
@@ -157,7 +149,7 @@ public class MainForm implements Observer {
         private void setSizeOverride(Shell shell) {
             final String width = model.getWidthText();
             final String height = model.getHeightText();
-            if (Strings.isNullOrEmpty(width) || Strings.isNullOrEmpty(height))
+            if (StringUtil.isNullOrEmpty(width) || StringUtil.isNullOrEmpty(height))
                 return;
             try {
                 int widthAsInt = Integer.parseInt(width, 10);
@@ -267,7 +259,7 @@ public class MainForm implements Observer {
 
     private void openFile(File targetFile) {
         try {
-            editor.setText(com.google.common.io.Files.toString(targetFile, Charsets.UTF_8));
+            editor.setText(com.google.common.io.Files.toString(targetFile, StringUtil.UTF8));
             setCurrentFile(targetFile);
         } catch (IOException e) {
             eventBus.post(new ApplicationError(String.format(resourceBundle.getString("mainForm.ioError.open"),
@@ -284,7 +276,7 @@ public class MainForm implements Observer {
             return;
         }
         try {
-            com.google.common.io.Files.write(editor.getText(), currentFile, Charsets.UTF_8);
+            com.google.common.io.Files.write(editor.getText(), currentFile, StringUtil.UTF8);
         } catch (IOException e) {
             eventBus.post(new ApplicationError(String.format(resourceBundle.getString("mainForm.ioError.save"),
                     currentFile.getAbsolutePath()), e));

@@ -1,11 +1,11 @@
 package net.milanaleksic.baobab.converters;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import net.milanaleksic.baobab.TransformationContext;
 import net.milanaleksic.baobab.model.ModelBindingMetaData;
+import net.milanaleksic.baobab.util.StringUtil;
 import org.eclipse.swt.widgets.Composite;
 
 import javax.annotation.Nullable;
@@ -79,7 +79,7 @@ public class TransformationWorkingContext {
     }
 
     public void mapObject(String key, Object object) {
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(key), "Object is not named");
+        Preconditions.checkArgument(!StringUtil.isNullOrEmpty(key), "Object is not named");
         if (key.startsWith("_"))
             return;
         getMutableRootMappedObjects().put(key, object);

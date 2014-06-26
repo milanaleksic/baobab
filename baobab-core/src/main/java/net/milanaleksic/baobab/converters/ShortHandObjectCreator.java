@@ -2,10 +2,10 @@ package net.milanaleksic.baobab.converters;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import net.milanaleksic.baobab.TransformerException;
 import net.milanaleksic.baobab.builders.BuilderContext;
 import net.milanaleksic.baobab.converters.typed.IntegerConverter;
+import net.milanaleksic.baobab.util.StringUtil;
 import org.eclipse.swt.widgets.Shell;
 
 import java.util.regex.Matcher;
@@ -41,7 +41,7 @@ class ShortHandObjectCreator extends ObjectCreator {
         String name = matcher.group(3);
         String styleDefinition = matcher.group(4);
 
-        if (!Strings.isNullOrEmpty(styleDefinition))
+        if (!StringUtil.isNullOrEmpty(styleDefinition))
             throw new TransformerException("When using short-hand syntax + builder notation for object creation, you can't set styles " +
                     "as parameter for short-hand constructor - styling must be set in builder");
 
@@ -65,7 +65,7 @@ class ShortHandObjectCreator extends ObjectCreator {
 
         final Class<?> widgetClass = deduceClassFromNode(typeDefinition);
         int style = widgetClass == Shell.class ? DEFAULT_STYLE_SHELL : DEFAULT_STYLE_REST;
-        if (!Strings.isNullOrEmpty(styleDefinition)) {
+        if (!StringUtil.isNullOrEmpty(styleDefinition)) {
             IntegerConverter exactTypeConverter = (IntegerConverter)
                     converterProvider.provideTypedConverterForClass(int.class).get();
             style = exactTypeConverter.getValueFromString(styleDefinition);

@@ -1,7 +1,6 @@
 package net.milanaleksic.baobab.converters;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import com.google.common.collect.*;
 import net.milanaleksic.baobab.EmbeddedComponent;
 import net.milanaleksic.baobab.EmbeddedEventListener;
@@ -9,6 +8,7 @@ import net.milanaleksic.baobab.EmbeddedEventListeners;
 import net.milanaleksic.baobab.TransformerException;
 import net.milanaleksic.baobab.model.*;
 import net.milanaleksic.baobab.util.ProxyFactoryForPostProcessingOfObservableMethods;
+import net.milanaleksic.baobab.util.StringUtil;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
@@ -256,7 +256,7 @@ class EmbeddingService {
     private FieldMapping createSingleBindingMetaData(Field field, TransformationWorkingContext transformationContext) throws NoSuchMethodException {
         TransformerProperty propertyAnnotation = field.getAnnotation(TransformerProperty.class);
         String name = propertyAnnotation == null ? null : propertyAnnotation.component();
-        if (Strings.isNullOrEmpty(name))
+        if (StringUtil.isNullOrEmpty(name))
             name = field.getName();
         String propertyNameSentenceCase = getPropertyNameSentenceCaseForModelField(propertyAnnotation);
 
@@ -291,7 +291,7 @@ class EmbeddingService {
 
     private String getPropertyNameSentenceCaseForModelField(TransformerProperty annotation) {
         String propertyName = getPropertyNameForModelField(annotation);
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(propertyName));
+        Preconditions.checkArgument(!StringUtil.isNullOrEmpty(propertyName));
         return propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1);
     }
 
@@ -321,7 +321,7 @@ class EmbeddingService {
     }
 
     private long safeLongValue(String value) {
-        if (Strings.isNullOrEmpty(value))
+        if (StringUtil.isNullOrEmpty(value))
             return -1L;
         try {
             return Long.parseLong(value, 10);
@@ -331,7 +331,7 @@ class EmbeddingService {
     }
 
     private int safeIntValue(String value) {
-        if (Strings.isNullOrEmpty(value))
+        if (StringUtil.isNullOrEmpty(value))
             return -1;
         try {
             return Integer.parseInt(value, 10);
