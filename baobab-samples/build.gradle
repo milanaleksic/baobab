@@ -1,5 +1,5 @@
 dependencies {
-    compile project(":baobab-core")
+    compile project(":baobab-integration-guice")
 
     compile "com.google.inject:guice:${guiceVersion}"
     compile "com.google.inject.extensions:guice-multibindings:${guiceVersion}"
