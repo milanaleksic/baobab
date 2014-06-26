@@ -33,6 +33,6 @@ public class TransformerIncludeTest {
         assertThat(canvasParent.isPresent(), equalTo(true));
         assertThat(root.isPresent(), equalTo(true));
         assertThat(canvas.get().getParent(), equalTo(canvasParent.get()));
-        assertThat((Shell)canvasParent.get().getParent(), equalTo(root.get()));
+        assertThat(canvasParent.get().getParent(), equalTo(root.get()));
     }
 }

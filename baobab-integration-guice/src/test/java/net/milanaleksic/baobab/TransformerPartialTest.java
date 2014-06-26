@@ -8,9 +8,6 @@ import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
-
 /**
  * User: Milan Aleksic (milanaleksic@gmail.com)
  * Date: 02/03/2014

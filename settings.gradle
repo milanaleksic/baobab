@@ -3,3 +3,5 @@ rootProject.name = projectName
 include 'baobab-core'
 include 'baobab-editor'
 include 'baobab-samples'
+include 'baobab-integration-guice'
+include 'baobab-integration-spring'

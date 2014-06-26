@@ -62,32 +62,17 @@ public class TransformerTest {
 
         assertThat(buttonFieldBinding, not(nullValue()));
         flagSet = false;
-        Display.getDefault().syncExec(new Runnable() {
-            @Override
-            public void run() {
-                buttonFieldBinding.notifyListeners(SWT.Selection, new Event());
-            }
-        });
+        Display.getDefault().syncExec(() -> buttonFieldBinding.notifyListeners(SWT.Selection, new Event()));
         assertThat(flagSet, equalTo(true));
 
         assertThat(buttonMethodBindingWithParam, not(nullValue()));
         flagSet = false;
-        Display.getDefault().syncExec(new Runnable() {
-            @Override
-            public void run() {
-                buttonMethodBindingWithParam.notifyListeners(SWT.Selection, new Event());
-            }
-        });
+        Display.getDefault().syncExec(() -> buttonMethodBindingWithParam.notifyListeners(SWT.Selection, new Event()));
         assertThat(flagSet, equalTo(true));
 
         assertThat(buttonMethodBindingWithoutParam, not(nullValue()));
         flagSet = false;
-        Display.getDefault().syncExec(new Runnable() {
-            @Override
-            public void run() {
-                buttonMethodBindingWithoutParam.notifyListeners(SWT.Selection, new Event());
-            }
-        });
+        Display.getDefault().syncExec(() -> buttonMethodBindingWithoutParam.notifyListeners(SWT.Selection, new Event()));
         assertThat(flagSet, equalTo(true));
     }
 
@@ -141,7 +126,7 @@ public class TransformerTest {
         assertThat(labelFont.getFontData()[0].getStyle() & SWT.BOLD, equalTo(SWT.BOLD));
         assertThat(labelFont.getFontData()[0].getHeight(), equalTo(12));
 
-        assertThat(children[2], Matchers.<Object>instanceOf(Label.class));
+        assertThat(children[2], Matchers.instanceOf(Label.class));
         assertThat(((Label) children[2]).getText(), equalTo(""));
         assertThat(context.getMappedObject("labFilmName").get(), equalTo(children[2]));
 
@@ -161,8 +146,8 @@ public class TransformerTest {
         TransformationContext dataFields = transformer.createFormFromResource("/net/milanaleksic/baobab/TransformerTest_dataFields.gui", null, null);
         Optional<Button> aButton = dataFields.getMappedObject("aButton");
         assertThat(aButton.isPresent(), equalTo(true));
-        assertThat((String) aButton.get().getData("stringField"), equalTo("aString"));
-        assertThat((long) aButton.get().getData("numberField"), equalTo(123L));
-        assertThat((Shell) aButton.get().getData("referenceField"), equalTo(dataFields.<Shell>getRoot()));
+        assertThat(aButton.get().getData("stringField"), equalTo("aString"));
+        assertThat(aButton.get().getData("numberField"), equalTo(123L));
+        assertThat(aButton.get().getData("referenceField"), equalTo(dataFields.<Shell>getRoot()));
     }
 }
