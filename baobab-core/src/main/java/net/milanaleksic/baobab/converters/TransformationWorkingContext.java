@@ -1,10 +1,10 @@
 package net.milanaleksic.baobab.converters;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import net.milanaleksic.baobab.TransformationContext;
 import net.milanaleksic.baobab.model.ModelBindingMetaData;
+import net.milanaleksic.baobab.util.Preconditions;
 import net.milanaleksic.baobab.util.StringUtil;
 import org.eclipse.swt.widgets.Composite;
 

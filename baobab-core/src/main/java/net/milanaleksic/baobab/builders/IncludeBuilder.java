@@ -1,8 +1,8 @@
 package net.milanaleksic.baobab.builders;
 
-import com.google.common.base.Preconditions;
 import net.milanaleksic.baobab.converters.ObjectConverter;
 import net.milanaleksic.baobab.converters.TransformationWorkingContext;
+import net.milanaleksic.baobab.util.Preconditions;
 import net.milanaleksic.baobab.util.StreamUtil;
 
 import javax.inject.Inject;

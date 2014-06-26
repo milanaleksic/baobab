@@ -1,12 +1,12 @@
 package net.milanaleksic.baobab.converters;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.*;
 import net.milanaleksic.baobab.EmbeddedComponent;
 import net.milanaleksic.baobab.EmbeddedEventListener;
 import net.milanaleksic.baobab.EmbeddedEventListeners;
 import net.milanaleksic.baobab.TransformerException;
 import net.milanaleksic.baobab.model.*;
+import net.milanaleksic.baobab.util.Preconditions;
 import net.milanaleksic.baobab.util.ProxyFactoryForPostProcessingOfObservableMethods;
 import net.milanaleksic.baobab.util.StringUtil;
 import org.eclipse.swt.widgets.Event;
@@ -291,7 +291,7 @@ class EmbeddingService {
 
     private String getPropertyNameSentenceCaseForModelField(TransformerProperty annotation) {
         String propertyName = getPropertyNameForModelField(annotation);
-        Preconditions.checkArgument(!StringUtil.isNullOrEmpty(propertyName));
+        Preconditions.checkArgument(!StringUtil.isNullOrEmpty(propertyName), "Property name was not found");
         return propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1);
     }
 

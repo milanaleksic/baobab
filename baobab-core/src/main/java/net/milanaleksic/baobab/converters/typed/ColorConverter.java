@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import net.milanaleksic.baobab.TransformerException;
+import net.milanaleksic.baobab.util.Preconditions;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
@@ -12,8 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * User: Milan Aleksic
@@ -69,7 +68,7 @@ public class ColorConverter extends TypedConverter<Color> {
     @Override
     public Color getValueFromJson(JsonNode node) {
         String input = node.asText();
-        checkNotNull(input);
+        Preconditions.checkNotNull(input, "Can't convert value from null");
         if (systemColors.containsKey(input))
             return convertSystemColorType(systemColors.get(input));
         Matcher matcher = properValue.matcher(input);

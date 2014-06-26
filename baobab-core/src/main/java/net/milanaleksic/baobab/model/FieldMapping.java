@@ -1,6 +1,6 @@
 package net.milanaleksic.baobab.model;
 
-import com.google.common.base.Preconditions;
+import net.milanaleksic.baobab.util.Preconditions;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -86,10 +86,10 @@ public class FieldMapping {
 
         public FieldMapping build() {
             // setter method is allowed to be null
-            Preconditions.checkNotNull(component);
-            Preconditions.checkNotNull(getterMethod);
-            Preconditions.checkNotNull(bindingType);
-            Preconditions.checkNotNull(events);
+            Preconditions.checkNotNull(component, "component is null");
+            Preconditions.checkNotNull(getterMethod, "getterMethod is null");
+            Preconditions.checkNotNull(bindingType, "bindingType is null");
+            Preconditions.checkNotNull(events, "events is null");
             return new FieldMapping(component, getterMethod, setterMethod, bindingType, events);
         }
 

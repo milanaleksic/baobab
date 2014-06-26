@@ -2,7 +2,7 @@ package net.milanaleksic.baobab.converters.typed;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.google.common.base.Preconditions;
+import net.milanaleksic.baobab.util.Preconditions;
 
 import javax.inject.Inject;
 
@@ -18,7 +18,7 @@ public class IntegerArrayConverter extends TypedConverter<int[]> {
 
     @Override
     public int[] getValueFromJson(JsonNode node) {
-        Preconditions.checkArgument(node instanceof ArrayNode, "Array expected as node value, but %s found", node.getClass().getName());
+        Preconditions.checkArgument(node instanceof ArrayNode, String.format("Array expected as node value, but %s found", node.getClass().getName()));
         ArrayNode nodeAsArray = (ArrayNode) node;
         int[] ofTheJedi = new int[nodeAsArray.size()];
         for (int i = 0; i < nodeAsArray.size(); i++) {

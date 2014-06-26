@@ -1,6 +1,5 @@
 package net.milanaleksic.baobab.util;
 
-import com.google.common.base.Preconditions;
 import net.milanaleksic.baobab.TransformerException;
 
 import java.io.*;
@@ -18,7 +17,7 @@ public class StreamUtil {
         Reader contentAsReader = null;
         try {
             InputStream resourceAsStream = StreamUtil.class.getResourceAsStream(resourceName);
-            Preconditions.checkNotNull(resourceAsStream, "Resource does not exist: %s", resourceName);
+            Preconditions.checkNotNull(resourceAsStream, String.format("Resource does not exist: %s", resourceName));
             contentAsReader = new InputStreamReader(resourceAsStream);
             return loaner.apply(contentAsReader);
         } finally {
@@ -50,7 +49,7 @@ public class StreamUtil {
                 contentAsReader = new InputStreamReader(childResource);
             } else {
                 File childFileResource = Paths.get(parentResourceLocation, relativeLocation).toFile();
-                Preconditions.checkArgument(childFileResource.exists(), "Resource %s could not be found relative to %s", relativeLocation, parentResourceLocation);
+                Preconditions.checkArgument(childFileResource.exists(), String.format("Resource %s could not be found relative to %s", relativeLocation, parentResourceLocation));
                 contentAsReader = new FileReader(childFileResource);
             }
             return loaner.apply(contentAsReader);

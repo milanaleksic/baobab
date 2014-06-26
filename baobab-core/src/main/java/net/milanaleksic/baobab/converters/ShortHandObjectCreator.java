@@ -1,10 +1,10 @@
 package net.milanaleksic.baobab.converters;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.base.Preconditions;
 import net.milanaleksic.baobab.TransformerException;
 import net.milanaleksic.baobab.builders.BuilderContext;
 import net.milanaleksic.baobab.converters.typed.IntegerConverter;
+import net.milanaleksic.baobab.util.Preconditions;
 import net.milanaleksic.baobab.util.StringUtil;
 import org.eclipse.swt.widgets.Shell;
 
@@ -47,7 +47,7 @@ class ShortHandObjectCreator extends ObjectCreator {
 
         final TransformationWorkingContext ofTheJedi = new TransformationWorkingContext(context);
         final BuilderContext<?> builderContext = nodeProcessor.visitBuilderNotationItem(context, builderName, builderParams);
-        Preconditions.checkNotNull(builderContext, "Builders must not return null values (builder \"%s\" for params \"%s\")", builderName, builderParams);
+        Preconditions.checkNotNull(builderContext, String.format("Builders must not return null values (builder \"%s\" for params \"%s\")", builderName, builderParams));
         if (builderContext.getName() != null)
             ofTheJedi.mapObject(builderContext.getName(), builderContext.getBuiltElement());
         ofTheJedi.setWorkItem(builderContext.getBuiltElement());

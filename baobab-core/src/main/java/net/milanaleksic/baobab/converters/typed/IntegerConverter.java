@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import net.milanaleksic.baobab.TransformerException;
+import net.milanaleksic.baobab.util.Preconditions;
 import net.milanaleksic.baobab.util.lambda.ExtraCollectors;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
@@ -12,8 +13,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * User: Milan Aleksic
@@ -439,7 +438,7 @@ public class IntegerConverter extends TypedConverter<Integer> {
     }
 
     public Integer getValueFromString(String input) {
-        checkNotNull(input);
+        Preconditions.checkNotNull(input, "Can't convert value from null");
         return Arrays.asList(input.split("\\|"))
                 .stream().reduce(0, (identity, value) -> {
                     Matcher matcher = magicConstantsValue.matcher(value);
