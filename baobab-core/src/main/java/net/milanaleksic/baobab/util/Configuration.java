@@ -1,11 +1,13 @@
 package net.milanaleksic.baobab.util;
 
-import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import net.milanaleksic.baobab.TransformerException;
 import net.milanaleksic.baobab.integration.loader.Loader;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -17,8 +19,8 @@ public class Configuration {
 
     private static final Config reference = ConfigFactory.load();
 
-    public static ImmutableMap<String, Class<?>> loadStringToClassMapping(String configName) {
-        ImmutableMap.Builder<String, Class<?>> builder = ImmutableMap.builder();
+    public static Map<String, Class<?>> loadStringToClassMapping(String configName) {
+        Map<String, Class<?>> builder = new HashMap<>();
         final Config configuration = reference.getConfig(configName);
         configuration.root().unwrapped().entrySet().forEach(entry -> {
             try {
@@ -27,15 +29,15 @@ public class Configuration {
                 throw new TransformerException("Configuration could not be loaded for entry: " + entry.getKey(), e);
             }
         });
-        return builder.build();
+        return Collections.unmodifiableMap(builder);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> ImmutableMap<Class<?>, T> loadClassToInstanceMapping(String configName, Optional<Loader> maybeLoader) {
-        ImmutableMap.Builder<Class<?>, T> builder = ImmutableMap.builder();
+    public static <T> Map<Class<?>, T> loadClassToInstanceMapping(String configName, Optional<Loader> maybeLoader) {
         final Config configuration = reference.getConfig(configName);
         if (configuration.isEmpty())
-            return ImmutableMap.of();
+            return Collections.emptyMap();
+        Map<Class<?>, T> builder = new HashMap<>();
         configuration.root().unwrapped().entrySet().forEach(entry -> {
             try {
                 final Class<?> classWhichIsMaybeWrapper = Class.forName(entry.getKey());
@@ -57,15 +59,15 @@ public class Configuration {
                 throw new TransformerException("Configuration could not be loaded for entry: " + entry.getKey(), e);
             }
         });
-        return builder.build();
+        return Collections.unmodifiableMap(builder);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> ImmutableMap<String, T> loadStringToInstanceMapping(String configName, Optional<Loader> maybeLoader) {
-        ImmutableMap.Builder builder = new ImmutableMap.Builder();
+    public static <T> Map<String, T> loadStringToInstanceMapping(String configName, Optional<Loader> maybeLoader) {
         final Config configuration = reference.getConfig(configName);
         if (configuration.isEmpty())
-            return ImmutableMap.of();
+            return Collections.emptyMap();
+        Map builder = new HashMap<>();
         configuration.root().unwrapped().entrySet().forEach(entry -> {
             try {
                 T raw = (T) ObjectUtil.createInstanceForType(Class.forName(entry.getValue().toString()));
@@ -75,6 +77,6 @@ public class Configuration {
                 throw new TransformerException("Configuration could not be loaded for entry: " + entry.getKey(), e);
             }
         });
-        return builder.build();
+        return Collections.unmodifiableMap(builder);
     }
 }

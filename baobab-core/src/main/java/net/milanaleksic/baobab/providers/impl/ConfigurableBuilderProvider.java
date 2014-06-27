@@ -1,12 +1,12 @@
 package net.milanaleksic.baobab.providers.impl;
 
-import com.google.common.collect.ImmutableMap;
 import net.milanaleksic.baobab.builders.Builder;
 import net.milanaleksic.baobab.integration.loader.Loader;
 import net.milanaleksic.baobab.providers.BuilderProvider;
 import net.milanaleksic.baobab.util.Configuration;
 
 import javax.inject.Inject;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -14,7 +14,7 @@ public class ConfigurableBuilderProvider implements BuilderProvider {
 
     private final Loader loader;
 
-    private final AtomicReference<ImmutableMap<String, Builder<?>>> mapping = new AtomicReference<>(null);
+    private final AtomicReference<Map<String, Builder<?>>> mapping = new AtomicReference<>(null);
 
     @Inject
     public ConfigurableBuilderProvider(Loader loader) {

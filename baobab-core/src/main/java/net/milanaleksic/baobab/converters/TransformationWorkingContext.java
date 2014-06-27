@@ -1,7 +1,5 @@
 package net.milanaleksic.baobab.converters;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import net.milanaleksic.baobab.TransformationContext;
 import net.milanaleksic.baobab.model.ModelBindingMetaData;
 import net.milanaleksic.baobab.util.Preconditions;
@@ -9,6 +7,8 @@ import net.milanaleksic.baobab.util.StringUtil;
 import org.eclipse.swt.widgets.Composite;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -42,9 +42,9 @@ public class TransformationWorkingContext {
     public TransformationWorkingContext(@Nullable TransformationWorkingContext parentContext) {
         this.parentContext = parentContext;
         if (parentContext == null) {
-            this.mappedObjects = Maps.newHashMap();
+            this.mappedObjects = new HashMap<>();
         } else {
-            this.mappedObjects = ImmutableMap.of();
+            this.mappedObjects = Collections.unmodifiableMap(Collections.emptyMap());
             this.formLocation = parentContext.formLocation;
         }
     }

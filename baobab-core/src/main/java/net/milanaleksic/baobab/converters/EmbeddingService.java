@@ -1,6 +1,5 @@
 package net.milanaleksic.baobab.converters;
 
-import com.google.common.collect.*;
 import net.milanaleksic.baobab.EmbeddedComponent;
 import net.milanaleksic.baobab.EmbeddedEventListener;
 import net.milanaleksic.baobab.EmbeddedEventListeners;
@@ -19,6 +18,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static net.milanaleksic.baobab.util.ObjectUtil.*;
 
@@ -54,10 +54,11 @@ class EmbeddingService {
         });
     }
 
+    @SuppressWarnings("ConstantConditions")
     private void embedEventListenersAsFields(final Object targetObject, TransformationWorkingContext transformationContext) {
         Field[] fields = targetObject.getClass().getDeclaredFields();
         for (Field field : fields) {
-            List<EmbeddedEventListener> allListeners = Lists.newArrayList();
+            List<EmbeddedEventListener> allListeners = new ArrayList<>();
             EmbeddedEventListeners annotations = field.getAnnotation(EmbeddedEventListeners.class);
             if (annotations != null)
                 allListeners.addAll(Arrays.asList(annotations.value()));
@@ -82,7 +83,7 @@ class EmbeddingService {
     private void embedEventListenersAsMethods(Object targetObject, TransformationWorkingContext transformationContext) {
         Method[] methods = getAllAvailableDeclaredMethodsForClass(targetObject.getClass());
         for (Method method : methods) {
-            List<EmbeddedEventListener> allListeners = Lists.newArrayList();
+            List<EmbeddedEventListener> allListeners = new ArrayList<>();
             EmbeddedEventListeners annotations = method.getAnnotation(EmbeddedEventListeners.class);
             if (annotations != null)
                 allListeners.addAll(Arrays.asList(annotations.value()));
@@ -178,20 +179,26 @@ class EmbeddingService {
     }
 
     private Set<Method> getObservableMethods(final Class<?> type, ModelBindingMetaData bindingMetaData) {
-        final ImmutableListMultimap<String, Method> methods =
-                Multimaps.index(Arrays.asList(getAllAvailableDeclaredMethodsForClass(type)), Method::getName);
-        return Sets.union(FluentIterable
-                .from(bindingMetaData.getFieldMapping().keySet())
+        final Map<String, List<Method>> methods =
+                Arrays.asList(getAllAvailableDeclaredMethodsForClass(type))
+                        .stream()
+                        .collect(Collectors.groupingBy(Method::getName));
+        Set<Method> allObservableMethods = bindingMetaData.getFieldMapping().keySet()
+                .stream()
                 .filter(input ->
                         input.getAnnotation(TransformerIgnoredProperty.class) == null && methods.keySet().contains(getSetterForField(input.getName())))
-                .transform(matchedField -> {
-                    ImmutableList<Method> matchedMethods = methods.get(getSetterForField(matchedField.getName()));
+                .map(matchedField -> {
+                    List<Method> matchedMethods = methods.get(getSetterForField(matchedField.getName()));
                     Preconditions.checkState(matchedMethods.size() == 1, "could not make an unique match for setter method");
                     return matchedMethods.get(0);
                 })
-                .toSet(),
-                Sets.filter(Sets.newHashSet(methods.values()), method -> method.getAnnotation(TransformerFireUpdate.class) != null)
-        );
+                .collect(Collectors.toSet());
+        allObservableMethods.addAll(methods.values()
+                .stream()
+                .flatMap(groupedMethods -> groupedMethods.stream())
+                .filter(method -> method.getAnnotation(TransformerFireUpdate.class) != null)
+                .collect(Collectors.toSet()));
+        return allObservableMethods;
     }
 
     private void mapOnChangeListeners(final Object model, final TransformationWorkingContext transformationContext) throws ReflectiveOperationException {

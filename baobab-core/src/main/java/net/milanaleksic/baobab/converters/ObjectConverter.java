@@ -3,7 +3,6 @@ package net.milanaleksic.baobab.converters;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableSet;
 import net.milanaleksic.baobab.TransformerException;
 import net.milanaleksic.baobab.builders.BuilderContext;
 import net.milanaleksic.baobab.providers.ObjectProvider;
@@ -35,12 +34,15 @@ public class ObjectConverter implements Converter {
     static final String KEY_SPECIAL_DATA = "_data"; //NON-NLS
     static final String KEY_SPECIAL_COMMENT = "__comment"; //NON-NLS
 
-    static final Set<String> SPECIAL_KEYS = ImmutableSet
-            .<String>builder()
-            .add(KEY_SPECIAL_CHILDREN)
-            .add(KEY_SPECIAL_COMMENT)
-            .add(KEY_SPECIAL_DATA)
-            .build();
+    static final Set<String> SPECIAL_KEYS;
+
+    static {
+        Set<String> specialKeys = new HashSet<>();
+        specialKeys.add(KEY_SPECIAL_CHILDREN);
+        specialKeys.add(KEY_SPECIAL_COMMENT);
+        specialKeys.add(KEY_SPECIAL_DATA);
+        SPECIAL_KEYS = Collections.unmodifiableSet(specialKeys);
+    }
 
     @Inject
     private ObjectProvider objectProvider;

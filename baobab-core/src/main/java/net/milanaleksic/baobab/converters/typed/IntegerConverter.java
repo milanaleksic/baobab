@@ -1,8 +1,6 @@
 package net.milanaleksic.baobab.converters.typed;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import net.milanaleksic.baobab.TransformerException;
 import net.milanaleksic.baobab.util.Preconditions;
 import net.milanaleksic.baobab.util.lambda.ExtraCollectors;
@@ -10,6 +8,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,7 +27,7 @@ public class IntegerConverter extends TypedConverter<Integer> {
 
     // do not use ImmutableMap.builder() because it crashes JDK compiler
     static {
-        Map<String, Integer> temp = Maps.newHashMap();
+        Map<String, Integer> temp = new HashMap<>();
 
         temp.put("dnd.clipboard", DND.CLIPBOARD);
         temp.put("dnd.selection_clipboard", DND.SELECTION_CLIPBOARD);
@@ -428,7 +428,7 @@ public class IntegerConverter extends TypedConverter<Integer> {
         temp.put("id_hide_others", SWT.ID_HIDE_OTHERS);
         temp.put("id_show_all", SWT.ID_SHOW_ALL);
         temp.put("id_quit", SWT.ID_QUIT);
-        magicConstants = ImmutableMap.<String,Integer>builder().putAll(temp).build();
+        magicConstants = Collections.unmodifiableMap(temp);
     }
 
     @Override

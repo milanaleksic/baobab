@@ -1,15 +1,14 @@
 package net.milanaleksic.baobab.model;
 
-import com.google.common.collect.Maps;
-
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ModelBindingMetaData {
 
     private boolean formIsBeingUpdatedFromModelRightNow = false;
 
-    private final Map<Field, FieldMapping> fieldMapping = Maps.newHashMap();
+    private final Map<Field, FieldMapping> fieldMapping = new HashMap<>();
 
     public ModelBindingMetaData() {
     }

@@ -1,9 +1,10 @@
 package net.milanaleksic.baobab;
 
-import com.google.common.collect.ImmutableMap;
 import net.milanaleksic.baobab.model.ModelBindingMetaData;
 import org.eclipse.swt.widgets.*;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -16,14 +17,14 @@ public class TransformationContext {
 
     private final ModelBindingMetaData modelBindingMetaData;
 
-    private final ImmutableMap<String, Object> mappedObjects;
+    private final Map<String, Object> mappedObjects;
 
     private final Composite root;
 
     public TransformationContext(Composite root, Map<String, Object> mappedObjects, ModelBindingMetaData modelBindingMetaData) {
         this.root = root;
         this.modelBindingMetaData = modelBindingMetaData;
-        this.mappedObjects = ImmutableMap.copyOf(mappedObjects);
+        this.mappedObjects = Collections.unmodifiableMap(new HashMap<>(mappedObjects));
     }
 
     @SuppressWarnings("unchecked")

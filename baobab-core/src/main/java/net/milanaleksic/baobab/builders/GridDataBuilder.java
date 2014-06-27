@@ -1,12 +1,10 @@
 package net.milanaleksic.baobab.builders;
 
-import com.google.common.collect.ImmutableMap;
 import net.milanaleksic.baobab.TransformerException;
 import net.milanaleksic.baobab.converters.TransformationWorkingContext;
 import org.eclipse.swt.layout.GridData;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * User: Milan Aleksic
@@ -15,14 +13,16 @@ import java.util.Map;
  */
 public class GridDataBuilder implements Builder<GridData> {
 
-    @SuppressWarnings({"HardCodedStringLiteral"})
-    private static final Map<String, Integer> stringToAlignmentConversionTable =
-            ImmutableMap.<String, Integer>builder()
-                    .put("center", GridData.CENTER)
-                    .put("begin", GridData.BEGINNING)
-                    .put("end", GridData.END)
-                    .put("fill", GridData.FILL)
-                    .build();
+    private static final Map<String, Integer> STRING_TO_GRID_DATA;
+
+    static {
+        Map<String, Integer> stringToAlignmentConversionTable = new HashMap<>();
+        stringToAlignmentConversionTable.put("center", GridData.CENTER);
+        stringToAlignmentConversionTable.put("begin", GridData.BEGINNING);
+        stringToAlignmentConversionTable.put("end", GridData.END);
+        stringToAlignmentConversionTable.put("fill", GridData.FILL);
+        STRING_TO_GRID_DATA = Collections.unmodifiableMap(stringToAlignmentConversionTable);
+    }
 
     @Override
     public BuilderContext<GridData> create(TransformationWorkingContext context, List<String> parameters) {
@@ -55,7 +55,7 @@ public class GridDataBuilder implements Builder<GridData> {
     }
 
     private int convertAlignment(String value) {
-        final Integer ofTheJedi = stringToAlignmentConversionTable.get(value);
+        final Integer ofTheJedi = STRING_TO_GRID_DATA.get(value);
         if (ofTheJedi == null)
             throw new TransformerException("Could not convert expected alignment magic value: "+value+", supported are: center,begin,end,fill");
         return ofTheJedi;

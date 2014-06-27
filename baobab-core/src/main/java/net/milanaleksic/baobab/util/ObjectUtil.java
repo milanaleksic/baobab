@@ -1,14 +1,14 @@
 package net.milanaleksic.baobab.util;
 
 import com.esotericsoftware.reflectasm.ConstructorAccess;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
 import net.milanaleksic.baobab.TransformerException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 /**
  * User: Milan Aleksic
@@ -69,7 +69,7 @@ public class ObjectUtil {
         return Optional.empty();
     }
 
-    private static ConcurrentMap<Class<?>, Method[]> availablePublicAndInheritedMethodsForClass = Maps.newConcurrentMap();
+    private static ConcurrentMap<Class<?>, Method[]> availablePublicAndInheritedMethodsForClass = new ConcurrentHashMap<>();
 
     public static Method[] getAllAvailablePublicAndInheritedMethodsForClass(Class<?> clazz) {
         if (availablePublicAndInheritedMethodsForClass.containsKey(clazz))
@@ -79,7 +79,7 @@ public class ObjectUtil {
         return newValue;
     }
 
-    private static ConcurrentMap<Class<?>, Method[]> availableDeclaredMethodsForClass = Maps.newConcurrentMap();
+    private static ConcurrentMap<Class<?>, Method[]> availableDeclaredMethodsForClass = new ConcurrentHashMap<>();
     public static Method[] getAllAvailableDeclaredMethodsForClass(Class<?> clazz) {
         if (availableDeclaredMethodsForClass.containsKey(clazz))
             return availableDeclaredMethodsForClass.get(clazz);
@@ -93,11 +93,10 @@ public class ObjectUtil {
     }
 
     public static Iterable<Field> getFieldsWithAnnotation(Class<?> clazz, final Class<? extends Annotation> annotation) {
-        return Iterables.filter(Arrays.asList(clazz.getDeclaredFields()), field -> {
-            if (field == null)
-                throw new TransformerException("field is null");
+        return Arrays.asList(clazz.getDeclaredFields()).stream().filter(field -> {
+            Preconditions.checkNotNull(field, "Field is null");
             return field.getAnnotation(annotation) != null;
-        });
+        }).collect(Collectors.toList());
     }
 
     public static <T> T createInstanceForType(Class<T> type) throws ReflectiveOperationException {
