@@ -1,6 +1,5 @@
 package net.milanaleksic.baobab.editor.model;
 
-import com.google.common.collect.*;
 import net.milanaleksic.baobab.model.TransformerFireUpdate;
 import net.milanaleksic.baobab.model.*;
 import org.eclipse.swt.widgets.Shell;
@@ -85,7 +84,7 @@ public class MainFormModel {
     }
 
     public void setActiveWidgets(Map<String, Object> widgets) {
-        final ArrayList<String> newWidgets = Lists.newArrayList();
+        final ArrayList<String> newWidgets = new ArrayList<>();
         for (Map.Entry<String, Object> entry : widgets.entrySet()) {
             newWidgets.add(String.format("[%s] - %s", entry.getKey(), entry.getValue().getClass().getName()));
         }

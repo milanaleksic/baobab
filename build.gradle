@@ -19,7 +19,6 @@ apply plugin: 'idea'
 
 ext.swtVersion = "4.2"
 ext.jacksonVersion = "2.3.2"
-ext.guiceVersion = "4.0-beta4"
 ext.springVersion = "3.1.1.RELEASE"
 
 allprojects {

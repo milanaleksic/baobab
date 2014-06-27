@@ -19,6 +19,8 @@ import org.eclipse.swt.widgets.*;
 import javax.annotation.Nullable;
 import javax.inject.*;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class MainForm implements Observer {
@@ -260,7 +262,7 @@ public class MainForm implements Observer {
 
     private void openFile(File targetFile) {
         try {
-            editor.setText(com.google.common.io.Files.toString(targetFile, StringUtil.UTF8));
+            editor.setText(new String(Files.readAllBytes(targetFile.toPath())));
             setCurrentFile(targetFile);
         } catch (IOException e) {
             bus.publish(new ApplicationError(String.format(resourceBundle.getString("mainForm.ioError.open"),
@@ -277,7 +279,7 @@ public class MainForm implements Observer {
             return;
         }
         try {
-            com.google.common.io.Files.write(editor.getText(), currentFile, StringUtil.UTF8);
+            Files.write(currentFile.toPath(), editor.getText().getBytes());
         } catch (IOException e) {
             bus.publish(new ApplicationError(String.format(resourceBundle.getString("mainForm.ioError.save"),
                     currentFile.getAbsolutePath()), e));
