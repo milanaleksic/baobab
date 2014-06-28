@@ -1,3 +1,14 @@
+buildscript {
+    repositories {
+        maven {
+            url 'http://maven.milanaleksic.net/release'
+        }
+    }
+    dependencies {
+        classpath 'net.milanaleksic.gradle:multiplatform:0.7'
+    }
+}
+
 dependencies {
     compile project(":baobab-integration-guice")
     compile 'net.engio:mbassador:1.1.10'
@@ -17,5 +28,11 @@ task uberjar(type: Jar, dependsOn: assemble) {
 
     manifest {
         attributes 'Main-Class': 'net.milanaleksic.baobab.editor.Editor'
+    }
+
+    multiplatform {
+        runner {
+            mainClassName = "net.milanaleksic.baobab.editor.Editor"
+        }
     }
 }
