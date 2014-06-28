@@ -1,15 +1,13 @@
 package net.milanaleksic.baobab.editor;
 
 import net.engio.mbassy.bus.MBassador;
-import net.milanaleksic.baobab.editor.messages.ApplicationError;
-import net.milanaleksic.baobab.editor.messages.Message;
+import net.engio.mbassy.listener.Handler;
+import net.milanaleksic.baobab.editor.messages.*;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.List;
-import java.util.Observable;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -20,7 +18,7 @@ import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
  * Date: 7/11/13
  * Time: 9:02 AM
  */
-public class MainFormFileChangesObservable extends Observable {
+public class MainFormFileChangesWatcher {
 
     private final AtomicReference<WatchKey> currentFileExternalChangesWatchKey = new AtomicReference<>(null);
     private final MBassador<Message> bus;
@@ -68,13 +66,13 @@ public class MainFormFileChangesObservable extends Observable {
     }
 
     private void informListeners(Path fullFilename) {
-        setChanged();
-        notifyObservers(fullFilename);
+        bus.publish(new FileModified(fullFilename));
     }
 
     @Inject
-    public MainFormFileChangesObservable(MBassador<Message> bus) {
+    public MainFormFileChangesWatcher(MBassador<Message> bus) {
         this.bus = bus;
+        bus.subscribe(this);
         try {
             fileExternalChangesWatcher = Optional.of(FileSystems.getDefault().newWatchService());
             ExternalWatcherThread externalWatcherThread = new ExternalWatcherThread();
@@ -86,7 +84,8 @@ public class MainFormFileChangesObservable extends Observable {
     }
 
 
-    public void close() {
+    @Handler
+    public void close(FileWatcherClose fileClose) {
         if (fileExternalChangesWatcher.isPresent()) {
             try {
                 fileExternalChangesWatcher.get().close();
@@ -96,21 +95,19 @@ public class MainFormFileChangesObservable extends Observable {
         }
     }
 
-    public void setupExternalFSChangesWatcher(File file) {
+    @Handler
+    public void setupExternalFSChangesWatcher(FileToBeWatched fileToBeWatched) {
+        Path file = fileToBeWatched.getFile();
         WatchKey watchKey = currentFileExternalChangesWatchKey.get();
         if (watchKey != null) {
             watchKey.cancel();
             currentFileExternalChangesWatchKey.set(null);
         }
         try {
-            if (file != null) {
-                currentFileExternalChangesWatchKey.set(
-                        file.toPath().getParent().register(fileExternalChangesWatcher.get(),
-                                StandardWatchEventKinds.ENTRY_MODIFY)
-                );
-            } else {
-                currentFileExternalChangesWatchKey.set(null);
-            }
+            currentFileExternalChangesWatchKey.set(
+                    file.getParent().register(fileExternalChangesWatcher.get(),
+                            StandardWatchEventKinds.ENTRY_MODIFY)
+            );
         } catch (IOException e) {
             bus.publish(new ApplicationError("Watcher problem", e));
         }

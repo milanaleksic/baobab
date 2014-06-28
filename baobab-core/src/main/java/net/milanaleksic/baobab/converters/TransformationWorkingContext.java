@@ -6,10 +6,10 @@ import net.milanaleksic.baobab.util.Preconditions;
 import net.milanaleksic.baobab.util.StringUtil;
 import org.eclipse.swt.widgets.Composite;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * User: Milan Aleksic
@@ -31,21 +31,25 @@ public class TransformationWorkingContext {
 
     private Object workItem;
 
-    private final TransformationWorkingContext parentContext;
+    private final Optional<TransformationWorkingContext> parentContext;
     private Object formObject;
     private String formLocation;
 
     public TransformationWorkingContext() {
-        this(null);
+        this(Optional.empty());
     }
 
-    public TransformationWorkingContext(@Nullable TransformationWorkingContext parentContext) {
+    public TransformationWorkingContext(TransformationWorkingContext parentContext) {
+        this(Optional.of(parentContext));
+    }
+
+    public TransformationWorkingContext(Optional<TransformationWorkingContext> parentContext) {
         this.parentContext = parentContext;
-        if (parentContext == null) {
-            this.mappedObjects = new HashMap<>();
-        } else {
+        if (parentContext.isPresent()) {
             this.mappedObjects = Collections.unmodifiableMap(Collections.emptyMap());
-            this.formLocation = parentContext.formLocation;
+            this.formLocation = parentContext.get().getFormLocation();
+        } else {
+            this.mappedObjects = new HashMap<>();
         }
     }
 
@@ -87,16 +91,16 @@ public class TransformationWorkingContext {
 
     Map<String, Object> getMutableRootMappedObjects() {
         TransformationWorkingContext iterator = this;
-        while (iterator != null && iterator.getParentContext() != null)
-            iterator = iterator.getParentContext();
-        return iterator == null ? null : iterator.mappedObjects;
+        while (iterator.getParentContext().isPresent())
+            iterator = iterator.getParentContext().get();
+        return iterator.mappedObjects;
     }
 
     public void setWorkItem(Object workItem) {
         this.workItem = workItem;
     }
 
-    TransformationWorkingContext getParentContext() {
+    Optional<TransformationWorkingContext> getParentContext() {
         return parentContext;
     }
 

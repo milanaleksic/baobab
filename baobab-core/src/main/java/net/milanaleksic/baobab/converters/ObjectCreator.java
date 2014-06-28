@@ -7,8 +7,8 @@ import net.milanaleksic.baobab.providers.ShortcutsProvider;
 import net.milanaleksic.baobab.util.WidgetCreator;
 import org.eclipse.swt.SWT;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
+import java.util.Optional;
 
 /**
  * User: Milan Aleksic (milanaleksic@gmail.com)
@@ -59,19 +59,19 @@ public abstract class ObjectCreator {
         return style;
     }
 
-    public TransformationWorkingContext create(TransformationWorkingContext context, String key, JsonNode value) {
+    public TransformationWorkingContext create(TransformationWorkingContext context, Optional<String> key, JsonNode value) {
         if (isWidgetUsingBuilder(key, value))
             return createWidgetUsingBuilder(context, key, value);
         else
             return createWidgetUsingClassInstantiation(context, key, value);
     }
 
-    public abstract boolean isEligibleForItem(String key, JsonNode value);
+    public abstract boolean isEligibleForItem(Optional<String> key, JsonNode value);
 
-    public abstract boolean isWidgetUsingBuilder(String key, JsonNode value);
+    public abstract boolean isWidgetUsingBuilder(Optional<String> key, JsonNode value);
 
-    public abstract TransformationWorkingContext createWidgetUsingBuilder(TransformationWorkingContext context, @Nullable String key, JsonNode value);
+    public abstract TransformationWorkingContext createWidgetUsingBuilder(TransformationWorkingContext context, Optional<String> key, JsonNode value);
 
-    public abstract TransformationWorkingContext createWidgetUsingClassInstantiation(TransformationWorkingContext context, @Nullable String key, JsonNode objectDefinition);
+    public abstract TransformationWorkingContext createWidgetUsingClassInstantiation(TransformationWorkingContext context, Optional<String> key, JsonNode objectDefinition);
 
 }

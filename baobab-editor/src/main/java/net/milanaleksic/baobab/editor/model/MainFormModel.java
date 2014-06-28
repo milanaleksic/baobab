@@ -4,8 +4,7 @@ import net.milanaleksic.baobab.model.TransformerFireUpdate;
 import net.milanaleksic.baobab.model.*;
 import org.eclipse.swt.widgets.Shell;
 
-import javax.annotation.Nullable;
-import java.io.File;
+import java.nio.file.Path;
 import java.util.*;
 
 /**
@@ -32,10 +31,10 @@ public class MainFormModel {
 
     /* editing context */
     @TransformerIgnoredProperty
-    private Shell prototypeShell = null;
+    private Shell prototypeShell;
 
     @TransformerIgnoredProperty
-    private File currentFile = null;
+    private Optional<Path> currentFile;
 
     @TransformerIgnoredProperty
     private boolean modified = false;
@@ -44,7 +43,7 @@ public class MainFormModel {
     private Optional<Exception> lastException = Optional.empty();
 
     @TransformerIgnoredProperty
-    private String lastSearchString = null;
+    private String lastSearchString;
 
 
     public String getCaretPositionText() {
@@ -100,11 +99,11 @@ public class MainFormModel {
         this.prototypeShell = prototypeShell;
     }
 
-    public File getCurrentFile() {
+    public Optional<Path> getCurrentFile() {
         return currentFile;
     }
 
-    public void setCurrentFile(File currentFile) {
+    public void setCurrentFile(Optional<Path> currentFile) {
         this.currentFile = currentFile;
     }
 
@@ -128,11 +127,18 @@ public class MainFormModel {
         this.lastSearchString = lastSearchString;
     }
 
-    public void showInformation(String infoText, @Nullable Exception exception) {
+    public void showInformation(String infoText) {
         infoText = infoText.replaceAll("\r", "");
         infoText = infoText.replaceAll("\n", "");
         setInfoText(infoText);
-        this.lastException = Optional.ofNullable(exception);
+        this.lastException = Optional.empty();
+    }
+
+    public void showInformation(String infoText, Exception exception) {
+        infoText = infoText.replaceAll("\r", "");
+        infoText = infoText.replaceAll("\n", "");
+        setInfoText(infoText);
+        this.lastException = Optional.of(exception);
     }
 
     @TransformerFireUpdate

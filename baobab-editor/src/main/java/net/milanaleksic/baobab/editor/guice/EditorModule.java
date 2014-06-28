@@ -10,6 +10,7 @@ import net.engio.mbassy.bus.config.BusConfiguration;
 import net.milanaleksic.baobab.Transformer;
 import net.milanaleksic.baobab.editor.ApplicationErrorHandler;
 import net.milanaleksic.baobab.editor.ErrorDialog;
+import net.milanaleksic.baobab.editor.MainFormFileChangesWatcher;
 import net.milanaleksic.baobab.editor.messages.Message;
 
 /**
@@ -26,10 +27,12 @@ public class EditorModule extends AbstractModule {
                 .annotatedWith(Names.named("EditorTransformer")) //NON-NLS
                 .to(Transformer.class)
                 .in(Scopes.SINGLETON);
-        binder.bind(new TypeLiteral<MBassador<Message>>(){}).toInstance(new MBassador<>(BusConfiguration.Default()));
+        binder.bind(new TypeLiteral<MBassador<Message>>() {
+        }).toInstance(new MBassador<>(BusConfiguration.Default()));
 
         binder.bind(ErrorDialog.class).asEagerSingleton();
         binder.bind(ApplicationErrorHandler.class).asEagerSingleton();
+        binder.bind(MainFormFileChangesWatcher.class).asEagerSingleton();
     }
 
 }

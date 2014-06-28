@@ -9,7 +9,6 @@ import net.milanaleksic.baobab.providers.ObjectProvider;
 import net.milanaleksic.baobab.util.Preconditions;
 import org.eclipse.swt.widgets.*;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.Reader;
@@ -64,7 +63,7 @@ public class ObjectConverter implements Converter {
             Preconditions.checkArgument(shellDefinition.size() == 1, "Hierarchy must be defined with a single root element");
             Map.Entry<String, JsonNode> rootField = shellDefinition.fields().next();
             final TransformationWorkingContext transformationWorkingContext;
-            transformationWorkingContext = create(context, rootField.getKey(), rootField.getValue());
+            transformationWorkingContext = create(context, Optional.of(rootField.getKey()), rootField.getValue());
             if (context.getFormObject() != null)
                 embeddingService.embed(context.getFormObject(), transformationWorkingContext);
             return transformationWorkingContext;
@@ -73,7 +72,7 @@ public class ObjectConverter implements Converter {
         }
     }
 
-    private TransformationWorkingContext create(TransformationWorkingContext context, @Nullable String key, JsonNode value) {
+    private TransformationWorkingContext create(TransformationWorkingContext context, Optional<String> key, JsonNode value) {
         try {
             TransformationWorkingContext ofTheJedi = nodeProcessor.visitHierarchyItem(context, key, value);
             transformNodeToProperties(ofTheJedi, value);
@@ -95,7 +94,7 @@ public class ObjectConverter implements Converter {
             Preconditions.checkArgument(node.size() == 1, "Hierarchy must be defined with a single root element");
             Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
             Map.Entry<String, JsonNode> subRoot = fields.next();
-            final TransformationWorkingContext widgetFromNode = create(context, subRoot.getKey(), subRoot.getValue());
+            final TransformationWorkingContext widgetFromNode = create(context, Optional.of(subRoot.getKey()), subRoot.getValue());
             return widgetFromNode.getWorkItem();
         }
         String originalValue = node.asText();
@@ -105,8 +104,7 @@ public class ObjectConverter implements Converter {
         matcher = builderValue.matcher(originalValue);
         if (matcher.matches()) {
             final BuilderContext<?> builderContext = nodeProcessor.visitBuilderNotationItem(context, matcher.group(1), matcher.group(2));
-            if (builderContext.getName() != null)
-                context.mapObject(builderContext.getName(), builderContext.getBuiltElement());
+            builderContext.getName().ifPresent(n -> context.mapObject(n, builderContext.getBuiltElement()));
             return builderContext.getBuiltElement();
         }
         return node.asText();
@@ -174,7 +172,7 @@ public class ObjectConverter implements Converter {
         final Iterator<String> fieldNames = childrenNodes.fieldNames();
         while (fieldNames.hasNext()) {
             final String field = fieldNames.next();
-            create(context, field, childrenNodes.get(field));
+            create(context, Optional.of(field), childrenNodes.get(field));
         }
     }
 

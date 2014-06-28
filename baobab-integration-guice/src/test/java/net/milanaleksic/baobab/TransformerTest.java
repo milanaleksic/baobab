@@ -78,24 +78,24 @@ public class TransformerTest {
 
     @Test
     public void exclude_widgets_with_leading_line_in_name() {
-        final TransformationContext formFromResource = transformer.createFormFromResource("/net/milanaleksic/baobab/TransformerTest_ExcludeWidgetsWithLeadingLineInName.gui", null, null);
+        final TransformationContext formFromResource = transformer.createFormFromResource("/net/milanaleksic/baobab/TransformerTest_ExcludeWidgetsWithLeadingLineInName.gui", Optional.empty(), Optional.empty());
         assertThat(formFromResource.getMappedObject("test").isPresent(), equalTo(true));
         assertThat(formFromResource.getMappedObject("_test").isPresent(), equalTo(false));
     }
 
     @Test
     public void form_creation() {
-        test_form_creation(transformer.createFormFromResource("/net/milanaleksic/baobab/TransformerTest_FormCreation.gui", null, null));
+        test_form_creation(transformer.createFormFromResource("/net/milanaleksic/baobab/TransformerTest_FormCreation.gui", Optional.empty(), Optional.empty()));
     }
 
     @Test
     public void form_creation_short_notation() {
-        test_form_creation(transformer.createFormFromResource("/net/milanaleksic/baobab/TransformerTest_ShortChildrenNotation.gui", null, null));
+        test_form_creation(transformer.createFormFromResource("/net/milanaleksic/baobab/TransformerTest_ShortChildrenNotation.gui", Optional.empty(), Optional.empty()));
     }
 
     @Test
     public void form_creation_short_notation_fully() {
-        test_form_creation(transformer.createFormFromResource("/net/milanaleksic/baobab/TransformerTest_fullyShortChildrenNotation.gui", null, null));
+        test_form_creation(transformer.createFormFromResource("/net/milanaleksic/baobab/TransformerTest_fullyShortChildrenNotation.gui", Optional.empty(), Optional.empty()));
     }
 
     private void test_form_creation(TransformationContext context) {
@@ -143,7 +143,7 @@ public class TransformerTest {
 
     @Test
     public void data_fields() {
-        TransformationContext dataFields = transformer.createFormFromResource("/net/milanaleksic/baobab/TransformerTest_dataFields.gui", null, null);
+        TransformationContext dataFields = transformer.createFormFromResource("/net/milanaleksic/baobab/TransformerTest_dataFields.gui", Optional.empty(), Optional.empty());
         Optional<Button> aButton = dataFields.getMappedObject("aButton");
         assertThat(aButton.isPresent(), equalTo(true));
         assertThat(aButton.get().getData("stringField"), equalTo("aString"));

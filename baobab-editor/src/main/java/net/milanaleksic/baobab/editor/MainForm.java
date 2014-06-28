@@ -1,29 +1,35 @@
 package net.milanaleksic.baobab.editor;
 
 import net.engio.mbassy.bus.MBassador;
+import net.engio.mbassy.listener.Handler;
 import net.milanaleksic.baobab.*;
-import net.milanaleksic.baobab.editor.messages.ApplicationError;
-import net.milanaleksic.baobab.editor.messages.EditorErrorShowDetails;
-import net.milanaleksic.baobab.editor.messages.Message;
+import net.milanaleksic.baobab.editor.messages.*;
 import net.milanaleksic.baobab.editor.model.MainFormModel;
 import net.milanaleksic.baobab.model.TransformerModel;
 import net.milanaleksic.baobab.providers.ResourceBundleProvider;
 import net.milanaleksic.baobab.util.StringUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.dnd.*;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DropTarget;
+import org.eclipse.swt.dnd.FileTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 
-import javax.annotation.Nullable;
-import javax.inject.*;
-import java.io.*;
+import javax.inject.Inject;
+import javax.inject.Named;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Optional;
+import java.util.ResourceBundle;
 
-public class MainForm implements Observer {
+public class MainForm {
 
     @Inject
     private Transformer transformer;
@@ -32,8 +38,6 @@ public class MainForm implements Observer {
     @Inject
     private Transformer editorTransformer;
 
-    @Inject
-    private MBassador<Message> bus;
 
     @Inject
     private FindDialog findDialog;
@@ -48,22 +52,16 @@ public class MainForm implements Observer {
     private MainFormModel model;
 
     /* editor's own context */
+    private MBassador<Message> bus;
     private Shell editorShell;
     private ResourceBundle resourceBundle;
-    private MainFormFileChangesObservable fileChangesObservable;
-
-    @Inject
-    private MainForm(MainFormFileChangesObservable fileChangesObservable) {
-        this.fileChangesObservable = fileChangesObservable;
-        this.fileChangesObservable.addObserver(this);
-    }
 
     @EmbeddedEventListener(component = "editorDropTarget", event = DND.Drop)
     private void editorDropTargetDropListener(Event event) {
         if (event.data != null && event.data instanceof String[]) {
             String[] typedData = (String[]) event.data;
             if (typedData.length > 0) {
-                openFile(new File(typedData[0]));
+                openFile(Paths.get(typedData[0]));
             }
         }
     }
@@ -79,14 +77,15 @@ public class MainForm implements Observer {
         bus.publish(new EditorErrorShowDetails(sw.toString()));
     }
 
-    @Override
-    public void update(Observable o, Object filename) {
-        if (!filename.equals(model.getCurrentFile().toPath()))
+    @Handler
+    public void fileModified(FileModified modified) {
+        Path file = model.getCurrentFile().get();
+        if (!modified.getFile().equals(file))
             return;
         editorShell.getDisplay().asyncExec(() -> {
-            openFile(model.getCurrentFile());
+            openFile(file);
             if (!model.getLastException().isPresent())
-                model.showInformation("File modification externally, reloaded!", null);
+                model.showInformation("File modification externally, reloaded!");
         });
     }
 
@@ -100,7 +99,7 @@ public class MainForm implements Observer {
         }
 
         private void reCreateForm() {
-            model.showInformation("", null);
+            model.showInformation("");
             String text = editor.getText();
             if (StringUtil.isNullOrEmpty(text))
                 return;
@@ -130,7 +129,7 @@ public class MainForm implements Observer {
             // we might decide to promote ghost shell to prototype (visible) shell
             // if the root of hierarchy is not a Shell
             Shell ghostShell = createGhostShell();
-            TransformationContext nonManagedForm = editorTransformer.createFormFromString(editor.getText(), ghostShell);
+            TransformationContext nonManagedForm = editorTransformer.createFormFromString(editor.getText(), Optional.of(ghostShell));
             model.setActiveWidgets(nonManagedForm.getMappedObjects());
             Composite prototypeRoot = nonManagedForm.getRoot();
 
@@ -191,7 +190,7 @@ public class MainForm implements Observer {
 
     @EmbeddedEventListener(component = "btnNew", event = SWT.Selection)
     private void btnNewSelectionListener() {
-        setCurrentFile(null);
+        setCurrentFile(Optional.empty());
         editor.setText(resourceBundle.getString("mainForm.editorDefaultContents"));
     }
 
@@ -203,7 +202,7 @@ public class MainForm implements Observer {
         final String selectedFile = dlg.open();
         if (selectedFile == null)
             return;
-        openFile(new File(selectedFile));
+        openFile(Paths.get(selectedFile));
     }
 
     @EmbeddedEventListener(component = "btnSave", event = SWT.Selection)
@@ -255,34 +254,40 @@ public class MainForm implements Observer {
             }
         } finally {
             if (event.doit) {
-                fileChangesObservable.close();
+                bus.publish(new FileWatcherClose());
             }
         }
     }
 
-    private void openFile(File targetFile) {
+    @Inject
+    public MainForm(MBassador<Message> bus) {
+        this.bus = bus;
+        bus.subscribe(this);
+    }
+
+    private void openFile(Path targetFile) {
         try {
-            editor.setText(new String(Files.readAllBytes(targetFile.toPath())));
-            setCurrentFile(targetFile);
+            editor.setText(new String(Files.readAllBytes(targetFile)));
+            setCurrentFile(Optional.of(targetFile));
         } catch (IOException e) {
             bus.publish(new ApplicationError(String.format(resourceBundle.getString("mainForm.ioError.open"),
-                    targetFile.getAbsolutePath()), e));
+                    targetFile.toFile().getAbsolutePath()), e));
         }
     }
 
     private void saveCurrentDocument() {
-        final File currentFile = model.getCurrentFile();
-        if (currentFile == null && editor.getText().trim().length() == 0)
+        final Optional<Path> currentFile = model.getCurrentFile();
+        if (!currentFile.isPresent() && editor.getText().trim().length() == 0)
             return;
-        if (currentFile == null) {
+        if (!currentFile.isPresent()) {
             saveDocumentAs();
             return;
         }
         try {
-            Files.write(currentFile.toPath(), editor.getText().getBytes());
+            Files.write(currentFile.get(), editor.getText().getBytes());
         } catch (IOException e) {
             bus.publish(new ApplicationError(String.format(resourceBundle.getString("mainForm.ioError.save"),
-                    currentFile.getAbsolutePath()), e));
+                    currentFile.get().toFile().getAbsolutePath()), e));
         }
         model.setModified(false);
     }
@@ -294,19 +299,17 @@ public class MainForm implements Observer {
         final String selectedFile = dlg.open();
         if (selectedFile == null)
             return;
-        setCurrentFile(new File(selectedFile));
+        setCurrentFile(Optional.of(Paths.get(selectedFile)));
         saveCurrentDocument();
     }
 
-    private void setCurrentFile(@Nullable File file) {
+    private void setCurrentFile(Optional<Path> file) {
         model.setCurrentFile(file);
         editorShell.setText(String.format("%s - [%s]",  //NON-NLS
                 resourceBundle.getString("mainForm.title"),
-                file == null
-                        ? resourceBundle.getString("mainForm.newFile")
-                        : file.getName()));
+                file.map(p -> p.toFile().getAbsolutePath()).orElse(resourceBundle.getString("mainForm.newFile"))));
         model.setModified(false);
-        fileChangesObservable.setupExternalFSChangesWatcher(file);
+        file.ifPresent(f -> bus.publish(new FileToBeWatched(f)));
     }
 
     public void entryPoint() {
@@ -321,7 +324,7 @@ public class MainForm implements Observer {
         transformationContext.<DropTarget>getMappedObject("editorDropTarget").get() //NON-NLS
                 .setTransfer(new Transfer[]{FileTransfer.getInstance()});
         editorTransformer.setDoNotCreateModalDialogs(true);
-        setCurrentFile(null);
+        setCurrentFile(Optional.empty());
         formCreator.reCreateForm();
     }
 
@@ -348,15 +351,15 @@ public class MainForm implements Observer {
         if (model.getLastSearchString() == null)
             return;
         try {
-            model.showInformation("", null);
+            model.showInformation("");
             int caretOffset = editor.getCaretOffset();
             int loc = editor.getText().indexOf(model.getLastSearchString(), caretOffset);
             if (loc == -1) {
-                model.showInformation(resourceBundle.getString("mainForm.find.noMore"), null);
+                model.showInformation(resourceBundle.getString("mainForm.find.noMore"));
                 loc = editor.getText().indexOf(model.getLastSearchString(), 0);
             }
             if (loc == -1) {
-                model.showInformation(resourceBundle.getString("mainForm.find.noMoreForSure"), null);
+                model.showInformation(resourceBundle.getString("mainForm.find.noMoreForSure"));
                 return;
             }
             editor.setSelection(loc, loc + model.getLastSearchString().length());

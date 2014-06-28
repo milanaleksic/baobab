@@ -8,6 +8,7 @@ import net.milanaleksic.baobab.util.Preconditions;
 import net.milanaleksic.baobab.util.StringUtil;
 import org.eclipse.swt.widgets.Shell;
 
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,19 +23,20 @@ class ShortHandObjectCreator extends ObjectCreator {
     private static final Pattern shortHandSyntaxKey = Pattern.compile("([^\\)]+)\\(([^\\),]*)\\s*,?\\s*([^\\)]*)\\)"); //NON-NLS
 
     @Override
-    public boolean isEligibleForItem(String key, JsonNode value) {
-        return (key != null) && (shortHandSyntaxKey.matcher(key).matches()
-                || builderValueShortHandSyntaxKey.matcher(key).matches());
+    public boolean isEligibleForItem(Optional<String> key, JsonNode value) {
+        return key
+                .map(k -> shortHandSyntaxKey.matcher(k).matches() || builderValueShortHandSyntaxKey.matcher(k).matches())
+                .orElse(false);
     }
 
     @Override
-    public boolean isWidgetUsingBuilder(String key, JsonNode value) {
-        return builderValueShortHandSyntaxKey.matcher(key).matches();
+    public boolean isWidgetUsingBuilder(Optional<String> key, JsonNode value) {
+        return key.map(k -> builderValueShortHandSyntaxKey.matcher(key.get()).matches()).orElse(false);
     }
 
     @Override
-    public TransformationWorkingContext createWidgetUsingBuilder(TransformationWorkingContext context, String key, JsonNode value) {
-        final Matcher matcher = builderValueShortHandSyntaxKey.matcher(key);
+    public TransformationWorkingContext createWidgetUsingBuilder(TransformationWorkingContext context, Optional<String> key, JsonNode value) {
+        final Matcher matcher = builderValueShortHandSyntaxKey.matcher(key.get());
         Preconditions.checkArgument(matcher.matches(), "Invalid short hand syntax detected: " + key);
         String builderName = matcher.group(1);
         String builderParams = matcher.group(2);
@@ -48,16 +50,15 @@ class ShortHandObjectCreator extends ObjectCreator {
         final TransformationWorkingContext ofTheJedi = new TransformationWorkingContext(context);
         final BuilderContext<?> builderContext = nodeProcessor.visitBuilderNotationItem(context, builderName, builderParams);
         Preconditions.checkNotNull(builderContext, String.format("Builders must not return null values (builder \"%s\" for params \"%s\")", builderName, builderParams));
-        if (builderContext.getName() != null)
-            ofTheJedi.mapObject(builderContext.getName(), builderContext.getBuiltElement());
+        builderContext.getName().ifPresent(n -> ofTheJedi.mapObject(n, builderContext.getBuiltElement()));
         ofTheJedi.setWorkItem(builderContext.getBuiltElement());
         context.mapObject(name, builderContext.getBuiltElement());
         return ofTheJedi;
     }
 
     @Override
-    public TransformationWorkingContext createWidgetUsingClassInstantiation(TransformationWorkingContext context, String key, JsonNode value) {
-        final Matcher matcher = shortHandSyntaxKey.matcher(key);
+    public TransformationWorkingContext createWidgetUsingClassInstantiation(TransformationWorkingContext context, Optional<String> key, JsonNode value) {
+        final Matcher matcher = shortHandSyntaxKey.matcher(key.get());
         Preconditions.checkArgument(matcher.matches(), "Invalid short hand syntax detected: " + key);
         String typeDefinition = matcher.group(1);
         String name = matcher.group(2);

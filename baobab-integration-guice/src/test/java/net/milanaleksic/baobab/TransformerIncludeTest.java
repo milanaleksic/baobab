@@ -1,12 +1,14 @@
 package net.milanaleksic.baobab;
 
 import net.milanaleksic.baobab.test.GuiceRunner;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
-
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.equalTo;
@@ -24,7 +26,7 @@ public class TransformerIncludeTest {
 
     @Test
     public void tree_transform() {
-        TransformationContext context = transformer.createFormFromResource("/net/milanaleksic/baobab/TransformerIncludeTest_Main.gui", null, null);
+        TransformationContext context = transformer.createFormFromResource("/net/milanaleksic/baobab/TransformerIncludeTest_Main.gui", Optional.empty(), Optional.empty());
         assertThat(context.<Text>getMappedObject("output").isPresent(), equalTo(true));
         Optional<Canvas> canvas = context.getMappedObject("canvas");
         Optional<Composite> canvasParent = context.getMappedObject("canvasParent");

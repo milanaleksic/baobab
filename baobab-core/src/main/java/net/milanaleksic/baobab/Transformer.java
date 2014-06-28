@@ -5,9 +5,9 @@ import net.milanaleksic.baobab.providers.ResourceBundleProvider;
 import net.milanaleksic.baobab.util.StreamUtil;
 import org.eclipse.swt.widgets.Composite;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.io.Reader;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 /**
@@ -26,34 +26,35 @@ public class Transformer {
     private boolean doNotCreateModalDialogs = false;
 
     public TransformationContext createNonManagedForm(String definition) {
-        return createFormFromString(definition, null);
+        return createFormFromString(definition, Optional.empty());
     }
 
-    public TransformationContext createFormFromString(String definition, @Nullable final Composite parent) {
-        return StreamUtil.loanStringStream(definition, reader -> createContextFromReader(null, reader, parent, null));
+    public TransformationContext createFormFromString(String definition, final Optional<Composite> parent) {
+        return StreamUtil.loanStringStream(definition, reader -> createContextFromReader("STRING", reader, parent, Optional.empty()));
     }
 
     public TransformationContext fillManagedForm(Object formObject) {
-        return createFormFromResource(getFullNameOfResource(formObject), null, formObject);
+        return createFormFromResource(getFullNameOfResource(formObject), Optional.empty(), Optional.of(formObject));
     }
 
-    public TransformationContext fillManagedForm(Object formObject, @Nullable Composite parent) {
-        return createFormFromResource(getFullNameOfResource(formObject), parent, formObject);
+    public TransformationContext fillManagedForm(Object formObject, Composite parent) {
+        return createFormFromResource(getFullNameOfResource(formObject), Optional.of(parent), Optional.of(formObject));
     }
 
-    public TransformationContext createFormFromResource(final String formResourceLocation, @Nullable final Composite parent,
-                                                        @Nullable final Object formObject) {
-        final String unixFormatLocation = formResourceLocation == null ? "" : formResourceLocation.replaceAll("\\\\", "/");
+    public TransformationContext createFormFromResource(final String formResourceLocation, final Optional<Composite> parent,
+                                                        final Optional<Object> formObject) {
+        final String unixFormatLocation = formResourceLocation.replaceAll("\\\\", "/");
         return StreamUtil.loanResourceReader(formResourceLocation,
                 reader -> createContextFromReader(unixFormatLocation, reader, parent, formObject));
     }
 
-    private TransformationContext createContextFromReader(String formResourceLocation, Reader definitionStream, Composite parent, Object formObject) {
+    private TransformationContext createContextFromReader(String formResourceLocation, Reader definitionStream,
+                                                          Optional<Composite> parent, Optional<Object> formObject) {
         TransformationWorkingContext context = new TransformationWorkingContext();
         mapResourceBundleIfExists(context);
         context.setDoNotCreateModalDialogs(doNotCreateModalDialogs);
-        context.setWorkItem(parent);
-        context.setFormObject(formObject);
+        parent.ifPresent(context::setWorkItem);
+        formObject.ifPresent(context::setFormObject);
         context.setFormLocation(getParentLocation(formResourceLocation));
         return objectConverter
                 .createHierarchy(context, definitionStream)
@@ -61,8 +62,6 @@ public class Transformer {
     }
 
     private String getParentLocation(String formResourceLocation) {
-        if (formResourceLocation == null)
-            return null;
         int lastSlash = formResourceLocation.lastIndexOf('/');
         return lastSlash == -1 ? formResourceLocation : formResourceLocation.substring(0, lastSlash + 1);
     }

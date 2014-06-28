@@ -1,5 +1,7 @@
 package net.milanaleksic.baobab.builders;
 
+import java.util.Optional;
+
 /**
  * User: Milan Aleksic
  * Date: 6/22/12
@@ -8,22 +10,22 @@ package net.milanaleksic.baobab.builders;
 public class BuilderContext<T> {
 
     private final T builtElement;
-    private final String name;
+    private final Optional<String> name;
 
     public BuilderContext(T builtElement, String name) {
         this.builtElement = builtElement;
-        this.name = name;
+        this.name = Optional.of(name);
     }
     public BuilderContext(T builtElement) {
         this.builtElement = builtElement;
-        this.name = null;
+        this.name = Optional.empty();
     }
 
     public T getBuiltElement() {
         return builtElement;
     }
 
-    public String getName() {
+    public Optional<String> getName() {
         return name;
     }
 }

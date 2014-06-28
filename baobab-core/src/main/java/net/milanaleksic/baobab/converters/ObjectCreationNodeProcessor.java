@@ -34,7 +34,7 @@ public class ObjectCreationNodeProcessor implements NodeProcessor {
     private ShortHandObjectCreator shortHandObjectCreator;
 
     @Override
-    public TransformationWorkingContext visitHierarchyItem(TransformationWorkingContext context, String key, JsonNode value) {
+    public TransformationWorkingContext visitHierarchyItem(TransformationWorkingContext context, Optional<String> key, JsonNode value) {
         if (shortHandObjectCreator.isEligibleForItem(key, value))
             return shortHandObjectCreator.create(context, key, value);
         throw new TransformerException("No creator eligible for key=" + key + ", value=" + value);

@@ -1,9 +1,5 @@
 package net.milanaleksic.baobab.util;
 
-import net.milanaleksic.baobab.builders.BuilderContext;
-
-import javax.annotation.Nullable;
-
 public class Preconditions {
 
     public static void checkArgument(boolean expression, String errorMessage) {
@@ -11,7 +7,7 @@ public class Preconditions {
             throw new IllegalArgumentException(errorMessage);
     }
 
-    public static void checkState(boolean expression, @Nullable Object errorMessage) {
+    public static void checkState(boolean expression, Object errorMessage) {
         if (!expression) {
             throw new IllegalStateException(String.valueOf(errorMessage));
         }
