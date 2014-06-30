@@ -14,11 +14,11 @@ dependencies {
     compile 'net.engio:mbassador:1.1.10'
 }
 
-task uberjar(type: Jar, dependsOn: assemble) {
+task uberjar(type: Jar, dependsOn: jar) {
     from sourceSets.main.output
-    exclude('org/eclipse/swt/') // SWT is platform-dependent
-
-    from(configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) }) {
+    from(configurations.runtime
+            .filter { !it.name.contains('org.eclipse.swt') }
+            .collect { it.isDirectory() ? it : zipTree(it) }) {
         exclude "META-INF/*.SF"
         exclude "META-INF/*.DSA"
         exclude "META-INF/*.RSA"
@@ -36,3 +36,4 @@ task uberjar(type: Jar, dependsOn: assemble) {
         }
     }
 }
+assemble.dependsOn uberjar
