@@ -48,12 +48,12 @@ public class FontConverter extends TypedConverter<Font> {
         if (!node.has(FIELD_STYLE))
             return ofTheJedi;
         return Arrays.asList(node.get(FIELD_STYLE).asText().split("\\|"))
-                .stream().reduce(ofTheJedi, (identity, style) -> {
+                .stream().reduce(ofTheJedi, (Integer identity, String style) -> {
                     switch (style) {
                         case FIELD_STYLE_BOLD:
-                            return identity | SWT.BOLD;
+                            return SWT.BOLD;
                         case FIELD_STYLE_ITALIC:
-                            return identity | SWT.ITALIC;
+                            return SWT.ITALIC;
                         default:
                             throw new TransformerException("Unrecognized field style - " + style);
                     }
